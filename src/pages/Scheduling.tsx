@@ -81,7 +81,7 @@ export function Scheduling({ theme }: SchedulingProps) {
     }
   ]);
 
-  const formatPhase = (phase: JobPhase): string => {
+  const formatPhaseForDisplay = (phase: JobPhase) => {
     return phase
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
