@@ -20,6 +20,9 @@ interface NewJobRequestProps {
   theme: 'dark' | 'light';
 }
 
+// Define the job type to match the Supabase enum
+type JobType = 'paint' | 'callback' | 'repair';
+
 export function NewJobRequest({ theme }: NewJobRequestProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,7 +31,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
     propertyId: '',
     unitNumber: '',
     scheduledDate: '',
-    jobType: '',
+    jobType: '' as JobType, // Type assertion to ensure it's treated as JobType
     specialInstructions: ''
   });
   
@@ -107,7 +110,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
           property_id: formData.propertyId,
           unit_number: formData.unitNumber,
           scheduled_date: formData.scheduledDate,
-          job_type: formData.jobType,
+          job_type: formData.jobType as JobType, // Ensure job_type is correctly typed
           special_instructions: formData.specialInstructions,
           phase: 'job_request'
         })
@@ -211,9 +214,9 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
                 required
               >
                 <option value="">Select job type</option>
-                <option value="Paint">Paint</option>
-                <option value="Callback">Callback</option>
-                <option value="Repair">Repair</option>
+                <option value="paint">Paint</option>
+                <option value="callback">Callback</option>
+                <option value="repair">Repair</option>
               </select>
             </div>
           </div>
@@ -254,3 +257,4 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
     </div>
   );
 }
+
