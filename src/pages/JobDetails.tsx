@@ -9,6 +9,7 @@ import { JobDetailsTabs } from '../components/JobDetailsTabs';
 import { JobActionButtons } from '../components/JobActionButtons';
 import { useJobData } from '../hooks/useJobData';
 import { formatDate } from '../utils/formatters';
+import { toast } from 'sonner';
 
 interface JobDetailsProps {
   theme: 'dark' | 'light';
@@ -60,6 +61,11 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     setShowExtraCharges(false);
   };
 
+  const handleSubmitUpdate = () => {
+    toast.success('Update submitted successfully');
+    console.log('Submit update clicked');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -78,13 +84,21 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
 
   return (
     <div className="space-y-6">
-      <JobHeader jobData={jobData} theme={theme} />
-      
-      <div className={`${cardBg} p-6 rounded-lg border ${borderColor}`}>
-        <JobInformation jobData={jobData} theme={theme} formatDate={formatDate} />
+      <div className={`rounded-lg overflow-hidden border ${borderColor}`}>
+        <JobHeader jobData={jobData} theme={theme} />
+        <div className="p-6 bg-white">
+          <JobInformation 
+            jobData={jobData} 
+            theme={theme} 
+            formatDate={formatDate} 
+            onSubmitUpdate={handleSubmitUpdate}
+          />
+        </div>
       </div>
       
-      <JobDetailsTabs jobData={jobData} theme={theme} formatDate={formatDate} />
+      <div className={`${cardBg} p-6 rounded-lg border ${borderColor}`}>
+        <JobDetailsTabs jobData={jobData} theme={theme} formatDate={formatDate} />
+      </div>
       
       <JobActionButtons 
         jobId={jobData.id} 

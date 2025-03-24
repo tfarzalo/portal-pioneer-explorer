@@ -21,6 +21,14 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
           zoom: 15,
           center: { lat: 37.7749, lng: -122.4194 }, // Default center (San Francisco)
           mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapTypeControl: true,
+          mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.TOP_LEFT,
+          },
+          zoomControl: true,
+          scaleControl: true,
+          streetViewControl: true,
           styles: theme === 'dark' ? [
             { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
             { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -87,7 +95,7 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
   }, [address, mapInstanceRef.current, geocoderRef.current]);
   
   return (
-    <div className={`w-full h-64 rounded-lg border ${borderColor} overflow-hidden`} ref={mapRef}></div>
+    <div className={`w-full h-full rounded-lg border ${borderColor} overflow-hidden`} ref={mapRef}></div>
   );
 };
 
