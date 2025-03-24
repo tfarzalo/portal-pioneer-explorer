@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, ArrowUpDown, MoreHorizontal, Search, Filter, ArrowLeft } from 'lucide-react';
+import { Table, ArrowUpDown, Search, Filter, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { JobPhase } from '../types/workOrder';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
@@ -35,10 +35,12 @@ export function AllJobs({ theme }: AllJobsProps) {
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
+  const headerTextColor = theme === 'dark' ? 'text-gray-300' : 'text-gray-700';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
+  const hoverBg = theme === 'dark' ? 'hover:bg-gray-700/30' : 'hover:bg-gray-100';
 
   useEffect(() => {
     fetchJobs();
@@ -169,6 +171,13 @@ export function AllJobs({ theme }: AllJobsProps) {
       .join(' ');
   };
 
+  const displayJobNumber = (job: Job) => {
+    if (job.phase === 'job_request' || job.phase === 'Job Request') {
+      return "-";
+    }
+    return job.job_number;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -217,7 +226,7 @@ export function AllJobs({ theme }: AllJobsProps) {
         <table className={`min-w-full divide-y ${borderColor} rounded-lg ${cardBg}`}>
           <thead className={`${sectionBg}`}>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('job_number')} className="flex items-center space-x-2">
                   <span>Job #</span>
                   {sortColumn === 'job_number' && (
@@ -225,7 +234,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('property_name')} className="flex items-center space-x-2">
                   <span>Property</span>
                   {sortColumn === 'property_name' && (
@@ -233,7 +242,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('unit_number')} className="flex items-center space-x-2">
                   <span>Unit</span>
                   {sortColumn === 'unit_number' && (
@@ -241,7 +250,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('job_type')} className="flex items-center space-x-2">
                   <span>Type</span>
                   {sortColumn === 'job_type' && (
@@ -249,7 +258,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('phase')} className="flex items-center space-x-2">
                   <span>Phase</span>
                   {sortColumn === 'phase' && (
@@ -257,7 +266,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
                 <button onClick={() => handleSort('scheduled_date')} className="flex items-center space-x-2">
                   <span>Scheduled</span>
                   {sortColumn === 'scheduled_date' && (
@@ -265,21 +274,18 @@ export function AllJobs({ theme }: AllJobsProps) {
                   )}
                 </button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                <span className="sr-only">Actions</span>
-              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className={`divide-y ${borderColor}`}>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-4 whitespace-nowrap text-center">
+                <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
                   Loading jobs...
                 </td>
               </tr>
             ) : filteredJobs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-4 whitespace-nowrap text-center">
+                <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
                   No jobs found.
                 </td>
               </tr>
@@ -288,10 +294,10 @@ export function AllJobs({ theme }: AllJobsProps) {
                 <tr 
                   key={job.id} 
                   onClick={() => handleRowClick(job.id)}
-                  className="cursor-pointer hover:bg-gray-700/30 transition-colors"
+                  className={`cursor-pointer ${hoverBg} transition-colors`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{job.job_number}</div>
+                    <div className={`font-medium ${textColor}`}>{displayJobNumber(job)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`font-medium ${textColor}`}>{job.property_name}</div>
@@ -310,21 +316,6 @@ export function AllJobs({ theme }: AllJobsProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="relative inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                      <div>
-                        <button
-                          type="button"
-                          className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
-                          id="menu-button"
-                          aria-expanded="true"
-                          aria-haspopup="true"
-                        >
-                          <MoreHorizontal className={mutedTextColor} size={16} />
-                        </button>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               ))
