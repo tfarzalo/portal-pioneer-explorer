@@ -1,63 +1,25 @@
+
 import React from 'react';
-import type { JobPhase } from '../types/workOrder';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { JobPhase, JOB_PHASE_COLORS } from '../types/workOrder';
 
 interface JobPhaseIndicatorProps {
-  theme: 'dark' | 'light';
-  currentPhase: JobPhase;
+  phase: JobPhase;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function JobPhaseIndicator({ theme, currentPhase }: JobPhaseIndicatorProps) {
-  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
-
-  const phases: JobPhase[] = [
-    'Job Request',
-    'Work Order',
-    'Pending Work Order',
-    'Grading',
-    'Invoicing',
-    'Completed',
-    'Cancelled'
-  ];
-
-  const currentPhaseIndex = phases.indexOf(currentPhase);
+export function JobPhaseIndicator({ phase, size = 'md' }: JobPhaseIndicatorProps) {
+  const phaseColors = JOB_PHASE_COLORS[phase];
+  // We're not using textColor directly - removing the unused variable
+  
+  const sizeClasses = {
+    sm: 'text-xs px-2 py-0.5',
+    md: 'text-sm px-3 py-1',
+    lg: 'text-base px-4 py-1.5'
+  };
 
   return (
-    <div className="flex items-center space-x-4">
-      {phases.map((phase, index) => (
-        <React.Fragment key={phase}>
-          <div className="flex items-center space-x-2">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                index <= currentPhaseIndex
-                  ? `${JOB_PHASE_COLORS[phase].bgOpacity} ${JOB_PHASE_COLORS[phase].text}`
-                  : `${mutedTextColor} bg-gray-800/50`
-              }`}
-            >
-              {index + 1}
-            </div>
-            <span
-              className={
-                index <= currentPhaseIndex 
-                  ? JOB_PHASE_COLORS[phase].text 
-                  : mutedTextColor
-              }
-            >
-              {phase}
-            </span>
-          </div>
-          {index < phases.length - 1 && (
-            <div
-              className={`h-0.5 w-8 ${
-                index < currentPhaseIndex
-                  ? JOB_PHASE_COLORS[phases[index + 1]].bgOpacity
-                  : 'bg-gray-700'
-              }`}
-            />
-          )}
-        </React.Fragment>
-      ))}
+    <div className={`inline-flex items-center rounded-full ${phaseColors.bgOpacity} ${phaseColors.border} border ${phaseColors.text} ${sizeClasses[size]}`}>
+      <span className="font-medium">{phase}</span>
     </div>
   );
 }

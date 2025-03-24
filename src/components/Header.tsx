@@ -26,11 +26,11 @@ export function Header({ theme, onThemeToggle, onToggleSidebar }: HeaderProps) {
     day: 'numeric'
   });
 
-  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showSearch && !event.composedPath().includes(searchButtonRef.current!)) {
+      if (showSearch && searchButtonRef.current && !searchButtonRef.current.contains(event.target as Node)) {
         setShowSearch(false);
       }
     };
