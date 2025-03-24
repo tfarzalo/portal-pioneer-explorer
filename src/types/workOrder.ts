@@ -63,18 +63,51 @@ export interface WorkOrderFormData {
   description: string;
   scheduledDate: string;
   assignedTo?: string;
+  
+  // Additional fields used in WorkOrderForm component
+  preparedBy?: string;
+  unitSize?: string;
+  isOccupied?: boolean;
+  isFullPaint?: boolean;
+  
+  // Sprinkler related fields
+  hasSprinklers?: boolean;
+  sprinklersHaveOldPaint?: boolean;
+  hasSprinklerCovers?: boolean;
+  
+  // Paint details
+  paintItems?: Record<string, boolean>;
+  ceilingSpotting?: string;
+  wallNotes?: string;
+  
+  // Accent wall details
+  hasAccentWall?: boolean;
+  accentWallCount?: number;
+  isCustomColor?: boolean;
+  
+  // Prep work details
+  prepWorkHours?: number;
+  prepWorkDescription?: string;
+  extraCharges?: Array<{
+    type: string;
+    location: string;
+    description?: string;
+    amount?: number;
+  }>;
+  
+  // Billing details
+  billAmount?: number;
+  subPayAmount?: number;
+  profitAmount?: number;
+  
+  // Base payment details
+  baseAmount?: number;
+  totalAmount?: number;
+  
   paintDetails?: {
     type: string;
     walls: string;
     trim: string;
     ceilings: string;
   };
-  extraCharges?: Array<{
-    type: string;
-    location: string;
-    description: string;
-    amount: number;
-  }>;
-  baseAmount?: number;
-  totalAmount?: number;
 }

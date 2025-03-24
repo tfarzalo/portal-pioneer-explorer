@@ -48,6 +48,12 @@ export function WorkOrderForm({
     }
   });
 
+  useEffect(() => {
+    if (propertyId === 'special-property') {
+      setBillingRates(prev => ({...prev}));
+    }
+  }, [propertyId]);
+
   const isManagement = userRole === 'admin' || userRole === 'jg_management';
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
@@ -57,39 +63,29 @@ export function WorkOrderForm({
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
 
   useEffect(() => {
-    // In a real app, fetch billing rates based on propertyId
-    // For now, using mock data set in state initialization
-  }, [propertyId]);
-
-  useEffect(() => {
-    // Auto-calculate billing amounts based on unit size and extras
     if (formData.unitSize) {
       const baseRates = billingRates.regular[formData.unitSize];
       let totalBill = baseRates?.bill || 0;
       let totalSub = baseRates?.sub || 0;
 
-      // Add ceiling paint if selected
       if (formData.paintItems?.ceilings) {
         const ceilingRates = billingRates.ceiling[formData.unitSize];
         totalBill += ceilingRates?.bill || 0;
         totalSub += ceilingRates?.sub || 0;
       }
 
-      // Add accent wall charges
       if (formData.hasAccentWall && formData.accentWallCount) {
         const accentWallRates = billingRates.extras['Paint Over Accent Wall'];
         totalBill += (accentWallRates?.bill || 0) * formData.accentWallCount;
         totalSub += (accentWallRates?.sub || 0) * formData.accentWallCount;
       }
 
-      // Add prep work charges
       if (formData.prepWorkHours) {
         const prepWorkRates = billingRates.extras['Prep Work'];
         totalBill += (prepWorkRates?.bill || 0) * formData.prepWorkHours;
         totalSub += (prepWorkRates?.sub || 0) * formData.prepWorkHours;
       }
 
-      // Update form data with calculated amounts
       setFormData(prev => ({
         ...prev,
         billAmount: totalBill,
@@ -109,7 +105,6 @@ export function WorkOrderForm({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Required fields validation
     const requiredFields = [
       'preparedBy',
       'unit',
@@ -138,7 +133,6 @@ export function WorkOrderForm({
       ...prev,
       [field]: value
     }));
-    // Clear error when field is modified
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -576,3 +570,4 @@ export function WorkOrderForm({
     </form>
   );
 }
+

@@ -1,24 +1,6 @@
-import React, { useState } from 'react';
-import { 
-  Activity as ActivityIcon, 
-  ArrowLeft,
-  Search,
-  Filter,
-  Building2,
-  FileText,
-  User,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Edit,
-  Plus,
-  Trash2,
-  ArrowRight,
-  Clock
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity as ActivityIcon, ArrowLeft, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { JobPhase } from '../types/workOrder';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
 
 interface ActivityProps {
   theme: 'dark' | 'light';
@@ -26,185 +8,220 @@ interface ActivityProps {
 
 interface ActivityItem {
   id: string;
-  type: 'job' | 'property' | 'user' | 'system';
-  action: string;
-  description: string;
-  timestamp: string;
+  type: 'job_request' | 'work_order' | 'invoice' | 'property' | 'user';
+  action: 'created' | 'updated' | 'deleted' | 'completed' | 'approved' | 'rejected';
   user: {
+    id: string;
     name: string;
-    role: string;
+    avatar?: string;
   };
+  timestamp: string;
   details?: {
-    jobId?: string;
+    propertyName?: string;
     propertyId?: string;
-    userId?: string;
-    oldPhase?: JobPhase;
-    newPhase?: JobPhase;
-    scheduledDate?: string;
+    jobId?: string;
+    workOrderId?: string;
+    invoiceId?: string;
+    amount?: number;
+    status?: string;
+    description?: string;
   };
 }
 
 export function Activity({ theme }: ActivityProps) {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('all');
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    types: [] as string[],
+    actions: [] as string[],
+    dateRange: 'all' as 'today' | 'week' | 'month' | 'all',
+  });
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
-  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
-  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
-  const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
+  const cardBorder = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const hoverBg = theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50';
 
-  // Mock activity data - replace with actual data fetching
-  const activities: ActivityItem[] = [
-    {
-      id: '1',
-      type: 'job',
-      action: 'phase_change',
-      description: 'Changed job phase from Job Request to Work Order',
-      timestamp: '2025-03-20T14:30:00Z',
-      user: {
-        name: 'John Smith',
-        role: 'Administrator'
-      },
-      details: {
-        jobId: 'WO#46',
-        oldPhase: 'Job Request',
-        newPhase: 'Work Order'
-      }
-    },
-    {
-      id: '2',
-      type: 'property',
-      action: 'update',
-      description: 'Updated billing rates for La Vie SouthPark',
-      timestamp: '2025-03-20T13:15:00Z',
-      user: {
-        name: 'Sarah Wilson',
-        role: 'Manager'
-      },
-      details: {
-        propertyId: '1'
-      }
-    },
-    {
-      id: '3',
-      type: 'job',
-      action: 'schedule_change',
-      description: 'Rescheduled job from Mar 25 to Mar 28',
-      timestamp: '2025-03-20T12:45:00Z',
-      user: {
-        name: 'Mike Johnson',
-        role: 'Coordinator'
-      },
-      details: {
-        jobId: 'WO#45',
-        scheduledDate: '2025-03-28'
-      }
-    },
-    {
-      id: '4',
-      type: 'job',
-      action: 'create',
-      description: 'Created new job request for Riverside Apartments',
-      timestamp: '2025-03-20T11:30:00Z',
-      user: {
-        name: 'Emily Davis',
-        role: 'Property Manager'
-      },
-      details: {
-        jobId: 'WO#47',
-        propertyId: '2'
-      }
-    },
-    {
-      id: '5',
-      type: 'property',
-      action: 'create',
-      description: 'Added new property: Pine Valley Complex',
-      timestamp: '2025-03-20T10:15:00Z',
-      user: {
-        name: 'John Smith',
-        role: 'Administrator'
-      },
-      details: {
-        propertyId: '3'
-      }
-    }
-  ];
+  useEffect(() => {
+    // Fetch activity data
+    const fetchActivities = async () => {
+      try {
+        // In a real app, this would be an API call
+        // For now, using mock data
+        const mockActivities: ActivityItem[] = [
+          {
+            id: '1',
+            type: 'job_request',
+            action: 'created',
+            user: {
+              id: 'user1',
+              name: 'John Doe',
+              avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+            },
+            timestamp: '2023-06-15T14:30:00Z',
+            details: {
+              propertyName: 'Sunset Apartments',
+              propertyId: 'prop123',
+              description: 'New job request for unit painting',
+            },
+          },
+          {
+            id: '2',
+            type: 'work_order',
+            action: 'completed',
+            user: {
+              id: 'user2',
+              name: 'Jane Smith',
+              avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
+            },
+            timestamp: '2023-06-14T10:15:00Z',
+            details: {
+              propertyName: 'Highland Towers',
+              propertyId: 'prop456',
+              workOrderId: 'wo789',
+              description: 'Completed painting of unit 304',
+            },
+          },
+          {
+            id: '3',
+            type: 'invoice',
+            action: 'created',
+            user: {
+              id: 'user3',
+              name: 'Robert Johnson',
+              avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+            },
+            timestamp: '2023-06-13T16:45:00Z',
+            details: {
+              propertyName: 'Oakwood Commons',
+              propertyId: 'prop789',
+              invoiceId: 'inv456',
+              amount: 1250.00,
+              description: 'Invoice for painting services',
+            },
+          },
+          {
+            id: '4',
+            type: 'property',
+            action: 'updated',
+            user: {
+              id: 'user4',
+              name: 'Emily Davis',
+              avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
+            },
+            timestamp: '2023-06-12T09:20:00Z',
+            details: {
+              propertyName: 'Riverside Apartments',
+              propertyId: 'prop101',
+              description: 'Updated property details and contact information',
+            },
+          },
+          {
+            id: '5',
+            type: 'user',
+            action: 'created',
+            user: {
+              id: 'user5',
+              name: 'Michael Wilson',
+              avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
+            },
+            timestamp: '2023-06-11T13:10:00Z',
+            details: {
+              description: 'Added new subcontractor account',
+            },
+          },
+        ];
 
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case 'phase_change':
-        return <ArrowRight size={20} />;
-      case 'update':
-        return <Edit size={20} />;
-      case 'create':
-        return <Plus size={20} />;
-      case 'delete':
-        return <Trash2 size={20} />;
-      case 'schedule_change':
-        return <Calendar size={20} />;
-      default:
-        return <ActivityIcon size={20} />;
-    }
+        setActivities(mockActivities);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, []);
+
+  const toggleFilter = () => {
+    setFilterOpen(!filterOpen);
   };
 
-  const getTypeIcon = (type: string) => {
+  const handleFilterChange = (category: string, value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (category === 'dateRange') {
+        return { ...prev, dateRange: value as 'today' | 'week' | 'month' | 'all' };
+      } else {
+        const categoryArray = newFilters[category as 'types' | 'actions'] as string[];
+        if (categoryArray.includes(value)) {
+          return {
+            ...prev,
+            [category]: categoryArray.filter(item => item !== value),
+          };
+        } else {
+          return {
+            ...prev,
+            [category]: [...categoryArray, value],
+          };
+        }
+      }
+    });
+  };
+
+  const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'job':
-        return <FileText size={20} />;
+      case 'job_request':
+        return <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">JR</div>;
+      case 'work_order':
+        return <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white">WO</div>;
+      case 'invoice':
+        return <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">IN</div>;
       case 'property':
-        return <Building2 size={20} />;
+        return <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">PR</div>;
       case 'user':
-        return <User size={20} />;
+        return <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white">US</div>;
       default:
-        return <ActivityIcon size={20} />;
+        return <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white">?</div>;
     }
   };
 
-  const getActionColor = (action: string) => {
+  const getActivityTitle = (activity: ActivityItem) => {
+    const { type, action, user } = activity;
+    const typeName = type.replace('_', ' ');
+    
     switch (action) {
-      case 'phase_change':
-        return 'text-purple-500';
-      case 'update':
-        return 'text-blue-500';
-      case 'create':
-        return 'text-green-500';
-      case 'delete':
-        return 'text-red-500';
-      case 'schedule_change':
-        return 'text-orange-500';
+      case 'created':
+        return `${user.name} created a new ${typeName}`;
+      case 'updated':
+        return `${user.name} updated a ${typeName}`;
+      case 'deleted':
+        return `${user.name} deleted a ${typeName}`;
+      case 'completed':
+        return `${user.name} marked a ${typeName} as completed`;
+      case 'approved':
+        return `${user.name} approved a ${typeName}`;
+      case 'rejected':
+        return `${user.name} rejected a ${typeName}`;
       default:
-        return textColor;
+        return `${user.name} performed an action on a ${typeName}`;
     }
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
-      hour12: true
-    });
+      hour12: true,
+    }).format(date);
   };
-
-  const filteredActivities = activities.filter(activity => {
-    const matchesSearch = 
-      activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      activity.user.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = typeFilter === 'all' || activity.type === typeFilter;
-    
-    // Add date filtering logic here based on dateFilter value
-    
-    return matchesSearch && matchesType;
-  });
 
   return (
     <div className="space-y-6">
@@ -222,117 +239,144 @@ export function Activity({ theme }: ActivityProps) {
         </button>
       </div>
 
-      <div className={`${cardBg} rounded-lg border ${borderColor}`}>
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="relative flex-1">
-              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
-              <input
-                type="text"
-                placeholder="Search activity..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-              />
+      <div className={`${cardBg} p-6 rounded-lg border ${cardBorder}`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 space-y-4 md:space-y-0">
+          <div className="relative w-full md:w-64">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search className={mutedTextColor} size={18} />
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Filter size={20} className={mutedTextColor} />
-                <select
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-                >
-                  <option value="all">All Types</option>
-                  <option value="job">Jobs</option>
-                  <option value="property">Properties</option>
-                  <option value="user">Users</option>
-                  <option value="system">System</option>
-                </select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock size={20} className={mutedTextColor} />
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
-              </div>
-            </div>
+            <input
+              type="text"
+              className={`block w-full pl-10 pr-3 py-2 rounded-lg border ${cardBorder} ${textColor} ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}
+              placeholder="Search activities..."
+            />
           </div>
+          <button
+            onClick={toggleFilter}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border ${cardBorder} ${textColor} ${hoverBg}`}
+          >
+            <Filter size={18} />
+            <span>Filter</span>
+            {filterOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
         </div>
 
-        <div className="divide-y divide-gray-700">
-          {filteredActivities.map((activity) => (
-            <div key={activity.id} className="p-4 hover:bg-gray-800/50 transition-colors">
-              <div className="flex items-start space-x-4">
-                <div className={`p-2 rounded-lg ${sectionBg}`}>
-                  {getTypeIcon(activity.type)}
+        {filterOpen && (
+          <div className={`p-4 mb-6 rounded-lg border ${cardBorder} ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <h3 className={`text-sm font-medium ${textColor} mb-3`}>Activity Type</h3>
+                <div className="space-y-2">
+                  {['job_request', 'work_order', 'invoice', 'property', 'user'].map(type => (
+                    <label key={type} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.types.includes(type)}
+                        onChange={() => handleFilterChange('types', type)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={`ml-2 ${textColor}`}>
+                        {type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </span>
+                    </label>
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className={`font-medium ${textColor}`}>{activity.user.name}</span>
-                      <span className={mutedTextColor}>•</span>
-                      <span className={mutedTextColor}>{activity.user.role}</span>
-                    </div>
-                    <span className={`text-sm ${mutedTextColor}`}>
-                      {formatTimestamp(activity.timestamp)}
-                    </span>
-                  </div>
-                  <div className="mt-1 flex items-center space-x-2">
-                    <span className={getActionColor(activity.action)}>
-                      {getActionIcon(activity.action)}
-                    </span>
-                    <p className={textColor}>{activity.description}</p>
-                  </div>
-                  {activity.details && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {activity.details.jobId && (
-                        <button
-                          onClick={() => navigate(`/jobs/${activity.details.jobId}`)}
-                          className="px-2 py-1 rounded bg-blue-500/10 text-blue-500 text-sm hover:bg-blue-500/20"
-                        >
-                          {activity.details.jobId}
-                        </button>
-                      )}
-                      {activity.details.propertyId && (
-                        <button
-                          onClick={() => navigate(`/properties/${activity.details.propertyId}`)}
-                          className="px-2 py-1 rounded bg-green-500/10 text-green-500 text-sm hover:bg-green-500/20"
-                        >
-                          View Property
-                        </button>
-                      )}
-                      {activity.details.oldPhase && activity.details.newPhase && (
-                        <div className="flex items-center space-x-2 text-sm">
-                          <span className={JOB_PHASE_COLORS[activity.details.oldPhase].text}>
-                            {activity.details.oldPhase}
-                          </span>
-                          <ArrowRight size={16} className={mutedTextColor} />
-                          <span className={JOB_PHASE_COLORS[activity.details.newPhase].text}>
-                            {activity.details.newPhase}
-                          </span>
-                        </div>
-                      )}
-                      {activity.details.scheduledDate && (
-                        <span className="px-2 py-1 rounded bg-orange-500/10 text-orange-500 text-sm">
-                          {new Date(activity.details.scheduledDate).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  )}
+              </div>
+              <div>
+                <h3 className={`text-sm font-medium ${textColor} mb-3`}>Action</h3>
+                <div className="space-y-2">
+                  {['created', 'updated', 'deleted', 'completed', 'approved', 'rejected'].map(action => (
+                    <label key={action} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.actions.includes(action)}
+                        onChange={() => handleFilterChange('actions', action)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={`ml-2 ${textColor}`}>
+                        {action.charAt(0).toUpperCase() + action.slice(1)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className={`text-sm font-medium ${textColor} mb-3`}>Date Range</h3>
+                <div className="space-y-2">
+                  {[
+                    { value: 'today', label: 'Today' },
+                    { value: 'week', label: 'This Week' },
+                    { value: 'month', label: 'This Month' },
+                    { value: 'all', label: 'All Time' },
+                  ].map(option => (
+                    <label key={option.value} className="flex items-center">
+                      <input
+                        type="radio"
+                        checked={filters.dateRange === option.value}
+                        onChange={() => handleFilterChange('dateRange', option.value)}
+                        className="rounded-full border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={`ml-2 ${textColor}`}>{option.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {activities.length === 0 ? (
+              <p className={`text-center py-8 ${mutedTextColor}`}>No activity records found.</p>
+            ) : (
+              activities.map(activity => (
+                <div
+                  key={activity.id}
+                  className={`p-4 rounded-lg border ${cardBorder} ${hoverBg} transition-colors cursor-pointer`}
+                  onClick={() => {
+                    // Navigate based on activity type
+                    if (activity.type === 'job_request' && activity.details?.propertyId) {
+                      navigate(`/jobs/${activity.details.propertyId}`);
+                    } else if (activity.type === 'work_order' && activity.details?.workOrderId) {
+                      navigate(`/work-orders/${activity.details.workOrderId}`);
+                    }
+                  }}
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${textColor}`}>
+                        {getActivityTitle(activity)}
+                      </p>
+                      <p className={`text-sm ${mutedTextColor} mt-1`}>
+                        {activity.details?.propertyName || 'System'} • {formatDate(activity.timestamp)}
+                      </p>
+                      {activity.details?.description && (
+                        <p className={`text-sm ${textColor} mt-2`}>
+                          {activity.details.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
