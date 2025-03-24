@@ -15,7 +15,7 @@ interface JobInformationProps {
 export const JobInformation = ({ jobData, theme, formatDate }: JobInformationProps) => {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
-  const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
+  const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
 
   return (
     <div className="space-y-4">
@@ -26,7 +26,7 @@ export const JobInformation = ({ jobData, theme, formatDate }: JobInformationPro
           <MapPin className={mutedTextColor} size={18} />
           <div>
             <p className={`text-xs ${mutedTextColor}`}>Property</p>
-            <p className={`font-medium ${textColor}`}>{jobData.property_name}</p>
+            <p className={`font-medium ${textColor}`}>{jobData.property_name || 'N/A'}</p>
           </div>
         </div>
         

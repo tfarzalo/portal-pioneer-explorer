@@ -25,7 +25,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
 
   const mockWorkOrderData = {
-    workOrderNumber: jobData?.job_number ? `WO-${jobData.job_number}` : '',
+    workOrderNumber: jobData?.job_number || '',
     property: jobData?.property_name || '',
     unit: jobData?.unit_number || '',
     description: jobData?.description || '',

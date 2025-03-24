@@ -68,20 +68,27 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
 
   const generateJobNumber = async () => {
     try {
-      // Get the count of existing jobs to generate a sequential job number
-      const { count, error } = await supabase
+      // Get the latest job number to generate a sequential 6-digit number
+      const { data, error } = await supabase
         .from('jobs')
-        .select('*', { count: 'exact', head: true });
+        .select('job_number')
+        .order('created_at', { ascending: false })
+        .limit(1);
         
       if (error) throw error;
       
-      // Generate job number in format JOB-YYYYMMDD-XXX where XXX is sequential
-      const date = new Date();
-      const dateStr = date.getFullYear().toString() + 
-                     (date.getMonth() + 1).toString().padStart(2, '0') + 
-                     date.getDate().toString().padStart(2, '0');
-      const sequentialNumber = (count || 0) + 1;
-      return `JOB-${dateStr}-${sequentialNumber.toString().padStart(3, '0')}`;
+      let nextNumber = 1; // Default starting number
+      
+      if (data && data.length > 0 && data[0].job_number) {
+        // Try to extract a number from the existing job number
+        const currentNumberMatch = data[0].job_number.match(/(\d+)/);
+        if (currentNumberMatch) {
+          nextNumber = parseInt(currentNumberMatch[0], 10) + 1;
+        }
+      }
+      
+      // Format as 6-digit number with leading zeros
+      return nextNumber.toString().padStart(6, '0');
     } catch (error) {
       console.error('Error generating job number:', error);
       throw error;
