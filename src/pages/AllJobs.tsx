@@ -152,6 +152,23 @@ export function AllJobs({ theme }: AllJobsProps) {
     navigate(`/jobs/${jobId}`);
   };
 
+  const formatPhase = (phase: JobPhase): string => {
+    if (phase.includes('_')) {
+      return phase
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    return phase;
+  };
+
+  const formatJobType = (type: string): string => {
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -189,7 +206,7 @@ export function AllJobs({ theme }: AllJobsProps) {
             >
               <option value="all">All Phases</option>
               {Object.keys(JOB_PHASE_COLORS).map((phase) => (
-                <option key={phase} value={phase}>{phase}</option>
+                <option key={phase} value={phase}>{formatPhase(phase as JobPhase)}</option>
               ))}
             </select>
           </div>
@@ -284,11 +301,11 @@ export function AllJobs({ theme }: AllJobsProps) {
                     <div className={`font-medium ${textColor}`}>{job.unit_number || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{job.job_type}</div>
+                    <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`inline-flex items-center rounded-full ${getPhaseColor(job.phase).bgOpacity} ${getPhaseColor(job.phase).border} border ${getPhaseColor(job.phase).text} px-3 py-1 text-sm font-medium`}>
-                      {job.phase}
+                      {formatPhase(job.phase)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

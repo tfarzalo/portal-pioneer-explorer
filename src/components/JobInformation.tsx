@@ -1,5 +1,5 @@
 
-import { MapPin, Calendar, Users, Clock } from 'lucide-react';
+import { MapPin, Calendar, Users, Clock, Home } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
 
 interface JobInformationProps {
@@ -18,6 +18,14 @@ export const JobInformation = ({ jobData, theme, formatDate }: JobInformationPro
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
+
+  // Format job type to be capitalized
+  const formatJobType = (type: string): string => {
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return (
     <div className="space-y-6">
@@ -52,9 +60,19 @@ export const JobInformation = ({ jobData, theme, formatDate }: JobInformationPro
           <Clock className={mutedTextColor} size={18} />
           <div>
             <p className={`text-xs ${mutedTextColor}`}>Type</p>
-            <p className={`font-medium ${textColor}`}>{jobData.job_type}</p>
+            <p className={`font-medium ${textColor}`}>{formatJobType(jobData.job_type)}</p>
           </div>
         </div>
+
+        {jobData.property_address && (
+          <div className={`p-4 rounded-lg ${headerBg} flex items-center space-x-2`}>
+            <Home className={mutedTextColor} size={18} />
+            <div>
+              <p className={`text-xs ${mutedTextColor}`}>Address</p>
+              <p className={`font-medium ${textColor}`}>{jobData.property_address}</p>
+            </div>
+          </div>
+        )}
       </div>
       
       {jobData.property_address && (

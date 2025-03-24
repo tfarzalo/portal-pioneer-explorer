@@ -2,6 +2,7 @@
 import { FileText, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { JobPhaseIndicator } from './JobPhaseIndicator';
+import { JobPhase } from '../types/workOrder';
 
 interface JobHeaderProps {
   jobData: {
@@ -22,7 +23,7 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
         <h1 className={`text-2xl font-bold ${textColor}`}>{jobData.job_number}</h1>
         {jobData.phase && (
           <div className="ml-4">
-            <JobPhaseIndicator phase={jobData.phase as any} />
+            <JobPhaseIndicator phase={jobData.phase as JobPhase} />
           </div>
         )}
       </div>

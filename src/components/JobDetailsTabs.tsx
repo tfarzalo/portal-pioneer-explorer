@@ -9,6 +9,7 @@ interface JobDetailsTabsProps {
     total_amount: number | null;
     created_at: string | null;
     phase: string;
+    job_type: string;
   };
   theme: 'dark' | 'light';
   formatDate: (dateString: string | null) => string;
@@ -22,6 +23,25 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
+
+  // Format job phase to be displayed properly without underscores
+  const formatPhase = (phase: string): string => {
+    if (phase.includes('_')) {
+      return phase
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    return phase;
+  };
+
+  // Format job type to be capitalized
+  const formatJobType = (type: string): string => {
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return (
     <>
@@ -65,6 +85,10 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
             <div>
               <p className={`${mutedTextColor} text-sm`}>Description</p>
               <p className={textColor}>{jobData.description || 'No description provided'}</p>
+            </div>
+            <div>
+              <p className={`${mutedTextColor} text-sm`}>Job Type</p>
+              <p className={textColor}>{formatJobType(jobData.job_type)}</p>
             </div>
             {jobData.base_amount && (
               <div>
@@ -112,7 +136,7 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
                 <span className={`font-medium ${textColor}`}>System</span>
                 <span className={mutedTextColor}>{jobData.created_at ? formatDate(jobData.created_at) : 'N/A'}</span>
               </div>
-              <p className={mutedTextColor}>Job created in phase: {jobData.phase}</p>
+              <p className={mutedTextColor}>Job created in phase: {formatPhase(jobData.phase)}</p>
             </div>
           </div>
         </div>
