@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   FileText, 
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
+import { ExtraChargesModal } from '../components/ExtraChargesModal';
 
 interface JobDetailsProps {
   theme: 'dark' | 'light';
@@ -36,6 +36,23 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
 
+  const mockWorkOrderData = {
+    workOrderNumber: `WO-${id}`,
+    property: '511 Queens',
+    unit: '122',
+    description: 'Painting and minor repairs',
+    baseAmount: 550.00,
+    extraCharges: [
+      {
+        type: 'Additional Paint',
+        location: 'Living Room',
+        amount: 120.00,
+        description: 'Extra coat required due to dark previous color'
+      }
+    ],
+    totalAmount: 670.00
+  };
+
   const handleExtraChargesClick = () => {
     setShowExtraCharges(true);
     console.log('Extra charges button clicked');
@@ -44,6 +61,15 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const handleExportOptionsClick = () => {
     setShowExportOptions(true);
     console.log('Export options button clicked');
+  };
+
+  const handleCloseExtraCharges = () => {
+    setShowExtraCharges(false);
+  };
+
+  const handleSendExtraCharges = (data: any) => {
+    console.log('Sending extra charges notification with data:', data);
+    setShowExtraCharges(false);
   };
 
   return (
@@ -231,6 +257,17 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
           columns={[{ header: 'ID', accessor: 'id' }]}
           filename="job_export"
           isVisible={showExportOptions}
+        />
+      )}
+      
+      {showExtraCharges && (
+        <ExtraChargesModal
+          theme={theme}
+          isOpen={showExtraCharges}
+          onClose={handleCloseExtraCharges}
+          onSend={handleSendExtraCharges}
+          workOrderData={mockWorkOrderData}
+          recipientEmail="property.manager@example.com"
         />
       )}
     </div>
