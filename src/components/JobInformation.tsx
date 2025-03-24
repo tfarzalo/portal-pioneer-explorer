@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { JOB_PHASE_COLORS, JobPhase } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -25,7 +25,7 @@ interface JobInformationProps {
 export const JobInformation = ({ 
   jobData, 
   theme, 
-  formatDate, 
+  // Remove unused formatDate parameter warning
   onSubmitUpdate,
   refetchJobData 
 }: JobInformationProps) => {
@@ -37,12 +37,15 @@ export const JobInformation = ({
   
   const [isPhaseDropdownOpen, setIsPhaseDropdownOpen] = useState(false);
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  // Remove unused isDatePickerOpen state
   const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
   const [isLoading, setIsLoading] = useState(false);
   
-  // All possible job phases
-  const jobPhases = [
+  // Define explicit job phase type to fix type errors
+  type ValidJobPhase = 'job_request' | 'work_order' | 'pending_work_order' | 'grading' | 'invoicing' | 'completed' | 'cancelled';
+  
+  // All possible job phases with correct typing
+  const jobPhases: ValidJobPhase[] = [
     'job_request',
     'work_order',
     'pending_work_order',
@@ -52,8 +55,11 @@ export const JobInformation = ({
     'cancelled'
   ];
   
-  // Common job types
-  const jobTypes = [
+  // Define valid job types to fix type errors
+  type ValidJobType = 'paint' | 'callback' | 'repair' | 'full_paint' | 'touch_up' | 'wall_repair' | 'ceiling_repair' | 'cabinet_refinish' | 'exterior_paint';
+  
+  // Common job types with correct typing
+  const jobTypes: ValidJobType[] = [
     'full_paint',
     'touch_up',
     'wall_repair',
@@ -81,23 +87,8 @@ export const JobInformation = ({
     return `Job ${formattedPhase}`;
   };
 
-  // Format date for display in the scheduled work date section
-  const formatScheduledDate = (date: string | null): string => {
-    if (!date) return 'Not Scheduled';
-    
-    const d = new Date(date);
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    
-    return d.toLocaleDateString('en-US', options);
-  };
-  
   // Update the job phase in the database
-  const updateJobPhase = async (phase: string) => {
+  const updateJobPhase = async (phase: ValidJobPhase) => {
     setIsLoading(true);
     try {
       const { error } = await supabase
@@ -123,7 +114,7 @@ export const JobInformation = ({
   };
   
   // Update the job type in the database
-  const updateJobType = async (type: string) => {
+  const updateJobType = async (type: ValidJobType) => {
     setIsLoading(true);
     try {
       const { error } = await supabase
@@ -171,7 +162,6 @@ export const JobInformation = ({
       toast.error('Failed to update scheduled date');
     } finally {
       setIsLoading(false);
-      setIsDatePickerOpen(false);
     }
   };
   
@@ -205,7 +195,8 @@ export const JobInformation = ({
             {isPhaseDropdownOpen && (
               <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
                 {jobPhases.map((phase) => {
-                  const phaseColors = JOB_PHASE_COLORS[phase] || { text: textColor };
+                  // Use type assertion to fix the error
+                  const phaseColors = JOB_PHASE_COLORS[phase as JobPhase] || { text: textColor };
                   
                   return (
                     <div

@@ -1,7 +1,7 @@
 
 import { Folder } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { JOB_PHASE_COLORS, JobPhase } from '../types/workOrder';
 
 interface JobHeaderProps {
   jobData: {
@@ -19,8 +19,9 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
   
   // Get phase-specific color or default to yellow
   const getPhaseColor = (phase: string) => {
-    if (JOB_PHASE_COLORS[phase]) {
-      return JOB_PHASE_COLORS[phase].border.replace('border-', '');
+    // Type assertion to ensure the phase is treated as a key in JOB_PHASE_COLORS
+    if (JOB_PHASE_COLORS[phase as JobPhase]) {
+      return JOB_PHASE_COLORS[phase as JobPhase].border.replace('border-', '');
     }
     return 'bg-yellow-300';
   };
