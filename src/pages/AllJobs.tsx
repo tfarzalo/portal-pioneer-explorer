@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { FileText, ArrowLeft, Search, Filter } from 'lucide-react';
+
+import { useState, useEffect } from 'react';
+import { FileText, ArrowLeft, Search, Filter, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { JobPhase } from '../types/workOrder';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AllJobsProps {
   theme: 'dark' | 'light';
@@ -10,20 +13,23 @@ interface AllJobsProps {
 
 interface Job {
   id: string;
-  workOrderNumber: string;
-  property: string;
-  propertyId: string;
-  unit: string;
-  type: 'Paint' | 'Callback' | 'Repair';
-  status: JobPhase;
-  scheduledDate: string;
-  submittedBy: string;
+  job_number: string;
+  property_id: string;
+  unit_number: string;
+  job_type: 'Paint' | 'Callback' | 'Repair';
+  phase: JobPhase;
+  scheduled_date: string;
+  submitted_by: string;
+  property_name?: string;
 }
 
 export function AllJobs({ theme }: AllJobsProps) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
@@ -32,39 +38,64 @@ export function AllJobs({ theme }: AllJobsProps) {
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
 
-  // Mock data - replace with actual data fetching
-  const jobs: Job[] = [
-    {
-      id: '1',
-      workOrderNumber: 'WO#46',
-      property: 'La Vie SouthPark',
-      propertyId: '1',
-      unit: '122',
-      type: 'Callback',
-      status: 'Job Request',
-      scheduledDate: '2024-02-27',
-      submittedBy: 'John Doe'
-    },
-    {
-      id: '2',
-      workOrderNumber: 'WO#45',
-      property: 'Riverside Apartments',
-      propertyId: '2',
-      unit: '204',
-      type: 'Paint',
-      status: 'Work Order',
-      scheduledDate: '2024-02-26',
-      submittedBy: 'Sarah Wilson'
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        setLoading(true);
+        
+        // Fetch jobs with a join to properties to get property names
+        const { data, error } = await supabase
+          .from('jobs')
+          .select(`
+            id,
+            job_number,
+            property_id,
+            unit_number,
+            job_type,
+            phase,
+            scheduled_date,
+            submitted_by,
+            properties:property_id (name)
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Transform the data to match our Job interface
+        const formattedJobs: Job[] = data.map(job => ({
+          id: job.id,
+          job_number: job.job_number,
+          property_id: job.property_id,
+          unit_number: job.unit_number,
+          job_type: job.job_type,
+          phase: job.phase,
+          scheduled_date: job.scheduled_date,
+          submitted_by: job.submitted_by,
+          property_name: job.properties?.name
+        }));
+        
+        setJobs(formattedJobs);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        setError('Failed to load jobs. Please try again later.');
+        toast.error('Failed to load jobs');
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    
+    fetchJobs();
+  }, []);
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = 
-      job.workOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.unit.toLowerCase().includes(searchTerm.toLowerCase());
+      job.job_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.property_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.unit_number?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || job.phase === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -111,13 +142,13 @@ export function AllJobs({ theme }: AllJobsProps) {
                   className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
                 >
                   <option value="all">All Status</option>
-                  <option value="Job Request">Job Request</option>
-                  <option value="Work Order">Work Order</option>
-                  <option value="Pending Work Order">Pending Work Order</option>
-                  <option value="Grading">Grading</option>
-                  <option value="Invoicing">Invoicing</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
+                  <option value="job_request">Job Request</option>
+                  <option value="work_order">Work Order</option>
+                  <option value="pending_work_order">Pending Work Order</option>
+                  <option value="grading">Grading</option>
+                  <option value="invoicing">Invoicing</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
@@ -125,50 +156,77 @@ export function AllJobs({ theme }: AllJobsProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className={headerBg}>
-              <tr>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>WO#</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Property</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Unit</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Type</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Status</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Scheduled Date</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Submitted By</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {filteredJobs.map((job) => (
-                <tr
-                  key={job.id}
-                  onClick={() => navigate(`/jobs/${job.id}`)}
-                  className="cursor-pointer hover:bg-gray-800/50 transition-colors"
-                >
-                  <td className={`px-4 py-3 ${textColor}`}>{job.workOrderNumber}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/properties/${job.propertyId}`);
-                      }}
-                      className={`${textColor} hover:opacity-80`}
-                    >
-                      {job.property}
-                    </button>
-                  </td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.unit}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.type}</td>
-                  <td className={`px-4 py-3`}>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(job.status)}`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.scheduledDate}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.submittedBy}</td>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="animate-spin mr-2" size={24} />
+              <span className={textColor}>Loading jobs...</span>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-20">
+              <p className="text-red-500">{error}</p>
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className={headerBg}>
+                <tr>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>WO#</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Property</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Unit</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Type</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Status</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Scheduled Date</th>
+                  <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Submitted By</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
+                    <tr
+                      key={job.id}
+                      onClick={() => navigate(`/jobs/${job.id}`)}
+                      className="cursor-pointer hover:bg-gray-800/50 transition-colors"
+                    >
+                      <td className={`px-4 py-3 ${textColor}`}>{job.job_number}</td>
+                      <td className={`px-4 py-3 ${textColor}`}>
+                        {job.property_id ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/properties/${job.property_id}`);
+                            }}
+                            className={`${textColor} hover:opacity-80`}
+                          >
+                            {job.property_name || 'Unknown Property'}
+                          </button>
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                      <td className={`px-4 py-3 ${textColor}`}>{job.unit_number || 'N/A'}</td>
+                      <td className={`px-4 py-3 ${textColor}`}>{job.job_type || 'N/A'}</td>
+                      <td className={`px-4 py-3`}>
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(job.phase)}`}>
+                          {job.phase || 'Unknown'}
+                        </span>
+                      </td>
+                      <td className={`px-4 py-3 ${textColor}`}>
+                        {job.scheduled_date 
+                          ? new Date(job.scheduled_date).toLocaleDateString() 
+                          : 'Not scheduled'}
+                      </td>
+                      <td className={`px-4 py-3 ${textColor}`}>{job.submitted_by || 'Unknown'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className={`px-4 py-10 text-center ${mutedTextColor}`}>
+                      No jobs found matching your criteria
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

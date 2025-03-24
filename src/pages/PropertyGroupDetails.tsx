@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  FolderKanban, 
-  ArrowLeft,
-  MapPin, 
-  PhoneCall, 
-  Mail
+  Building2, 
+  ArrowLeft, 
+  Edit, 
+  Map, 
+  Phone, 
+  Mail,
+  Users,
+  Plus,
+  Trash2,
+  Loader2
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface PropertyGroupDetailsProps {
   theme: 'dark' | 'light';
@@ -121,7 +126,7 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <FolderKanban className={textColor} size={28} />
+          <Building2 className={textColor} size={28} />
           <div>
             <h1 className={`text-2xl font-bold ${textColor}`}>{group.name}</h1>
             <p className={mutedTextColor}>{group.region} Region</p>
@@ -180,7 +185,7 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
                         {property.name}
                       </button>
                       <div className="flex items-center space-x-2 mt-1">
-                        <MapPin size={16} className={mutedTextColor} />
+                        <Map size={16} className={mutedTextColor} />
                         <span className={mutedTextColor}>{property.address}</span>
                       </div>
                     </div>
@@ -291,7 +296,7 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <PhoneCall size={20} className={mutedTextColor} />
+                <Phone size={20} className={mutedTextColor} />
                 <div className={mutedTextColor}>{group.contact.phone}</div>
               </div>
               <div className="flex items-center space-x-3">
@@ -323,3 +328,4 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
     </div>
   );
 }
+

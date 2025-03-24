@@ -1,10 +1,12 @@
+
 import { useState } from 'react';
 import { 
   FileText, 
   Search, 
   Filter, 
   ArrowLeft, 
-  Plus 
+  Plus,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -65,7 +67,6 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
     
     const matchesDate = dateFilter === 'all' || (() => {
       const today = new Date().toISOString().split('T')[0];
-      const woDate = new Date(wo.date);
       
       if (dateFilter === 'today') {
         return wo.date === today;
@@ -146,7 +147,7 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
           </div>
           
           <div className="flex items-center space-x-2">
-            <Calendar size={20} className={mutedTextColor} />
+            <CalendarIcon size={20} className={mutedTextColor} />
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
