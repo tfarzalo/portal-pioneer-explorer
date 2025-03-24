@@ -21,9 +21,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
           zoom: 15,
           center: { lat: 37.7749, lng: -122.4194 }, // Default center (San Francisco)
           mapTypeId: google.maps.MapTypeId.ROADMAP,
-          // Remove zoomControl from here as it's not in the MapOptions type
-          scaleControl: true,
-          streetViewControl: true,
           styles: theme === 'dark' ? [
             { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
             { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -47,14 +44,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
         };
         
         mapInstanceRef.current = new google.maps.Map(mapRef.current, mapOptions);
-        
-        // Add zoom control separately after map initialization
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.controls[google.maps.ControlPosition.TOP_RIGHT].push(
-            document.createElement('div')
-          );
-        }
-        
         geocoderRef.current = new google.maps.Geocoder();
       }
     };

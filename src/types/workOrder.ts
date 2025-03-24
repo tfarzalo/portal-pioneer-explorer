@@ -15,6 +15,18 @@ export type JobPhase =
   | 'Cancelled'
   | 'cancelled';
 
+// Define job types
+export type JobType = 
+  | 'paint'
+  | 'callback'
+  | 'repair'
+  | 'full_paint'
+  | 'touch_up'
+  | 'wall_repair'
+  | 'ceiling_repair'
+  | 'cabinet_refinish'
+  | 'exterior_paint';
+
 // Color system for job phases
 export const JOB_PHASE_COLORS = {
   'Job Request': {

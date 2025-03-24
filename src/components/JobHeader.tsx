@@ -20,10 +20,11 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
   // Get phase-specific color or default to yellow
   const getPhaseColor = (phase: string) => {
     // Type assertion to ensure the phase is treated as a key in JOB_PHASE_COLORS
-    if (JOB_PHASE_COLORS[phase as JobPhase]) {
-      return JOB_PHASE_COLORS[phase as JobPhase].border.replace('border-', '');
+    const phaseKey = phase as JobPhase;
+    if (JOB_PHASE_COLORS[phaseKey]) {
+      return JOB_PHASE_COLORS[phaseKey].border.replace('border-', 'border-t-');
     }
-    return 'bg-yellow-300';
+    return 'border-t-yellow-300';
   };
   
   const phaseColor = getPhaseColor(jobData.phase);
