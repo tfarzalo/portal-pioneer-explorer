@@ -17,7 +17,6 @@ interface JobInformationProps {
     phase: string;
   };
   theme: 'dark' | 'light';
-  formatDate: (dateString: string | null) => string;
   onSubmitUpdate?: () => void;
   refetchJobData: () => void;
 }
@@ -39,7 +38,7 @@ export const JobInformation = ({
   const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Define job phases type with correct typing
+  // Define job phases
   const jobPhases: JobPhase[] = [
     'job_request',
     'work_order',
@@ -50,7 +49,7 @@ export const JobInformation = ({
     'cancelled'
   ];
   
-  // Common job types with correct typing
+  // Common job types
   const jobTypes: JobType[] = [
     'full_paint',
     'touch_up',
@@ -187,7 +186,7 @@ export const JobInformation = ({
             {isPhaseDropdownOpen && (
               <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
                 {jobPhases.map((phase) => {
-                  const phaseColors = JOB_PHASE_COLORS[phase as JobPhase];
+                  const phaseColors = JOB_PHASE_COLORS[phase];
                   
                   return (
                     <div
