@@ -1,3 +1,4 @@
+
 export type JobPhase = 
   | 'Job Request'
   | 'Work Order'
@@ -52,3 +53,28 @@ export const JOB_PHASE_COLORS = {
     text: 'text-[#d3d3d3]'
   }
 } as const;
+
+// Define WorkOrderFormData interface for form submissions
+export interface WorkOrderFormData {
+  property: string;
+  propertyId: string;
+  unit?: string;
+  type: string;
+  description: string;
+  scheduledDate: string;
+  assignedTo?: string;
+  paintDetails?: {
+    type: string;
+    walls: string;
+    trim: string;
+    ceilings: string;
+  };
+  extraCharges?: Array<{
+    type: string;
+    location: string;
+    description: string;
+    amount: number;
+  }>;
+  baseAmount?: number;
+  totalAmount?: number;
+}

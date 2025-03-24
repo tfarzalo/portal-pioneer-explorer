@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { JobPhase, JOB_PHASE_COLORS } from '../types/workOrder';
 
 interface JobPhaseIndicatorProps {
@@ -9,7 +8,6 @@ interface JobPhaseIndicatorProps {
 
 export function JobPhaseIndicator({ phase, size = 'md' }: JobPhaseIndicatorProps) {
   const phaseColors = JOB_PHASE_COLORS[phase];
-  // We're not using textColor directly - removing the unused variable
   
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',

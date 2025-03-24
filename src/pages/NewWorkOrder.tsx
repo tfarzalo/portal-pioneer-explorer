@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { FileText, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { WorkOrderForm } from '../components/WorkOrderForm';
@@ -42,6 +42,7 @@ export function NewWorkOrder({ theme }: NewWorkOrderProps) {
 
       <WorkOrderForm
         theme={theme}
+        propertyId={id || ''}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />

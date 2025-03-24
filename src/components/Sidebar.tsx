@@ -5,8 +5,6 @@ import {
   Building2,
   Calendar,
   Briefcase,
-  Users,
-  MessageSquare,
   BarChart3,
   HelpCircle,
   LogOut,
