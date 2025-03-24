@@ -110,19 +110,25 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
           property_id: formData.propertyId,
           unit_number: formData.unitNumber,
           scheduled_date: formData.scheduledDate,
-          job_type: formData.jobType as JobType, // Ensure job_type is correctly typed
-          special_instructions: formData.specialInstructions,
-          phase: 'job_request'
+          job_type: formData.jobType as JobType,
+          description: formData.specialInstructions, // Use description field for special instructions
+          phase: 'job_request' // Explicitly set phase to job_request
         })
         .select();
         
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
       
       toast.success('Job request submitted successfully');
       
       // Redirect to the job details page
       if (data && data.length > 0) {
         navigate(`/jobs/${data[0].id}`);
+      } else {
+        // If data is returned but empty, still navigate to jobs list
+        navigate('/jobs');
       }
     } catch (error) {
       console.error('Error submitting job request:', error);
