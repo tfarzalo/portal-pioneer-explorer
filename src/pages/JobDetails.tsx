@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   FileText, 
@@ -26,6 +27,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'details' | 'photos' | 'notes'>('details');
+  const [showExtraCharges, setShowExtraCharges] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
