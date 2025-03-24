@@ -1,16 +1,29 @@
 
 export type JobPhase = 
   | 'Job Request'
+  | 'job_request'
   | 'Work Order'
+  | 'work_order'
   | 'Pending Work Order'
+  | 'pending_work_order'
   | 'Grading'
+  | 'grading'
   | 'Invoicing'
+  | 'invoicing'
   | 'Completed'
-  | 'Cancelled';
+  | 'completed'
+  | 'Cancelled'
+  | 'cancelled';
 
 // Color system for job phases
 export const JOB_PHASE_COLORS = {
   'Job Request': {
+    bg: '#3a82f7',
+    bgOpacity: 'bg-[#3a82f7]/10',
+    border: 'border-[#3a82f7]',
+    text: 'text-[#3a82f7]'
+  },
+  'job_request': {
     bg: '#3a82f7',
     bgOpacity: 'bg-[#3a82f7]/10',
     border: 'border-[#3a82f7]',
@@ -22,7 +35,19 @@ export const JOB_PHASE_COLORS = {
     border: 'border-[#ed8a32]',
     text: 'text-[#ed8a32]'
   },
+  'work_order': {
+    bg: '#ed8a32',
+    bgOpacity: 'bg-[#ed8a32]/10',
+    border: 'border-[#ed8a32]',
+    text: 'text-[#ed8a32]'
+  },
   'Pending Work Order': {
+    bg: '#edb520',
+    bgOpacity: 'bg-[#edb520]/10',
+    border: 'border-[#edb520]',
+    text: 'text-[#edb520]'
+  },
+  'pending_work_order': {
     bg: '#edb520',
     bgOpacity: 'bg-[#edb520]/10',
     border: 'border-[#edb520]',
@@ -34,7 +59,19 @@ export const JOB_PHASE_COLORS = {
     border: 'border-[#b26ff2]',
     text: 'text-[#b26ff2]'
   },
+  'grading': {
+    bg: '#b26ff2',
+    bgOpacity: 'bg-[#b26ff2]/10',
+    border: 'border-[#b26ff2]',
+    text: 'text-[#b26ff2]'
+  },
   'Invoicing': {
+    bg: '#36c199',
+    bgOpacity: 'bg-[#36c199]/10',
+    border: 'border-[#36c199]',
+    text: 'text-[#36c199]'
+  },
+  'invoicing': {
     bg: '#36c199',
     bgOpacity: 'bg-[#36c199]/10',
     border: 'border-[#36c199]',
@@ -46,7 +83,19 @@ export const JOB_PHASE_COLORS = {
     border: 'border-[#974b1c]',
     text: 'text-[#974b1c]'
   },
+  'completed': {
+    bg: '#974b1c',
+    bgOpacity: 'bg-[#974b1c]/10',
+    border: 'border-[#974b1c]',
+    text: 'text-[#974b1c]'
+  },
   'Cancelled': {
+    bg: '#d3d3d3',
+    bgOpacity: 'bg-[#d3d3d3]/10',
+    border: 'border-[#d3d3d3]',
+    text: 'text-[#d3d3d3]'
+  },
+  'cancelled': {
     bg: '#d3d3d3',
     bgOpacity: 'bg-[#d3d3d3]/10',
     border: 'border-[#d3d3d3]',

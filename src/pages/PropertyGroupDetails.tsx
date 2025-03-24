@@ -5,12 +5,16 @@ import {
   Map, 
   Phone, 
   Mail,
-  Users,
+  Calendar,
   Plus,
   Trash2,
-  Loader2
+  ArrowRight,
+  Search,
+  ChevronDown,
+  Filter
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 
 interface PropertyGroupDetailsProps {
   theme: 'dark' | 'light';

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   FileText, 
@@ -35,6 +36,17 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
   // const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
+
+  // We need to fix these to reference the commented out state variables
+  const handleExtraChargesClick = () => {
+    // setShowExtraCharges(true);
+    console.log('Extra charges button clicked');
+  };
+
+  const handleExportOptionsClick = () => {
+    // setShowExportOptions(true);
+    console.log('Export options button clicked');
+  };
 
   return (
     <div className="space-y-6">
@@ -175,7 +187,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       <div className="flex justify-end space-x-4">
         <button
           className={`px-4 py-2 rounded-lg border ${borderColor} ${mutedTextColor} hover:bg-gray-700 transition-colors flex items-center space-x-2`}
-          onClick={() => setShowExtraCharges(true)}
+          onClick={handleExtraChargesClick}
         >
           <AlertTriangle size={18} />
           <span>Extra Charges</span>
@@ -183,7 +195,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
         
         <button
           className={`px-4 py-2 rounded-lg border ${borderColor} ${mutedTextColor} hover:bg-gray-700 transition-colors flex items-center space-x-2`}
-          onClick={() => setShowExportOptions(true)}
+          onClick={handleExportOptionsClick}
         >
           <Download size={18} />
           <span>Export</span>

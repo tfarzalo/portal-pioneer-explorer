@@ -7,7 +7,21 @@ interface JobPhaseIndicatorProps {
 }
 
 export function JobPhaseIndicator({ phase, size = 'md' }: JobPhaseIndicatorProps) {
-  const phaseColors = JOB_PHASE_COLORS[phase];
+  // Safely get colors with fallback to prevent errors
+  const getPhaseColors = (phase: JobPhase) => {
+    if (JOB_PHASE_COLORS[phase]) {
+      return JOB_PHASE_COLORS[phase];
+    }
+    
+    // Fallback to a default color scheme
+    return {
+      bgOpacity: 'bg-gray-200/10',
+      border: 'border-gray-200',
+      text: 'text-gray-500'
+    };
+  };
+  
+  const phaseColors = getPhaseColors(phase);
   
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',

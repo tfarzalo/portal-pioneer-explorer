@@ -14,12 +14,12 @@ interface AllJobsProps {
 interface Job {
   id: string;
   job_number: string;
-  property_id: string | null;  // Updated to allow null
+  property_id: string | null;
   unit_number: string;
-  job_type: 'Paint' | 'Callback' | 'Repair';
+  job_type: string;
   phase: JobPhase;
-  scheduled_date: string | null;  // Updated to allow null
-  submitted_by: string | null;  // Updated to allow null
+  scheduled_date: string | null;
+  submitted_by: string | null;
   property_name?: string;
 }
 
@@ -70,7 +70,7 @@ export function AllJobs({ theme }: AllJobsProps) {
           property_id: job.property_id,
           unit_number: job.unit_number,
           job_type: job.job_type,
-          phase: job.phase,
+          phase: job.phase as JobPhase,
           scheduled_date: job.scheduled_date,
           submitted_by: job.submitted_by,
           property_name: job.properties?.name
@@ -100,8 +100,15 @@ export function AllJobs({ theme }: AllJobsProps) {
     return matchesSearch && matchesStatus;
   });
 
+  // Helper function to safely get status color
   const getStatusColor = (status: JobPhase) => {
-    return `${JOB_PHASE_COLORS[status].bgOpacity} ${JOB_PHASE_COLORS[status].text}`;
+    // Check if the color exists in our mapping
+    if (JOB_PHASE_COLORS[status]) {
+      return `${JOB_PHASE_COLORS[status].bgOpacity} ${JOB_PHASE_COLORS[status].text}`;
+    }
+    
+    // Fallback to a default color
+    return 'bg-gray-100 text-gray-500';
   };
 
   return (
