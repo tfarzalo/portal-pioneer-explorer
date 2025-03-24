@@ -1,4 +1,3 @@
-
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -62,7 +61,7 @@ export function Completed({ theme }: CompletedProps) {
           created_at,
           completed_at
         `)
-        .in('phase', ['completed', 'Completed']);
+        .in('phase', ['completed']);
 
       if (error) {
         console.error('Error fetching completed jobs:', error);

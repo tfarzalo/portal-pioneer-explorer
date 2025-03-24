@@ -1,5 +1,4 @@
-
-import { Clipboard, ArrowLeft, Plus } from 'lucide-react';
+import { Clipboard, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
@@ -60,7 +59,7 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
           properties (property_name, property_address),
           created_at
         `)
-        .in('phase', ['work_order', 'Work Order', 'pending_work_order', 'Pending Work Order']);
+        .in('phase', ['work_order', 'pending_work_order']);
 
       if (error) {
         console.error('Error fetching work orders:', error);

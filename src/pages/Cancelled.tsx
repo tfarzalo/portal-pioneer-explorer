@@ -1,4 +1,3 @@
-
 import { XCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -62,7 +61,7 @@ export function Cancelled({ theme }: CancelledProps) {
           created_at,
           cancelled_at
         `)
-        .in('phase', ['cancelled', 'Cancelled']);
+        .in('phase', ['cancelled']);
 
       if (error) {
         console.error('Error fetching cancelled jobs:', error);

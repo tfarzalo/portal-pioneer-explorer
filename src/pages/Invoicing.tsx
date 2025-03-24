@@ -1,4 +1,3 @@
-
 import { FileText, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -64,7 +63,7 @@ export function Invoicing({ theme }: InvoicingProps) {
           base_amount,
           total_amount
         `)
-        .in('phase', ['invoicing', 'Invoicing']);
+        .in('phase', ['invoicing']);
 
       if (error) {
         console.error('Error fetching invoicing jobs:', error);

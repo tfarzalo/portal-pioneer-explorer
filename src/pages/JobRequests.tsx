@@ -1,4 +1,3 @@
-
 import { FileText, ArrowLeft, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -60,7 +59,7 @@ export function JobRequests({ theme }: JobRequestsProps) {
           properties (property_name, property_address),
           created_at
         `)
-        .in('phase', ['job_request', 'Job Request']);
+        .in('phase', ['job_request']);
 
       if (error) {
         console.error('Error fetching job requests:', error);

@@ -1,4 +1,3 @@
-
 import { BarChart3, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -60,7 +59,7 @@ export function Grading({ theme }: GradingProps) {
           properties (property_name, property_address),
           created_at
         `)
-        .in('phase', ['grading', 'Grading']);
+        .in('phase', ['grading']);
 
       if (error) {
         console.error('Error fetching grading jobs:', error);
@@ -120,7 +119,7 @@ export function Grading({ theme }: GradingProps) {
   const handleRowClick = (jobId: string) => {
     navigate(`/jobs/${jobId}`);
   };
-  
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
