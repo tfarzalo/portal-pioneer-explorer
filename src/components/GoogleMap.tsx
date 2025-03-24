@@ -21,11 +21,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
           zoom: 15,
           center: { lat: 37.7749, lng: -122.4194 }, // Default center (San Francisco)
           mapTypeId: google.maps.MapTypeId.ROADMAP,
-          mapTypeControl: true,
-          mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-            position: google.maps.ControlPosition.TOP_LEFT,
-          },
           zoomControl: true,
           scaleControl: true,
           streetViewControl: true,

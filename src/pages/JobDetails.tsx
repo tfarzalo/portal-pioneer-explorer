@@ -17,7 +17,7 @@ interface JobDetailsProps {
 
 const JobDetails = ({ theme }: JobDetailsProps) => {
   const { id } = useParams();
-  const { jobData, loading } = useJobData(id);
+  const { jobData, loading, fetchJobDetails } = useJobData(id);
   const [showExtraCharges, setShowExtraCharges] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
   
@@ -66,6 +66,12 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     console.log('Submit update clicked');
   };
 
+  const refetchJobData = () => {
+    if (id) {
+      fetchJobDetails(id);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -86,12 +92,13 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     <div className="space-y-6">
       <div className={`rounded-lg overflow-hidden border ${borderColor}`}>
         <JobHeader jobData={jobData} theme={theme} />
-        <div className="p-6 bg-white">
+        <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
           <JobInformation 
             jobData={jobData} 
             theme={theme} 
             formatDate={formatDate} 
             onSubmitUpdate={handleSubmitUpdate}
+            refetchJobData={refetchJobData}
           />
         </div>
       </div>

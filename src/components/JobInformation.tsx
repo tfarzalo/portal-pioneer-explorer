@@ -1,9 +1,14 @@
 
-import { MapPin, Calendar, Users, Clock, Home } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
+import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface JobInformationProps {
   jobData: {
+    id: string;
     property_name?: string;
     property_address?: string;
     scheduled_date: string | null;
@@ -14,13 +19,48 @@ interface JobInformationProps {
   theme: 'dark' | 'light';
   formatDate: (dateString: string | null) => string;
   onSubmitUpdate?: () => void;
+  refetchJobData: () => void;
 }
 
-export const JobInformation = ({ jobData, theme, formatDate, onSubmitUpdate }: JobInformationProps) => {
+export const JobInformation = ({ 
+  jobData, 
+  theme, 
+  formatDate, 
+  onSubmitUpdate,
+  refetchJobData 
+}: JobInformationProps) => {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const cardBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
+  
+  const [isPhaseDropdownOpen, setIsPhaseDropdownOpen] = useState(false);
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // All possible job phases
+  const jobPhases = [
+    'job_request',
+    'work_order',
+    'pending_work_order',
+    'grading',
+    'invoicing',
+    'completed',
+    'cancelled'
+  ];
+  
+  // Common job types
+  const jobTypes = [
+    'full_paint',
+    'touch_up',
+    'wall_repair',
+    'ceiling_repair',
+    'cabinet_refinish',
+    'exterior_paint'
+  ];
 
   // Format job type to be capitalized
   const formatJobType = (type: string): string => {
@@ -55,6 +95,91 @@ export const JobInformation = ({ jobData, theme, formatDate, onSubmitUpdate }: J
     
     return d.toLocaleDateString('en-US', options);
   };
+  
+  // Update the job phase in the database
+  const updateJobPhase = async (phase: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ phase })
+        .eq('id', jobData.id);
+        
+      if (error) {
+        console.error('Error updating job phase:', error);
+        toast.error('Failed to update job phase');
+        return;
+      }
+      
+      toast.success('Job phase updated successfully');
+      refetchJobData();
+    } catch (error) {
+      console.error('Error updating job phase:', error);
+      toast.error('Failed to update job phase');
+    } finally {
+      setIsLoading(false);
+      setIsPhaseDropdownOpen(false);
+    }
+  };
+  
+  // Update the job type in the database
+  const updateJobType = async (type: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ job_type: type })
+        .eq('id', jobData.id);
+        
+      if (error) {
+        console.error('Error updating job type:', error);
+        toast.error('Failed to update job type');
+        return;
+      }
+      
+      toast.success('Job type updated successfully');
+      refetchJobData();
+    } catch (error) {
+      console.error('Error updating job type:', error);
+      toast.error('Failed to update job type');
+    } finally {
+      setIsLoading(false);
+      setIsTypeDropdownOpen(false);
+    }
+  };
+  
+  // Update the scheduled date in the database
+  const updateScheduledDate = async (date: string | null) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ scheduled_date: date })
+        .eq('id', jobData.id);
+        
+      if (error) {
+        console.error('Error updating scheduled date:', error);
+        toast.error('Failed to update scheduled date');
+        return;
+      }
+      
+      setSelectedDate(date);
+      toast.success('Scheduled date updated successfully');
+      refetchJobData();
+    } catch (error) {
+      console.error('Error updating scheduled date:', error);
+      toast.error('Failed to update scheduled date');
+    } finally {
+      setIsLoading(false);
+      setIsDatePickerOpen(false);
+    }
+  };
+  
+  // Handle date change
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = event.target.value ? event.target.value : null;
+    updateScheduledDate(newDate);
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
@@ -66,35 +191,89 @@ export const JobInformation = ({ jobData, theme, formatDate, onSubmitUpdate }: J
       
       <div className="w-full md:w-1/2">
         <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor}`}>
-          <h2 className="text-lg font-bold mb-4">CURRENT JOB STATUS</h2>
+          <h2 className={`text-lg font-bold mb-4 ${textColor}`}>CURRENT JOB STATUS</h2>
           
-          <div className="mb-6">
-            <div className="p-2 border border-gray-300 rounded flex items-center justify-between">
-              <span>{getStatusText(jobData.phase)}</span>
-              <span className="text-gray-400">▼</span>
+          <div className="mb-6 relative">
+            <div 
+              className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
+              onClick={() => setIsPhaseDropdownOpen(!isPhaseDropdownOpen)}
+            >
+              <span className={textColor}>{getStatusText(jobData.phase)}</span>
+              <ChevronDown className={mutedTextColor} />
             </div>
+            
+            {isPhaseDropdownOpen && (
+              <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
+                {jobPhases.map((phase) => {
+                  const phaseColors = JOB_PHASE_COLORS[phase] || { text: textColor };
+                  
+                  return (
+                    <div
+                      key={phase}
+                      className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
+                        phase === jobData.phase ? 'bg-gray-700' : ''
+                      }`}
+                      onClick={() => updateJobPhase(phase)}
+                    >
+                      <span className={phaseColors.text}>{getStatusText(phase)}</span>
+                      {phase === jobData.phase && <Check size={16} className={phaseColors.text} />}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
           
           <div className="mb-6">
-            <h3 className="font-bold mb-2">JOB TYPE</h3>
-            <div className="p-2 border border-gray-300 rounded">
-              {formatJobType(jobData.job_type)}
+            <h3 className={`font-bold mb-2 ${textColor}`}>JOB TYPE</h3>
+            <div 
+              className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
+              onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
+            >
+              <span className={textColor}>{formatJobType(jobData.job_type)}</span>
+              <ChevronDown className={mutedTextColor} />
             </div>
+            
+            {isTypeDropdownOpen && (
+              <div className={`absolute z-10 w-full max-w-[calc(50%-3rem)] mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
+                {jobTypes.map((type) => (
+                  <div
+                    key={type}
+                    className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
+                      type === jobData.job_type ? 'bg-gray-700' : ''
+                    }`}
+                    onClick={() => updateJobType(type)}
+                  >
+                    <span className={textColor}>{formatJobType(type)}</span>
+                    {type === jobData.job_type && <Check size={16} className={textColor} />}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="mb-6">
-            <h3 className="font-bold mb-2">SCHEDULED WORK DATE</h3>
-            <div className="p-2 border border-gray-300 rounded">
-              {formatScheduledDate(jobData.scheduled_date)}
+            <h3 className={`font-bold mb-2 ${textColor}`}>SCHEDULED WORK DATE</h3>
+            <div className={`p-2 border border-gray-300 rounded flex items-center ${inputBg}`}>
+              <input
+                type="date"
+                value={selectedDate || ''}
+                onChange={handleDateChange}
+                className={`w-full ${inputBg} ${textColor} focus:outline-none`}
+              />
+              <Calendar className={mutedTextColor} size={18} />
             </div>
           </div>
           
           {onSubmitUpdate && (
             <button 
               onClick={onSubmitUpdate}
-              className="w-full p-3 bg-red-500 hover:bg-red-600 text-white rounded"
+              disabled={isLoading}
+              className={`w-full p-3 bg-red-500 hover:bg-red-600 text-white rounded flex items-center justify-center ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Submit Update
+              {isLoading ? 'Updating...' : 'Submit Update'}
             </button>
           )}
         </div>

@@ -1,8 +1,7 @@
 
-import { Folder, ArrowLeft } from 'lucide-react';
+import { Folder } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { JobPhaseIndicator } from './JobPhaseIndicator';
-import { JobPhase } from '../types/workOrder';
+import { JOB_PHASE_COLORS } from '../types/workOrder';
 
 interface JobHeaderProps {
   jobData: {
@@ -16,10 +15,20 @@ interface JobHeaderProps {
 
 export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
   const navigate = useNavigate();
-  const textColor = theme === 'dark' ? 'text-gray-800' : 'text-gray-800';
+  const textColor = theme === 'dark' ? 'text-gray-100' : 'text-gray-800';
+  
+  // Get phase-specific color or default to yellow
+  const getPhaseColor = (phase: string) => {
+    if (JOB_PHASE_COLORS[phase]) {
+      return JOB_PHASE_COLORS[phase].border.replace('border-', '');
+    }
+    return 'bg-yellow-300';
+  };
+  
+  const phaseColor = getPhaseColor(jobData.phase);
   
   return (
-    <div className="w-full bg-yellow-300 py-4 px-6 flex items-center justify-between rounded-t-lg">
+    <div className={`w-full bg-yellow-300 py-4 px-6 flex items-center justify-between rounded-t-lg border-t-4 ${phaseColor}`}>
       <div className="flex items-center space-x-3">
         <Folder className={textColor} size={24} />
         <div>
