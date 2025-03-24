@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   FileText, 
@@ -39,7 +38,7 @@ interface JobData {
   base_amount: number | null;
   total_amount: number | null;
   description: string | null;
-  created_at: string;
+  created_at: string | null;
   property_name?: string;
   property_address?: string;
 }
@@ -58,7 +57,6 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
-  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
 
   useEffect(() => {
     if (id) {
@@ -86,7 +84,18 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
 
       if (data) {
         setJobData({
-          ...data,
+          id: data.id,
+          job_number: data.job_number,
+          property_id: data.property_id,
+          unit_number: data.unit_number,
+          job_type: data.job_type,
+          phase: data.phase,
+          scheduled_date: data.scheduled_date,
+          submitted_by: data.submitted_by,
+          base_amount: data.base_amount,
+          total_amount: data.total_amount,
+          description: data.description,
+          created_at: data.created_at,
           property_name: data.properties?.property_name || 'N/A',
           property_address: data.properties?.property_address || 'N/A'
         });
