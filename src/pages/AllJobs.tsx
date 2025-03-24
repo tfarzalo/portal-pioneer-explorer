@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Table, ArrowUpDown, MoreHorizontal, Search, Filter, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +15,7 @@ interface Job {
   job_number: string;
   property_id: string | null;
   unit_number: string;
-  job_type: string; // Changed from "Paint" | "Callback" | "Repair" to string to accept lowercase values
+  job_type: string; 
   phase: JobPhase;
   scheduled_date: string | null;
   submitted_by: string | null;
@@ -149,6 +148,10 @@ export function AllJobs({ theme }: AllJobsProps) {
     };
   };
 
+  const handleRowClick = (jobId: string) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -265,7 +268,11 @@ export function AllJobs({ theme }: AllJobsProps) {
               </tr>
             ) : (
               filteredJobs.map((job) => (
-                <tr key={job.id}>
+                <tr 
+                  key={job.id} 
+                  onClick={() => handleRowClick(job.id)}
+                  className="cursor-pointer hover:bg-gray-700/30 transition-colors"
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`font-medium ${textColor}`}>{job.job_number}</div>
                   </td>
@@ -288,7 +295,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                     <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="relative inline-block text-left">
+                    <div className="relative inline-block text-left" onClick={(e) => e.stopPropagation()}>
                       <div>
                         <button
                           type="button"

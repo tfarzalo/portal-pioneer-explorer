@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { 
   FileText, 
   ArrowLeft, 
@@ -18,14 +19,36 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
 import { ExtraChargesModal } from '../components/ExtraChargesModal';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
+import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 
 interface JobDetailsProps {
   theme: 'dark' | 'light';
 }
 
+interface JobData {
+  id: string;
+  job_number: string;
+  property_id: string | null;
+  unit_number: string;
+  job_type: string;
+  phase: string;
+  scheduled_date: string | null;
+  submitted_by: string | null;
+  base_amount: number | null;
+  total_amount: number | null;
+  description: string | null;
+  created_at: string;
+  property_name?: string;
+  property_address?: string;
+}
+
 const JobDetails = ({ theme }: JobDetailsProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [jobData, setJobData] = useState<JobData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'details' | 'photos' | 'notes'>('details');
   const [showExtraCharges, setShowExtraCharges] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
@@ -35,13 +58,53 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
+  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
+
+  useEffect(() => {
+    if (id) {
+      fetchJobDetails(id);
+    }
+  }, [id]);
+
+  const fetchJobDetails = async (jobId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select(`
+          *,
+          properties (property_name, property_address)
+        `)
+        .eq('id', jobId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching job details:', error);
+        toast.error('Failed to load job details.');
+        return;
+      }
+
+      if (data) {
+        setJobData({
+          ...data,
+          property_name: data.properties?.property_name || 'N/A',
+          property_address: data.properties?.property_address || 'N/A'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching job details:', error);
+      toast.error('Failed to load job details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const mockWorkOrderData = {
-    workOrderNumber: `WO-${id}`,
-    property: '511 Queens',
-    unit: '122',
-    description: 'Painting and minor repairs',
-    baseAmount: 550.00,
+    workOrderNumber: jobData?.job_number ? `WO-${jobData.job_number}` : '',
+    property: jobData?.property_name || '',
+    unit: jobData?.unit_number || '',
+    description: jobData?.description || '',
+    baseAmount: jobData?.base_amount || 0,
     extraCharges: [
       {
         type: 'Additional Paint',
@@ -50,7 +113,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
         description: 'Extra coat required due to dark previous color'
       }
     ],
-    totalAmount: 670.00
+    totalAmount: jobData?.total_amount || 0
   };
 
   const handleExtraChargesClick = () => {
@@ -72,12 +135,42 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     setShowExtraCharges(false);
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Not scheduled';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className={`text-lg ${textColor}`}>Loading job details...</p>
+      </div>
+    );
+  }
+
+  if (!jobData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className={`text-lg ${textColor}`}>Job not found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <FileText className={textColor} size={28} />
-          <h1 className={`text-2xl font-bold ${textColor}`}>Job #{id}</h1>
+          <h1 className={`text-2xl font-bold ${textColor}`}>{jobData.job_number}</h1>
+          {jobData.phase && (
+            <div className="ml-4">
+              <JobPhaseIndicator phase={jobData.phase as any} />
+            </div>
+          )}
         </div>
         <button
           onClick={() => navigate(-1)}
@@ -97,7 +190,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
               <MapPin className={mutedTextColor} size={18} />
               <div>
                 <p className={`text-xs ${mutedTextColor}`}>Property</p>
-                <p className={`font-medium ${textColor}`}>511 Queens</p>
+                <p className={`font-medium ${textColor}`}>{jobData.property_name}</p>
               </div>
             </div>
             
@@ -105,23 +198,23 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
               <Calendar className={mutedTextColor} size={18} />
               <div>
                 <p className={`text-xs ${mutedTextColor}`}>Scheduled</p>
-                <p className={`font-medium ${textColor}`}>June 15, 2023</p>
+                <p className={`font-medium ${textColor}`}>{formatDate(jobData.scheduled_date)}</p>
               </div>
             </div>
             
             <div className={`p-4 rounded-lg ${headerBg} flex items-center space-x-2`}>
               <Users className={mutedTextColor} size={18} />
               <div>
-                <p className={`text-xs ${mutedTextColor}`}>Crew</p>
-                <p className={`font-medium ${textColor}`}>Team Alpha</p>
+                <p className={`text-xs ${mutedTextColor}`}>Unit</p>
+                <p className={`font-medium ${textColor}`}>{jobData.unit_number || 'N/A'}</p>
               </div>
             </div>
             
             <div className={`p-4 rounded-lg ${headerBg} flex items-center space-x-2`}>
               <Clock className={mutedTextColor} size={18} />
               <div>
-                <p className={`text-xs ${mutedTextColor}`}>Status</p>
-                <p className={`font-medium text-yellow-500`}>In Progress</p>
+                <p className={`text-xs ${mutedTextColor}`}>Type</p>
+                <p className={`font-medium ${textColor}`}>{jobData.job_type}</p>
               </div>
             </div>
           </div>
@@ -164,7 +257,28 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       {activeTab === 'details' && (
         <div className={`${cardBg} p-6 rounded-lg border ${borderColor}`}>
           <h3 className={`text-lg font-semibold ${textColor} mb-4`}>Job Details</h3>
-          <p className={mutedTextColor}>This is a detailed job description...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className={`${mutedTextColor} text-sm`}>Description</p>
+              <p className={textColor}>{jobData.description || 'No description provided'}</p>
+            </div>
+            {jobData.base_amount && (
+              <div>
+                <p className={`${mutedTextColor} text-sm`}>Base Amount</p>
+                <p className={textColor}>${jobData.base_amount.toFixed(2)}</p>
+              </div>
+            )}
+            {jobData.total_amount && (
+              <div>
+                <p className={`${mutedTextColor} text-sm`}>Total Amount</p>
+                <p className={textColor}>${jobData.total_amount.toFixed(2)}</p>
+              </div>
+            )}
+            <div>
+              <p className={`${mutedTextColor} text-sm`}>Created</p>
+              <p className={textColor}>{new Date(jobData.created_at).toLocaleString()}</p>
+            </div>
+          </div>
         </div>
       )}
       
@@ -191,18 +305,10 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
           <div className="space-y-4">
             <div className={`p-4 rounded-lg ${headerBg}`}>
               <div className="flex justify-between">
-                <span className={`font-medium ${textColor}`}>John Doe</span>
-                <span className={mutedTextColor}>June 10, 2023</span>
+                <span className={`font-medium ${textColor}`}>System</span>
+                <span className={mutedTextColor}>{formatDate(jobData.created_at)}</span>
               </div>
-              <p className={mutedTextColor}>Initial assessment complete. Ready for scheduling.</p>
-            </div>
-            
-            <div className={`p-4 rounded-lg ${headerBg}`}>
-              <div className="flex justify-between">
-                <span className={`font-medium ${textColor}`}>Jane Smith</span>
-                <span className={mutedTextColor}>June 12, 2023</span>
-              </div>
-              <p className={mutedTextColor}>Customer requested blue paint instead of gray.</p>
+              <p className={mutedTextColor}>Job created in phase: {jobData.phase}</p>
             </div>
           </div>
         </div>
@@ -253,9 +359,9 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       {showExportOptions && (
         <ExportOptions
           theme={theme}
-          data={[{ id: '1', scheduledDate: '2023-06-15', date: '2023-06-10' }]}
+          data={[{ id: jobData.id, scheduledDate: jobData.scheduled_date, date: jobData.created_at }]}
           columns={[{ header: 'ID', accessor: 'id' }]}
-          filename="job_export"
+          filename={`job_${jobData.job_number}`}
           isVisible={showExportOptions}
         />
       )}
