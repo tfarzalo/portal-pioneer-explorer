@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { Table, ArrowUpDown, ChevronDown, MoreHorizontal, Search, Filter } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Table, ArrowUpDown, MoreHorizontal, Search, Filter, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { JobPhase } from '../types/workOrder';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
