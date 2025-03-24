@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  FolderKanban,
-  ArrowLeft,
-  Building2,
-  Users,
-  MapPin,
-  Mail,
-  Phone,
-  Plus,
-  Trash2,
-  Loader2
+  FolderKanban, 
+  ArrowLeft, 
+  Users, 
+  MapPin, 
+  Mail, 
+  Phone, 
+  Plus, 
+  Trash2, 
+  Loader2 
 } from 'lucide-react';
 
 interface PropertyGroupDetailsProps {
@@ -56,7 +55,6 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
 
-  // Mock data - replace with actual data fetching
   const [group, setGroup] = useState<PropertyGroup>({
     id: '1',
     name: 'RKW Residential',

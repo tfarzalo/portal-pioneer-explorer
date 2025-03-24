@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
   FolderKanban, 
-  ArrowLeft, 
   ArrowUpDown, 
   Building2, 
   Users, 

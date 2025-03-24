@@ -34,7 +34,6 @@ export function FullCalendar({ theme }: FullCalendarProps) {
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
 
-  // Mock data with March and April 2025 dates
   const jobs: Job[] = [
     {
       id: '1',
@@ -165,7 +164,6 @@ export function FullCalendar({ theme }: FullCalendarProps) {
     return jobs.filter(job => job.scheduledDate === today && job.subcontractor);
   };
 
-  // Generate calendar grid
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDay = getFirstDayOfMonth(currentDate);
   const days = [];

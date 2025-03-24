@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
@@ -7,16 +6,11 @@ import {
   Users, 
   Phone, 
   Mail,
-  FileText,
-  Calendar,
-  DollarSign,
-  ClipboardList,
-  History,
-  AlertCircle,
-  CheckCircle,
-  Clock,
+  Plus,
   Briefcase,
-  Plus
+  Clock,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 
 interface PropertyDetailsProps {

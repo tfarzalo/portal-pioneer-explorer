@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, CheckCircle } from 'lucide-react';
+import { X, Mail } from 'lucide-react';
 
 interface ExtraChargesModalProps {
   theme: 'dark' | 'light';

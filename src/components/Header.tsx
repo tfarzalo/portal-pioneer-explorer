@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sun, Moon, Bell, Plus, User, Menu, X, Calendar, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsPopover } from './NotificationsPopover';
@@ -233,3 +233,4 @@ export function Header({ theme, onThemeToggle, onToggleSidebar }: HeaderProps) {
     </div>
   );
 }
+

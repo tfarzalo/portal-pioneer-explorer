@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { ArrowUpDown, Building2, MapPin, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

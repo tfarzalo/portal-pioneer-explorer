@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileDown, Calendar } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 import { unparse } from 'papaparse';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -22,7 +22,6 @@ export function ExportOptions({ theme, data, columns, filename, isVisible }: Exp
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
 
-  // Reset dates when the export panel is opened
   React.useEffect(() => {
     if (isVisible) {
       setStartDate('');
@@ -61,11 +60,9 @@ export function ExportOptions({ theme, data, columns, filename, isVisible }: Exp
     const filteredData = filterDataByDateRange();
     const doc = new jsPDF();
 
-    // Add title
     doc.setFontSize(16);
     doc.text(filename, 14, 15);
 
-    // Add date range if selected
     if (startDate || endDate) {
       doc.setFontSize(10);
       doc.text(`Date Range: ${startDate || 'Start'} to ${endDate || 'End'}`, 14, 25);
