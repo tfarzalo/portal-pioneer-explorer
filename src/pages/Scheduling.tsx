@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, ArrowLeft, ArrowRight, Search, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DropResult } from '@hello-pangea/dnd';
 import type { JobPhase } from '../types/workOrder';
 
 interface SchedulingProps {
@@ -39,7 +39,6 @@ export function Scheduling({ theme }: SchedulingProps) {
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
 
-  // Mock data - replace with actual data fetching
   const [jobRequests, setJobRequests] = useState<JobRequest[]>([
     {
       id: '1',
@@ -118,15 +117,13 @@ export function Scheduling({ theme }: SchedulingProps) {
     }
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const { source, destination } = result;
 
-    // Create a copy of the current state
     const updatedSubcontractors = [...subcontractors];
 
-    // If dragging from job requests to a subcontractor
     if (source.droppableId === 'jobRequests') {
       const jobIndex = jobRequests.findIndex(job => job.id === result.draggableId);
       if (jobIndex === -1) return;
@@ -135,26 +132,21 @@ export function Scheduling({ theme }: SchedulingProps) {
       const destSubIndex = updatedSubcontractors.findIndex(sub => sub.id === destination.droppableId);
       if (destSubIndex === -1) return;
 
-      // Remove job from jobRequests
       const updatedJobRequests = [...jobRequests];
       updatedJobRequests.splice(jobIndex, 1);
       setJobRequests(updatedJobRequests);
 
-      // Add job to subcontractor's assigned jobs
       if (!updatedSubcontractors[destSubIndex].assignedJobs) {
         updatedSubcontractors[destSubIndex].assignedJobs = [];
       }
       updatedSubcontractors[destSubIndex].assignedJobs.splice(destination.index, 0, job);
       setSubcontractors(updatedSubcontractors);
       setHasChanges(true);
-    }
-    // If dragging between subcontractors
-    else if (source.droppableId !== destination.droppableId) {
+    } else if (source.droppableId !== destination.droppableId) {
       const sourceSubIndex = updatedSubcontractors.findIndex(sub => sub.id === source.droppableId);
       const destSubIndex = updatedSubcontractors.findIndex(sub => sub.id === destination.droppableId);
       if (sourceSubIndex === -1 || destSubIndex === -1) return;
 
-      // Ensure assignedJobs arrays exist
       if (!updatedSubcontractors[sourceSubIndex].assignedJobs) {
         updatedSubcontractors[sourceSubIndex].assignedJobs = [];
       }
@@ -165,18 +157,14 @@ export function Scheduling({ theme }: SchedulingProps) {
       const job = updatedSubcontractors[sourceSubIndex].assignedJobs[source.index];
       if (!job) return;
 
-      // Move job between subcontractors
       updatedSubcontractors[sourceSubIndex].assignedJobs.splice(source.index, 1);
       updatedSubcontractors[destSubIndex].assignedJobs.splice(destination.index, 0, job);
       setSubcontractors(updatedSubcontractors);
       setHasChanges(true);
-    }
-    // If reordering within the same subcontractor
-    else {
+    } else {
       const subIndex = updatedSubcontractors.findIndex(sub => sub.id === source.droppableId);
       if (subIndex === -1) return;
 
-      // Ensure assignedJobs array exists
       if (!updatedSubcontractors[subIndex].assignedJobs) {
         updatedSubcontractors[subIndex].assignedJobs = [];
       }
@@ -184,7 +172,6 @@ export function Scheduling({ theme }: SchedulingProps) {
       const job = updatedSubcontractors[subIndex].assignedJobs[source.index];
       if (!job) return;
 
-      // Reorder jobs within the same subcontractor
       updatedSubcontractors[subIndex].assignedJobs.splice(source.index, 1);
       updatedSubcontractors[subIndex].assignedJobs.splice(destination.index, 0, job);
       setSubcontractors(updatedSubcontractors);
@@ -193,9 +180,7 @@ export function Scheduling({ theme }: SchedulingProps) {
   };
 
   const handleSchedule = () => {
-    // Show confirmation dialog
     if (window.confirm('Are you sure you want to schedule these jobs and notify the subcontractors?')) {
-      // Handle scheduling and notifications
       console.log('Scheduling jobs:', subcontractors);
       setHasChanges(false);
     }
@@ -278,7 +263,7 @@ export function Scheduling({ theme }: SchedulingProps) {
             <div className={`${cardBg} rounded-lg border ${borderColor} p-4`}>
               <h2 className={`text-lg font-semibold ${textColor} mb-4`}>Job Requests</h2>
               <Droppable droppableId="jobRequests">
-                {(provided) => (
+                {(provided: DroppableProvided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -286,7 +271,7 @@ export function Scheduling({ theme }: SchedulingProps) {
                   >
                     {jobRequests.map((job, index) => (
                       <Draggable key={job.id} draggableId={job.id} index={index}>
-                        {(provided) => (
+                        {(provided: DraggableProvided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
@@ -320,7 +305,7 @@ export function Scheduling({ theme }: SchedulingProps) {
                     </div>
                   </div>
                   <Droppable droppableId={sub.id}>
-                    {(provided) => (
+                    {(provided: DroppableProvided) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
@@ -329,7 +314,7 @@ export function Scheduling({ theme }: SchedulingProps) {
                         <div className="space-y-2">
                           {(sub.assignedJobs || []).map((job, index) => (
                             <Draggable key={job.id} draggableId={job.id} index={index}>
-                              {(provided) => (
+                              {(provided: DraggableProvided) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}

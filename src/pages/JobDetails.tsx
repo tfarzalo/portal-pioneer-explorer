@@ -16,6 +16,7 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ExportOptions } from '../components/ExportOptions';
 
 interface JobDetailsProps {
   theme: 'dark' | 'light';
@@ -222,6 +223,16 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
           <span>Create Work Order</span>
         </button>
       </div>
+      
+      {showExportOptions && (
+        <ExportOptions
+          theme={theme}
+          data={[{ id: '1', scheduledDate: '2023-06-15', date: '2023-06-10' }]}
+          columns={[{ header: 'ID', accessor: 'id' }]}
+          filename="job_export"
+          isVisible={showExportOptions}
+        />
+      )}
     </div>
   );
 };

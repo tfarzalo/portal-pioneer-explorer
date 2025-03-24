@@ -11,7 +11,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 
 interface PropertyGroupDetailsProps {
   theme: 'dark' | 'light';
