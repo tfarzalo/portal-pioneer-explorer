@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   FileText, 
@@ -146,11 +147,17 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Not scheduled';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   if (loading) {
@@ -285,7 +292,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
             )}
             <div>
               <p className={`${mutedTextColor} text-sm`}>Created</p>
-              <p className={textColor}>{new Date(jobData.created_at).toLocaleString()}</p>
+              <p className={textColor}>{jobData.created_at ? new Date(jobData.created_at).toLocaleString() : 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -315,7 +322,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
             <div className={`p-4 rounded-lg ${headerBg}`}>
               <div className="flex justify-between">
                 <span className={`font-medium ${textColor}`}>System</span>
-                <span className={mutedTextColor}>{formatDate(jobData.created_at)}</span>
+                <span className={mutedTextColor}>{jobData.created_at ? formatDate(jobData.created_at) : 'N/A'}</span>
               </div>
               <p className={mutedTextColor}>Job created in phase: {jobData.phase}</p>
             </div>
