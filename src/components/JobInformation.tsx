@@ -186,7 +186,9 @@ export const JobInformation = ({
             {isPhaseDropdownOpen && (
               <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
                 {jobPhases.map((phase) => {
-                  const phaseColors = JOB_PHASE_COLORS[phase];
+                  // Cast phase to JobPhase for type safety
+                  const safePhase = phase as JobPhase;
+                  const phaseColors = JOB_PHASE_COLORS[safePhase];
                   
                   return (
                     <div
@@ -194,7 +196,7 @@ export const JobInformation = ({
                       className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
                         phase === jobData.phase ? 'bg-gray-700' : ''
                       }`}
-                      onClick={() => updateJobPhase(phase)}
+                      onClick={() => updateJobPhase(safePhase)}
                     >
                       <span className={phaseColors.text}>{getStatusText(phase)}</span>
                       {phase === jobData.phase && <Check size={16} className={phaseColors.text} />}

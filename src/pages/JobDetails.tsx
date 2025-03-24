@@ -96,7 +96,6 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
           <JobInformation 
             jobData={jobData} 
             theme={theme} 
-            formatDate={formatDate} 
             onSubmitUpdate={handleSubmitUpdate}
             refetchJobData={refetchJobData}
           />
