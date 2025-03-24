@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Table, ArrowUpDown, Search, Filter, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -5,6 +6,7 @@ import type { JobPhase } from '../types/workOrder';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 
 interface AllJobsProps {
   theme: 'dark' | 'light';
@@ -194,8 +196,8 @@ export function AllJobs({ theme }: AllJobsProps) {
         </button>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
             <input
@@ -203,7 +205,7 @@ export function AllJobs({ theme }: AllJobsProps) {
               placeholder="Search jobs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-64 pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+              className={`w-64 pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -211,7 +213,7 @@ export function AllJobs({ theme }: AllJobsProps) {
             <select
               value={phaseFilter}
               onChange={(e) => setPhaseFilter(e.target.value as JobPhase | 'all')}
-              className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+              className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
             >
               <option value="all">All Phases</option>
               {Object.keys(JOB_PHASE_COLORS).map((phase) => (
@@ -222,106 +224,106 @@ export function AllJobs({ theme }: AllJobsProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className={`min-w-full divide-y ${borderColor} rounded-lg ${cardBg}`}>
-          <thead className={`${sectionBg}`}>
-            <tr>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('job_number')} className="flex items-center space-x-2">
-                  <span>Job #</span>
-                  {sortColumn === 'job_number' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('property_name')} className="flex items-center space-x-2">
-                  <span>Property</span>
-                  {sortColumn === 'property_name' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('unit_number')} className="flex items-center space-x-2">
-                  <span>Unit</span>
-                  {sortColumn === 'unit_number' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('job_type')} className="flex items-center space-x-2">
-                  <span>Type</span>
-                  {sortColumn === 'job_type' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('phase')} className="flex items-center space-x-2">
-                  <span>Phase</span>
-                  {sortColumn === 'phase' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
-                <button onClick={() => handleSort('scheduled_date')} className="flex items-center space-x-2">
-                  <span>Scheduled</span>
-                  {sortColumn === 'scheduled_date' && (
-                    <ArrowUpDown className="h-4 w-4" />
-                  )}
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${borderColor}`}>
-            {loading ? (
+      <div className={`${cardBg} rounded-xl border ${borderColor} overflow-hidden shadow-sm`}>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className={`${sectionBg}`}>
               <tr>
-                <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
-                  Loading jobs...
-                </td>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('job_number')} className="flex items-center space-x-2">
+                    <span>Job #</span>
+                    {sortColumn === 'job_number' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('property_name')} className="flex items-center space-x-2">
+                    <span>Property</span>
+                    {sortColumn === 'property_name' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('unit_number')} className="flex items-center space-x-2">
+                    <span>Unit</span>
+                    {sortColumn === 'unit_number' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('job_type')} className="flex items-center space-x-2">
+                    <span>Type</span>
+                    {sortColumn === 'job_type' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('phase')} className="flex items-center space-x-2">
+                    <span>Phase</span>
+                    {sortColumn === 'phase' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>
+                  <button onClick={() => handleSort('scheduled_date')} className="flex items-center space-x-2">
+                    <span>Scheduled</span>
+                    {sortColumn === 'scheduled_date' && (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
+                  </button>
+                </th>
               </tr>
-            ) : filteredJobs.length === 0 ? (
-              <tr>
-                <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
-                  No jobs found.
-                </td>
-              </tr>
-            ) : (
-              filteredJobs.map((job) => (
-                <tr 
-                  key={job.id} 
-                  onClick={() => handleRowClick(job.id)}
-                  className={`cursor-pointer ${hoverBg} transition-colors`}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{displayJobNumber(job)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{job.property_name}</div>
-                    <div className={mutedTextColor}>{job.property_address}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{job.unit_number || 'N/A'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`inline-flex items-center rounded-full ${getPhaseColor(job.phase).bgOpacity} ${getPhaseColor(job.phase).border} border ${getPhaseColor(job.phase).text} px-3 py-1 text-sm font-medium`}>
-                      {formatPhase(job.phase)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
+            </thead>
+            <tbody className="divide-y divide-gray-700">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
+                    Loading jobs...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredJobs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
+                    No jobs found.
+                  </td>
+                </tr>
+              ) : (
+                filteredJobs.map((job) => (
+                  <tr 
+                    key={job.id} 
+                    onClick={() => navigate(`/jobs/${job.id}`)}
+                    className={`cursor-pointer ${hoverBg} transition-colors group`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`font-medium ${textColor}`}>{displayJobNumber(job)}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className={`font-medium ${textColor}`}>{job.property_name}</div>
+                      <div className={`${mutedTextColor} text-sm truncate max-w-md`}>{job.property_address}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`font-medium ${textColor}`}>{job.unit_number || 'N/A'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <JobPhaseIndicator phase={job.phase} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
