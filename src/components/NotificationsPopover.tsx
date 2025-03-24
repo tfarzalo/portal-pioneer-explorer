@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, FileText, CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
 
 interface Notification {

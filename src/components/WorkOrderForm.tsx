@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import { 
   Camera,
   Plus,
@@ -50,6 +51,7 @@ export function WorkOrderForm({
 
   useEffect(() => {
     if (propertyId === 'special-property') {
+      // This line uses setBillingRates to avoid the unused variable warning
       setBillingRates(prev => ({...prev}));
     }
   }, [propertyId]);
@@ -570,4 +572,3 @@ export function WorkOrderForm({
     </form>
   );
 }
-

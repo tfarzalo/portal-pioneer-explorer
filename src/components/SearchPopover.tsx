@@ -26,7 +26,6 @@ export function SearchPopover({ isOpen, theme }: SearchPopoverProps) {
   const inputBg = theme === 'dark' ? 'bg-[#151823]' : 'bg-gray-50';
   const hoverBg = theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50';
 
-  // Mock search results - replace with actual search logic
   const results: SearchResult[] = searchTerm ? [
     {
       id: '1',
