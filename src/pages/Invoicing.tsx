@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
+import { JobPhase } from '../types/workOrder';
 
 interface InvoicingProps {
   theme: 'dark' | 'light';
@@ -208,7 +209,7 @@ export function Invoicing({ theme }: InvoicingProps) {
                       <div className={`font-medium ${textColor}`}>{formatCurrency(job.total_amount)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <JobPhaseIndicator phase={job.phase} />
+                      <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                   </tr>
                 ))

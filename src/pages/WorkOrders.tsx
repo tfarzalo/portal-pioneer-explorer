@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
+import { JobPhase } from '../types/workOrder';
 
 interface WorkOrdersProps {
   theme: 'dark' | 'light';
@@ -196,7 +197,7 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
                       <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <JobPhaseIndicator phase={job.phase} />
+                      <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>

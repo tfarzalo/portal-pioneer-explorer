@@ -198,7 +198,7 @@ export function Cancelled({ theme }: CancelledProps) {
                       <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <JobPhaseIndicator phase={job.phase} />
+                      <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`font-medium ${textColor}`}>{formatDate(job.cancelled_at)}</div>
