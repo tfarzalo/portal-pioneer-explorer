@@ -38,7 +38,7 @@ export const JobInformation = ({
   const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Define job phases
+  // Define job phases - use only the snake_case versions to match what's expected in the database
   const jobPhases: JobPhase[] = [
     'job_request',
     'work_order',
@@ -49,7 +49,7 @@ export const JobInformation = ({
     'cancelled'
   ];
   
-  // Common job types
+  // Common job types that match our JobType definition
   const jobTypes: JobType[] = [
     'full_paint',
     'touch_up',
@@ -186,9 +186,8 @@ export const JobInformation = ({
             {isPhaseDropdownOpen && (
               <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
                 {jobPhases.map((phase) => {
-                  // Cast phase to JobPhase for type safety
-                  const safePhase = phase as JobPhase;
-                  const phaseColors = JOB_PHASE_COLORS[safePhase];
+                  // Cast phase to JobPhase for type safety - this is already correct since we defined jobPhases as JobPhase[]
+                  const phaseColors = JOB_PHASE_COLORS[phase];
                   
                   return (
                     <div
@@ -196,7 +195,7 @@ export const JobInformation = ({
                       className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
                         phase === jobData.phase ? 'bg-gray-700' : ''
                       }`}
-                      onClick={() => updateJobPhase(safePhase)}
+                      onClick={() => updateJobPhase(phase)}
                     >
                       <span className={phaseColors.text}>{getStatusText(phase)}</span>
                       {phase === jobData.phase && <Check size={16} className={phaseColors.text} />}
