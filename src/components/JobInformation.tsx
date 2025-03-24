@@ -1,9 +1,11 @@
 
 import { MapPin, Calendar, Users, Clock } from 'lucide-react';
+import { GoogleMap } from './GoogleMap';
 
 interface JobInformationProps {
   jobData: {
     property_name?: string;
+    property_address?: string;
     scheduled_date: string | null;
     unit_number: string;
     job_type: string;
@@ -18,7 +20,7 @@ export const JobInformation = ({ jobData, theme, formatDate }: JobInformationPro
   const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h2 className={`text-xl font-semibold ${textColor}`}>Job Information</h2>
       
       <div className="flex flex-wrap gap-4">
@@ -54,6 +56,13 @@ export const JobInformation = ({ jobData, theme, formatDate }: JobInformationPro
           </div>
         </div>
       </div>
+      
+      {jobData.property_address && (
+        <div className="mt-6">
+          <h3 className={`text-lg font-medium ${textColor} mb-3`}>Property Location</h3>
+          <GoogleMap address={jobData.property_address} theme={theme} />
+        </div>
+      )}
     </div>
   );
 };
