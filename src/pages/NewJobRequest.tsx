@@ -29,7 +29,6 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
     unitNumber: '',
     scheduledDate: '',
     jobType: '',
-    description: '',
     specialInstructions: ''
   });
   
@@ -37,6 +36,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
+  const calendarIconColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   
   // Fetch properties from the database
   useEffect(() => {
@@ -102,17 +102,15 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
       // Insert the new job
       const { data, error } = await supabase
         .from('jobs')
-        .insert([
-          {
-            job_number: jobNumber,
-            property_id: formData.propertyId,
-            unit_number: formData.unitNumber,
-            scheduled_date: formData.scheduledDate,
-            job_type: formData.jobType,
-            description: formData.description,
-            phase: 'job_request'
-          }
-        ])
+        .insert({
+          job_number: jobNumber,
+          property_id: formData.propertyId,
+          unit_number: formData.unitNumber,
+          scheduled_date: formData.scheduledDate,
+          job_type: formData.jobType,
+          special_instructions: formData.specialInstructions,
+          phase: 'job_request'
+        })
         .select();
         
       if (error) throw error;
@@ -189,7 +187,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium mb-2 ${textColor}`}>
-                <Calendar size={16} className="inline mr-2" />
+                <Calendar size={16} className={`inline mr-2 ${calendarIconColor}`} />
                 Scheduled Work Date
               </label>
               <input
@@ -218,21 +216,6 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
                 <option value="Repair">Repair</option>
               </select>
             </div>
-          </div>
-
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${textColor}`}>
-              Description
-            </label>
-            <textarea
-              rows={4}
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter job description"
-              className={`w-full p-2.5 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-              required
-            ></textarea>
           </div>
 
           <div>
