@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   ArrowLeft, 
-  Edit, 
   Map, 
   Phone, 
   Mail,
@@ -328,4 +327,3 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
     </div>
   );
 }
-

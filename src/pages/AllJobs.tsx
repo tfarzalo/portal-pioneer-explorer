@@ -14,12 +14,12 @@ interface AllJobsProps {
 interface Job {
   id: string;
   job_number: string;
-  property_id: string;
+  property_id: string | null;  // Updated to allow null
   unit_number: string;
   job_type: 'Paint' | 'Callback' | 'Repair';
   phase: JobPhase;
-  scheduled_date: string;
-  submitted_by: string;
+  scheduled_date: string | null;  // Updated to allow null
+  submitted_by: string | null;  // Updated to allow null
   property_name?: string;
 }
 
