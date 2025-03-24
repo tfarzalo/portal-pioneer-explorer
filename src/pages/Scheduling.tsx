@@ -1,8 +1,9 @@
+
 import { useState } from 'react';
 import { Calendar, ArrowLeft, ArrowRight, Search, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DropResult } from '@hello-pangea/dnd';
-import type { JobPhase } from '../types/workOrder';
+import type { JobPhase, JobType } from '../types/workOrder';
 
 interface SchedulingProps {
   theme: 'dark' | 'light';
@@ -13,7 +14,7 @@ interface JobRequest {
   workOrderNumber: string;
   property: string;
   unit: string;
-  type: 'Paint' | 'Callback' | 'Repair';
+  type: string;
   phase: JobPhase;
   scheduledDate: string;
 }
@@ -81,7 +82,7 @@ export function Scheduling({ theme }: SchedulingProps) {
     }
   ]);
 
-  const formatPhaseForDisplay = (phase: JobPhase) => {
+  const formatPhase = (phase: JobPhase): string => {
     return phase
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))

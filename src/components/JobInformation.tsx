@@ -50,15 +50,15 @@ export const JobInformation = ({
   
   // Common job types that match our JobType definition
   const jobTypes: JobType[] = [
+    'paint',
+    'callback',
+    'repair',
     'full_paint',
     'touch_up',
     'wall_repair',
     'ceiling_repair',
     'cabinet_refinish',
-    'exterior_paint',
-    'paint',
-    'callback',
-    'repair'
+    'exterior_paint'
   ];
 
   // Format job type to be capitalized
