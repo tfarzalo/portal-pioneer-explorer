@@ -7,17 +7,11 @@ export type JobPhase =
   | 'completed'
   | 'cancelled';
 
-// Define job types
+// Define job types based on the jobs.job_type column values
 export type JobType = 
   | 'paint'
   | 'callback'
-  | 'repair'
-  | 'full_paint'
-  | 'touch_up'
-  | 'wall_repair'
-  | 'ceiling_repair'
-  | 'cabinet_refinish'
-  | 'exterior_paint';
+  | 'repair';
 
 // Color system for job phases
 export const JOB_PHASE_COLORS = {

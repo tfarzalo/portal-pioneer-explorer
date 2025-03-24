@@ -50,12 +50,17 @@ export const useJobData = (jobId: string | undefined) => {
       }
 
       if (data) {
+        // Ensure job_type is one of the allowed types from the database
+        const jobType = ['paint', 'callback', 'repair'].includes(data.job_type) 
+          ? data.job_type as JobType 
+          : 'paint' as JobType; // Default to 'paint' if type is not recognized
+
         setJobData({
           id: data.id,
           job_number: data.job_number,
           property_id: data.property_id,
           unit_number: data.unit_number,
-          job_type: data.job_type as JobType,
+          job_type: jobType,
           phase: data.phase as JobPhase,
           scheduled_date: data.scheduled_date,
           submitted_by: data.submitted_by,

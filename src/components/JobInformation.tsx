@@ -48,17 +48,11 @@ export const JobInformation = ({
     'cancelled'
   ];
   
-  // Common job types that match our JobType definition
+  // Common job types that match our JobType definition - limited to the three main types from the jobs table
   const jobTypes: JobType[] = [
     'paint',
     'callback',
-    'repair',
-    'full_paint',
-    'touch_up',
-    'wall_repair',
-    'ceiling_repair',
-    'cabinet_refinish',
-    'exterior_paint'
+    'repair'
   ];
 
   // Format job type to be capitalized

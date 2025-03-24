@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Calendar, ArrowLeft, ArrowRight, Search, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DropResult } from '@hello-pangea/dnd';
-import type { JobPhase, JobType } from '../types/workOrder';
+import type { JobPhase } from '../types/workOrder';
 
 interface SchedulingProps {
   theme: 'dark' | 'light';
@@ -81,13 +80,6 @@ export function Scheduling({ theme }: SchedulingProps) {
       assignedJobs: []
     }
   ]);
-
-  const formatPhase = (phase: JobPhase): string => {
-    return phase
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
 
   const handleDateChange = (days: number) => {
     const newDate = new Date(selectedDate);
