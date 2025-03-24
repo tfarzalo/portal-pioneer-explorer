@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+
 import { FileText, ArrowLeft, Building2, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface NewJobRequestProps {
   theme: 'dark' | 'light';

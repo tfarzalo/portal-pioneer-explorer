@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sun, Moon, Bell, Plus, User, Menu, X, Calendar, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsPopover } from './NotificationsPopover';
@@ -67,11 +67,7 @@ export function Header({ theme, onThemeToggle, onToggleSidebar }: HeaderProps) {
             >
               <Search size={20} />
             </button>
-            <SearchPopover 
-              isOpen={showSearch}
-              onClose={() => setShowSearch(false)}
-              theme={theme}
-            />
+            <SearchPopover theme={theme} />
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -233,4 +229,3 @@ export function Header({ theme, onThemeToggle, onToggleSidebar }: HeaderProps) {
     </div>
   );
 }
-

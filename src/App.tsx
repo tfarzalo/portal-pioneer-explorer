@@ -26,7 +26,7 @@ import { JGManagement } from './pages/JGManagement';
 import { Subcontractors } from './pages/Subcontractors';
 import { NewJobRequest } from './pages/NewJobRequest';
 import { AllJobs } from './pages/AllJobs';
-import { JobDetails } from './pages/JobDetails';
+import JobDetails from './pages/JobDetails'; // Changed from destructured import to default import
 import { NewWorkOrder } from './pages/NewWorkOrder';
 import { Scheduling } from './pages/Scheduling';
 

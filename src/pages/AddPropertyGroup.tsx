@@ -1,10 +1,8 @@
+
 import { useState } from 'react';
 import { 
   FolderKanban, 
-  Plus,
-  Users,
-  Globe,
-  Building2
+  ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,6 +53,13 @@ export function AddPropertyGroup({ theme }: AddPropertyGroupProps) {
           <FolderKanban className={textColor} size={28} />
           <h1 className={`text-2xl font-bold ${textColor}`}>Add Property Management Group</h1>
         </div>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+        >
+          <ArrowLeft size={20} />
+          <span>Go Back</span>
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -168,6 +173,7 @@ export function AddPropertyGroup({ theme }: AddPropertyGroupProps) {
 
         <div className="flex justify-end space-x-4">
           <button
+            type="button"
             onClick={() => navigate('/property-groups')}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
