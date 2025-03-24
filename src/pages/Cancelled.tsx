@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
+import { JobPhase } from '../types/workOrder';
 
 interface CancelledProps {
   theme: 'dark' | 'light';

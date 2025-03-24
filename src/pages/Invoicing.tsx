@@ -1,4 +1,4 @@
-import { FileText, ArrowLeft } from 'lucide-react';
+import { DollarSign, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
@@ -22,8 +22,6 @@ interface Job {
   property_name: string;
   property_address: string;
   created_at: string;
-  base_amount: number | null;
-  total_amount: number | null;
 }
 
 export function Invoicing({ theme }: InvoicingProps) {
@@ -60,9 +58,7 @@ export function Invoicing({ theme }: InvoicingProps) {
           scheduled_date,
           submitted_by,
           properties (property_name, property_address),
-          created_at,
-          base_amount,
-          total_amount
+          created_at
         `)
         .in('phase', ['invoicing']);
 
@@ -121,20 +117,15 @@ export function Invoicing({ theme }: InvoicingProps) {
       .join(' ');
   };
 
-  const formatCurrency = (amount: number | null): string => {
-    if (amount === null) return 'N/A';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-  };
-
   const handleRowClick = (jobId: string) => {
     navigate(`/jobs/${jobId}`);
   };
-  
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <FileText className={textColor} size={28} />
+          <DollarSign className={textColor} size={28} />
           <h1 className={`text-2xl font-bold ${textColor}`}>Invoicing</h1>
         </div>
         <button
@@ -148,7 +139,7 @@ export function Invoicing({ theme }: InvoicingProps) {
 
       <div className="flex items-center mb-6">
         <div className="relative">
-          <FileText className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
+          <DollarSign className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
           <input
             type="text"
             placeholder="Search invoicing jobs..."
@@ -168,8 +159,8 @@ export function Invoicing({ theme }: InvoicingProps) {
                 <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Property</th>
                 <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Unit</th>
                 <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Type</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Amount</th>
                 <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Phase</th>
+                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Scheduled</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
@@ -206,10 +197,10 @@ export function Invoicing({ theme }: InvoicingProps) {
                       <div className={`font-medium ${textColor}`}>{formatJobType(job.job_type)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`font-medium ${textColor}`}>{formatCurrency(job.total_amount)}</div>
+                      <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <JobPhaseIndicator phase={job.phase as JobPhase} />
+                      <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
                     </td>
                   </tr>
                 ))
