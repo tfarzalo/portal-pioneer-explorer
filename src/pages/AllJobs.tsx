@@ -6,6 +6,7 @@ import type { JobPhase } from '../types/workOrder';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 
 interface AllJobsProps {
   theme: 'dark' | 'light';
@@ -16,7 +17,7 @@ interface Job {
   job_number: string;
   property_id: string | null;
   unit_number: string;
-  job_type: string;
+  job_type: string; // Changed from "Paint" | "Callback" | "Repair" to string to accept lowercase values
   phase: JobPhase;
   scheduled_date: string | null;
   submitted_by: string | null;
