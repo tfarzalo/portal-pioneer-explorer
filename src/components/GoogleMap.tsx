@@ -14,14 +14,8 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   
   useEffect(() => {
-    // Load Google Maps API
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8u2t5q49x-ZGduLf4SjfYZt5WCQvCDU&callback=initMap`;
-    script.async = true;
-    script.defer = true;
-    
-    // Initialize map when API is loaded
-    window.initMap = () => {
+    // Define initMap function for the window object
+    window.initMap = function() {
       if (mapRef.current) {
         const mapOptions: google.maps.MapOptions = {
           zoom: 15,
@@ -54,11 +48,20 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
       }
     };
     
+    // Load Google Maps API with the updated API key
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD3SUZZIXsUR620thfkUqa-v08YrOQB52k&callback=initMap`;
+    script.async = true;
+    script.defer = true;
     document.head.appendChild(script);
     
     return () => {
-      window.initMap = null;
-      document.head.removeChild(script);
+      // Clean up
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+      // Fix the TypeScript error by assigning a function instead of null
+      window.initMap = function() {};
     };
   }, [theme]);
   
@@ -68,12 +71,16 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
       geocoderRef.current.geocode({ address }, (results, status) => {
         if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
           const location = results[0].geometry.location;
-          mapInstanceRef.current?.setCenter(location);
           
-          new google.maps.Marker({
-            map: mapInstanceRef.current,
-            position: location
-          });
+          // Fix the TypeScript error by checking if mapInstanceRef.current exists
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setCenter(location);
+            
+            new google.maps.Marker({
+              map: mapInstanceRef.current,
+              position: location
+            });
+          }
         }
       });
     }

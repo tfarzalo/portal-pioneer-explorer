@@ -8,16 +8,15 @@ export const formatDate = (dateString: string | null): string => {
   if (!dateString) return 'Not scheduled';
   
   try {
-    // Create a date object and handle timezone issues
+    // Parse the date without applying timezone conversion
     const date = new Date(dateString);
     
-    // Apply timezone offset to ensure date is displayed correctly
-    const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-    
-    return utcDate.toLocaleDateString('en-US', {
+    // Format the date directly without timezone adjustments
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC' // Use UTC to prevent timezone shifts
     });
   } catch (error) {
     console.error('Error formatting date:', error);
