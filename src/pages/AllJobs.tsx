@@ -117,6 +117,10 @@ export function AllJobs({ theme }: AllJobsProps) {
       .join(' ');
   };
 
+  const handleJobClick = (jobId: string) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -177,6 +181,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                   <tr 
                     key={job.id}
                     className={`cursor-pointer ${hoverBg} transition-colors`}
+                    onClick={() => handleJobClick(job.id)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`font-medium ${textColor}`}>{job.job_number}</div>
