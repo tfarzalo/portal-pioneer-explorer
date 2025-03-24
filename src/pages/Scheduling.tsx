@@ -46,7 +46,7 @@ export function Scheduling({ theme }: SchedulingProps) {
       property: 'La Vie SouthPark',
       unit: '122',
       type: 'Paint',
-      phase: 'Job Request',
+      phase: 'job_request',
       scheduledDate: '2024-02-27'
     },
     {
@@ -55,7 +55,7 @@ export function Scheduling({ theme }: SchedulingProps) {
       property: 'Riverside Apartments',
       unit: '204',
       type: 'Callback',
-      phase: 'Job Request',
+      phase: 'job_request',
       scheduledDate: '2024-02-27'
     }
   ]);
@@ -81,6 +81,13 @@ export function Scheduling({ theme }: SchedulingProps) {
     }
   ]);
 
+  const formatPhase = (phase: JobPhase): string => {
+    return phase
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const handleDateChange = (days: number) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
@@ -98,19 +105,19 @@ export function Scheduling({ theme }: SchedulingProps) {
 
   const getPhaseColor = (phase: JobPhase) => {
     switch (phase) {
-      case 'Job Request':
+      case 'job_request':
         return 'bg-[#3B82F6]/20 border-l-4 border-[#3B82F6]';
-      case 'Work Order':
+      case 'work_order':
         return 'bg-[#F97316]/20 border-l-4 border-[#F97316]';
-      case 'Pending Work Order':
+      case 'pending_work_order':
         return 'bg-[#F97316]/20 border-l-4 border-[#F97316]';
-      case 'Grading':
+      case 'grading':
         return 'bg-[#A855F7]/20 border-l-4 border-[#A855F7]';
-      case 'Invoicing':
+      case 'invoicing':
         return 'bg-[#10B981]/20 border-l-4 border-[#10B981]';
-      case 'Completed':
+      case 'completed':
         return 'bg-[#10B981]/20 border-l-4 border-[#10B981]';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-red-500/20 border-l-4 border-red-500';
       default:
         return 'bg-gray-500/20 border-l-4 border-gray-500';

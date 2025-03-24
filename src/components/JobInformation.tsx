@@ -14,7 +14,7 @@ interface JobInformationProps {
     scheduled_date: string | null;
     unit_number: string;
     job_type: string;
-    phase: string;
+    phase: JobPhase;
   };
   theme: 'dark' | 'light';
   onSubmitUpdate?: () => void;
@@ -56,7 +56,10 @@ export const JobInformation = ({
     'wall_repair',
     'ceiling_repair',
     'cabinet_refinish',
-    'exterior_paint'
+    'exterior_paint',
+    'paint',
+    'callback',
+    'repair'
   ];
 
   // Format job type to be capitalized
@@ -68,7 +71,7 @@ export const JobInformation = ({
   };
 
   // Get current status based on phase
-  const getStatusText = (phase: string): string => {
+  const getStatusText = (phase: JobPhase): string => {
     // Format the phase for display
     const formattedPhase = phase
       .split('_')

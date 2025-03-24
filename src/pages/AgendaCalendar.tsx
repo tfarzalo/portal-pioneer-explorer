@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Calendar, 
@@ -57,7 +56,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       propertyId: '1',
       unit: '122',
       type: 'Paint',
-      phase: 'Job Request',
+      phase: 'job_request',
       scheduledDate: new Date().toISOString().split('T')[0],
       address: '6000 Fairview Rd',
       notes: 'Full unit paint',
@@ -72,7 +71,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       propertyId: '2',
       unit: '204',
       type: 'Paint',
-      phase: 'Work Order',
+      phase: 'work_order',
       scheduledDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
       address: '1234 River Rd',
       subcontractor: 'Sarah Johnson',
@@ -86,13 +85,21 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       propertyId: '3',
       unit: '305',
       type: 'Paint',
-      phase: 'Grading',
+      phase: 'grading',
       scheduledDate: new Date(Date.now() + 172800000).toISOString().split('T')[0],
       address: '2000 Pine St',
       startTime: '10:00',
       endTime: '18:00'
     }
   ];
+
+  // Helper function to format phase for display
+  const formatPhase = (phase: JobPhase): string => {
+    return phase
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   const jobsByDate = jobs.reduce((acc, job) => {
     const date = job.scheduledDate;
@@ -166,7 +173,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
         job.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.unit.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesPhase = phaseFilter === 'all' || job.phase === phaseFilter;
+      const matchesPhase = phaseFilter === 'all' || formatPhase(job.phase) === phaseFilter;
       
       return matchesSearch && matchesPhase;
     });
@@ -312,7 +319,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
                                 <div className={`text-sm ${mutedTextColor}`}>Unit {job.unit}</div>
                               </div>
                               <div className={`px-3 py-1 rounded-full text-sm ${JOB_PHASE_COLORS[job.phase].bgOpacity} ${JOB_PHASE_COLORS[job.phase].text}`}>
-                                {job.phase}
+                                {formatPhase(job.phase)}
                               </div>
                             </div>
                             <div className="mt-2 space-y-2">

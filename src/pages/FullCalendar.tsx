@@ -43,7 +43,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '1',
       unit: '122',
       type: 'Paint',
-      phase: 'Job Request',
+      phase: 'job_request',
       scheduledDate: '2025-03-15',
       address: '6000 Fairview Rd',
       notes: 'Full unit paint',
@@ -56,7 +56,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '2',
       unit: '204',
       type: 'Paint',
-      phase: 'Work Order',
+      phase: 'work_order',
       scheduledDate: '2025-03-22',
       address: '1234 River Rd',
       subcontractor: 'Sarah Johnson'
@@ -68,7 +68,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '3',
       unit: '305',
       type: 'Paint',
-      phase: 'Grading',
+      phase: 'grading',
       scheduledDate: '2025-03-28',
       address: '2000 Pine St'
     },
@@ -79,7 +79,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '4',
       unit: '401',
       type: 'Paint',
-      phase: 'Invoicing',
+      phase: 'invoicing',
       scheduledDate: '2025-04-05',
       address: '555 Edison Way'
     },
@@ -90,7 +90,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '5',
       unit: '102',
       type: 'Paint',
-      phase: 'Completed',
+      phase: 'completed',
       scheduledDate: '2025-04-12',
       address: '789 Oak Ave'
     },
@@ -101,27 +101,35 @@ export function FullCalendar({ theme }: FullCalendarProps) {
       propertyId: '6',
       unit: '1505',
       type: 'Paint',
-      phase: 'Cancelled',
+      phase: 'cancelled',
       scheduledDate: '2025-04-18',
       address: '100 Metro Blvd'
     }
   ];
 
+  // Helper function to format phase for display
+  const formatPhase = (phase: JobPhase): string => {
+    return phase
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const getPhaseColor = (phase: JobPhase) => {
     switch (phase) {
-      case 'Job Request':
+      case 'job_request':
         return 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500';
-      case 'Work Order':
+      case 'work_order':
         return 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-l-4 border-orange-500';
-      case 'Pending Work Order':
+      case 'pending_work_order':
         return 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-l-4 border-orange-500';
-      case 'Grading':
+      case 'grading':
         return 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-l-4 border-purple-500';
-      case 'Invoicing':
+      case 'invoicing':
         return 'bg-green-500/10 text-green-700 dark:text-green-300 border-l-4 border-green-500';
-      case 'Completed':
+      case 'completed':
         return 'bg-green-500/10 text-green-700 dark:text-green-300 border-l-4 border-green-500';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-red-500/10 text-red-700 dark:text-red-300 border-l-4 border-red-500';
       default:
         return 'bg-gray-500/10 text-gray-700 dark:text-gray-300 border-l-4 border-gray-500';
@@ -150,7 +158,7 @@ export function FullCalendar({ theme }: FullCalendarProps) {
 
   const getJobsForDate = (date: string) => {
     return jobs.filter(job => {
-      const matchesPhase = phaseFilter === 'all' || job.phase === phaseFilter;
+      const matchesPhase = phaseFilter === 'all' || formatPhase(job.phase) === phaseFilter;
       const matchesSearch = 
         job.workOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
