@@ -1,99 +1,103 @@
-import React, { useState } from 'react';
-import { Briefcase, ArrowLeft, Search, Filter, FileDown } from 'lucide-react';
+import { useState } from 'react';
+import { 
+  FileText, 
+  Search, 
+  Filter, 
+  ArrowLeft, 
+  Plus 
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { JobPhase } from '../types/workOrder';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
-import { ExportOptions } from '../components/ExportOptions';
 
 interface WorkOrdersProps {
   theme: 'dark' | 'light';
 }
 
-interface Job {
-  id: string;
-  workOrderNumber: string;
-  property: string;
-  propertyId: string;
-  unit: string;
-  type: 'Paint' | 'Callback' | 'Repair';
-  phase: JobPhase;
-  scheduledDate: string;
-  submittedBy: string;
-}
-
 export function WorkOrders({ theme }: WorkOrdersProps) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [phaseFilter, setPhaseFilter] = useState<string>('all');
-  const [showExport, setShowExport] = useState(false);
-
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
-  const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
-
+  
   // Mock data - replace with actual data fetching
-  const jobs: Job[] = [
+  const workOrders = [
     {
       id: '1',
-      workOrderNumber: 'WO#46',
+      number: 'WO#123',
       property: 'La Vie SouthPark',
-      propertyId: '1',
       unit: '122',
-      type: 'Callback',
-      phase: 'Work Order',
-      scheduledDate: '2024-02-27',
-      submittedBy: 'John Doe'
+      status: 'In Progress',
+      date: '2023-06-15',
+      type: 'Paint'
     },
     {
       id: '2',
-      workOrderNumber: 'WO#45',
+      number: 'WO#124',
       property: 'Riverside Apartments',
-      propertyId: '2',
       unit: '204',
-      type: 'Paint',
-      phase: 'Pending Work Order',
-      scheduledDate: '2024-02-26',
-      submittedBy: 'Sarah Wilson'
+      status: 'Completed',
+      date: '2023-06-10',
+      type: 'Repair'
+    },
+    {
+      id: '3',
+      number: 'WO#125',
+      property: 'Pine Valley',
+      unit: '305',
+      status: 'Pending',
+      date: '2023-06-20',
+      type: 'Paint'
     }
   ];
-
-  const columns = [
-    { header: 'Work Order #', accessor: 'workOrderNumber' },
-    { header: 'Property', accessor: 'property' },
-    { header: 'Unit', accessor: 'unit' },
-    { header: 'Type', accessor: 'type' },
-    { header: 'Phase', accessor: 'phase' },
-    { header: 'Scheduled Date', accessor: 'scheduledDate' },
-    { header: 'Submitted By', accessor: 'submittedBy' }
-  ];
-
-  const filteredJobs = jobs.filter(job => {
+  
+  const filteredWorkOrders = workOrders.filter(wo => {
     const matchesSearch = 
-      job.workOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.unit.toLowerCase().includes(searchTerm.toLowerCase());
+      wo.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      wo.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      wo.unit.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesPhase = phaseFilter === 'all' || job.phase === phaseFilter;
+    const matchesStatus = statusFilter === 'all' || wo.status === statusFilter;
     
-    return matchesSearch && matchesPhase;
+    const matchesDate = dateFilter === 'all' || (() => {
+      const today = new Date().toISOString().split('T')[0];
+      const woDate = new Date(wo.date);
+      
+      if (dateFilter === 'today') {
+        return wo.date === today;
+      } else if (dateFilter === 'upcoming') {
+        return wo.date > today;
+      } else if (dateFilter === 'past') {
+        return wo.date < today;
+      }
+      return true;
+    })();
+    
+    return matchesSearch && matchesStatus && matchesDate;
   });
-
-  const getPhaseColor = (phase: JobPhase) => {
-    return `${JOB_PHASE_COLORS[phase].bgOpacity} ${JOB_PHASE_COLORS[phase].text}`;
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'In Progress':
+        return 'bg-blue-500/10 text-blue-500';
+      case 'Completed':
+        return 'bg-green-500/10 text-green-500';
+      case 'Pending':
+        return 'bg-yellow-500/10 text-yellow-500';
+      default:
+        return 'bg-gray-500/10 text-gray-500';
+    }
   };
-
-  const toggleExport = () => {
-    setShowExport(!showExport);
-  };
-
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Briefcase className={textColor} size={28} />
+          <FileText className={textColor} size={28} />
           <h1 className={`text-2xl font-bold ${textColor}`}>Work Orders</h1>
         </div>
         <div className="flex space-x-4">
@@ -105,105 +109,148 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
             <span>Go Back</span>
           </button>
           <button
-            onClick={() => navigate('/new-job-request')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => navigate('/work-orders/new')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            New Job Request
+            <Plus size={20} />
+            <span>New Work Order</span>
           </button>
         </div>
       </div>
-
-      <div className={`${cardBg} rounded-lg border ${borderColor}`}>
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="relative flex-1">
-              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
-              <input
-                type="text"
-                placeholder="Search work orders..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-              />
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Filter size={20} className={mutedTextColor} />
-                <select
-                  value={phaseFilter}
-                  onChange={(e) => setPhaseFilter(e.target.value)}
-                  className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
-                >
-                  <option value="all">All Phases</option>
-                  <option value="Work Order">Work Order</option>
-                  <option value="Pending Work Order">Pending Work Order</option>
-                </select>
-              </div>
-              <button
-                onClick={toggleExport}
-                className={`px-4 py-2 ${showExport ? 'bg-blue-700' : 'bg-blue-600'} text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2`}
-              >
-                <FileDown size={20} />
-                <span>Export</span>
-              </button>
-            </div>
+      
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="relative">
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
+          <input
+            type="text"
+            placeholder="Search work orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-full md:w-80 pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+          />
+        </div>
+        
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center space-x-2">
+            <Filter size={20} className={mutedTextColor} />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+            >
+              <option value="all">All Statuses</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Calendar size={20} className={mutedTextColor} />
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className={`px-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
+            </select>
           </div>
         </div>
-
+      </div>
+      
+      <div className={`${cardBg} rounded-lg border ${borderColor} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={headerBg}>
-              <tr>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>WO#</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Property</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Unit</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Type</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Phase</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Scheduled Date</th>
-                <th className={`px-4 py-3 text-left text-sm font-medium ${textColor}`}>Submitted By</th>
+            <thead>
+              <tr className={`border-b ${borderColor}`}>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Work Order
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Property
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Unit
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Type
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Status
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Date
+                </th>
+                <th className={`px-6 py-3 text-left text-xs font-medium ${mutedTextColor} uppercase tracking-wider`}>
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
-              {filteredJobs.map((job) => (
-                <tr
-                  key={job.id}
-                  onClick={() => navigate(`/jobs/${job.id}`)}
-                  className="cursor-pointer hover:bg-gray-800/50 transition-colors"
+            <tbody className={`divide-y ${borderColor}`}>
+              {filteredWorkOrders.map((wo) => (
+                <tr 
+                  key={wo.id}
+                  className={`hover:bg-gray-800/50 cursor-pointer`}
+                  onClick={() => navigate(`/work-orders/${wo.id}`)}
                 >
-                  <td className={`px-4 py-3 ${textColor}`}>{job.workOrderNumber}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textColor}`}>
+                    {wo.number}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${mutedTextColor}`}>
+                    {wo.property}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${mutedTextColor}`}>
+                    {wo.unit}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${mutedTextColor}`}>
+                    {wo.type}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(wo.status)}`}>
+                      {wo.status}
+                    </span>
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${mutedTextColor}`}>
+                    {new Date(wo.date).toLocaleDateString()}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${textColor}`}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/properties/${job.propertyId}`);
+                        navigate(`/work-orders/${wo.id}/edit`);
                       }}
-                      className={`${textColor} hover:opacity-80`}
+                      className="text-blue-500 hover:text-blue-700 mr-4"
                     >
-                      {job.property}
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Are you sure you want to delete this work order?')) {
+                          // Handle delete
+                          console.log('Delete work order', wo.id);
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Delete
                     </button>
                   </td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.unit}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.type}</td>
-                  <td className={`px-4 py-3`}>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getPhaseColor(job.phase)}`}>
-                      {job.phase}
-                    </span>
-                  </td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.scheduledDate}</td>
-                  <td className={`px-4 py-3 ${textColor}`}>{job.submittedBy}</td>
                 </tr>
               ))}
+              {filteredWorkOrders.length === 0 && (
+                <tr>
+                  <td colSpan={7} className={`px-6 py-4 text-center ${mutedTextColor}`}>
+                    No work orders found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-
-        <ExportOptions
-          theme={theme}
-          data={filteredJobs}
-          columns={columns}
-          filename="work_orders"
-          isVisible={showExport}
-        />
       </div>
     </div>
   );

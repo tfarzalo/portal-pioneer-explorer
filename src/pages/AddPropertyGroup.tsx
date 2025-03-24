@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   FolderKanban, 
@@ -23,14 +22,12 @@ export function AddPropertyGroup({ theme }: AddPropertyGroupProps) {
   const [managerEmail, setManagerEmail] = useState('');
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log('Form submitted:', {
       groupName,
       region,
@@ -42,7 +39,6 @@ export function AddPropertyGroup({ theme }: AddPropertyGroupProps) {
       managerRole,
       managerEmail
     });
-    // After submission, navigate back to property groups page
     navigate('/property-groups');
   };
 

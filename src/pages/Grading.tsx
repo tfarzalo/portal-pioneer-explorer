@@ -1,4 +1,3 @@
-import React from 'react';
 import { BarChart3, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

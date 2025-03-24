@@ -48,7 +48,6 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
 
-  // Mock data with March and April 2025 dates
   const jobs: Job[] = [
     {
       id: '1',
@@ -58,7 +57,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       unit: '122',
       type: 'Paint',
       phase: 'Job Request',
-      scheduledDate: new Date().toISOString().split('T')[0], // Today
+      scheduledDate: new Date().toISOString().split('T')[0],
       address: '6000 Fairview Rd',
       notes: 'Full unit paint',
       subcontractor: 'John Smith',
@@ -73,7 +72,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       unit: '204',
       type: 'Paint',
       phase: 'Work Order',
-      scheduledDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
+      scheduledDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
       address: '1234 River Rd',
       subcontractor: 'Sarah Johnson',
       startTime: '08:00',
@@ -87,14 +86,13 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       unit: '305',
       type: 'Paint',
       phase: 'Grading',
-      scheduledDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], // Day after tomorrow
+      scheduledDate: new Date(Date.now() + 172800000).toISOString().split('T')[0],
       address: '2000 Pine St',
       startTime: '10:00',
       endTime: '18:00'
     }
   ];
 
-  // Group jobs by date
   const jobsByDate = jobs.reduce((acc, job) => {
     const date = job.scheduledDate;
     if (!acc[date]) {
@@ -104,7 +102,6 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
     return acc;
   }, {} as Record<string, Job[]>);
 
-  // Find the next date with events if today has none
   const findNextDateWithEvents = () => {
     const today = new Date().toISOString().split('T')[0];
     if (jobsByDate[today]) {
@@ -116,7 +113,6 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
     return nextDate || today;
   };
 
-  // Initialize with today's date or next available date with events
   useEffect(() => {
     const startDate = findNextDateWithEvents();
     setCurrentDate(new Date(startDate));
@@ -146,11 +142,10 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
     );
   };
 
-  // Get dates for the current week
   const getWeekDates = () => {
     const dates = [];
     const weekStart = new Date(currentDate);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start from Sunday
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStart);
@@ -163,7 +158,6 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
 
   const weekDates = getWeekDates();
 
-  // Filter jobs based on search and phase
   const filteredJobsByDate = Object.entries(jobsByDate).reduce((acc, [date, dateJobs]) => {
     const filteredJobs = dateJobs.filter(job => {
       const matchesSearch = 

@@ -1,10 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { 
   FolderKanban, 
-  ArrowUpDown, 
-  Building2, 
-  Users, 
-  Plus 
+  Plus, 
+  Search
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,84 +10,38 @@ interface PropertyGroupsProps {
   theme: 'dark' | 'light';
 }
 
-interface PropertyGroup {
-  id: string;
-  name: string;
-  properties: number;
-  managers: string[];
-  region: string;
-  status: 'active' | 'inactive';
-}
-
 export function PropertyGroups({ theme }: PropertyGroupsProps) {
   const navigate = useNavigate();
-  const [sortField, setSortField] = useState<'name' | 'region'>('name');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
-  const headerBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-gray-50';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
-  const hoverBg = theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50';
+  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
 
-  // Mock data - replace with actual data fetching
-  const groups: PropertyGroup[] = [
+  const propertyGroups = [
     {
       id: '1',
-      name: 'RKW Residential',
-      properties: 12,
-      managers: ['John Smith', 'Sarah Wilson'],
-      region: 'Southeast',
-      status: 'active'
+      name: 'Northwood Ravin',
+      region: 'Southeast'
     },
     {
       id: '2',
-      name: 'Greystar',
-      properties: 18,
-      managers: ['Mike Johnson', 'Emily Davis'],
-      region: 'Northeast',
-      status: 'active'
+      name: 'Lincoln Property Company',
+      region: 'Southwest'
     },
     {
       id: '3',
-      name: 'Lincoln Property Company',
-      properties: 15,
-      managers: ['David Brown', 'Lisa Anderson'],
-      region: 'Southwest',
-      status: 'active'
-    },
-    {
-      id: '4',
-      name: 'Camden Property Trust',
-      properties: 9,
-      managers: ['Robert Wilson'],
-      region: 'Southeast',
-      status: 'inactive'
+      name: 'Greystar',
+      region: 'Northeast'
     }
   ];
 
-  const handleSort = (field: 'name' | 'region') => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const sortedGroups = useMemo(() => {
-    return [...groups].sort((a, b) => {
-      const aValue = a[sortField].toLowerCase();
-      const bValue = b[sortField].toLowerCase();
-      
-      if (sortDirection === 'asc') {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-  }, [groups, sortField, sortDirection]);
+  const filteredPropertyGroups = propertyGroups.filter(group =>
+    group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    group.region.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -98,77 +50,52 @@ export function PropertyGroups({ theme }: PropertyGroupsProps) {
           <FolderKanban className={textColor} size={28} />
           <h1 className={`text-2xl font-bold ${textColor}`}>Property Management Groups</h1>
         </div>
-        <button 
-          onClick={() => navigate('/property-groups/new')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        <button
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
         >
-          <Plus size={20} />
-          <span>Add Group</span>
+          <span>Go Back</span>
         </button>
       </div>
 
-      <div className={`${cardBg} rounded-lg border ${borderColor} overflow-hidden`}>
-        <div className={`${headerBg} border-b ${borderColor}`}>
-          <div className="grid grid-cols-12 gap-4">
+      <div className="flex items-center justify-between">
+        <div className="relative">
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${mutedTextColor}`} size={20} />
+          <input
+            type="text"
+            placeholder="Search property groups..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-64 pl-10 pr-4 py-2 rounded-lg border ${inputBg} ${borderColor} ${textColor}`}
+          />
+        </div>
+        <button
+          onClick={() => navigate('/add-property-group')}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        >
+          <Plus size={20} />
+          <span>Add New</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {filteredPropertyGroups.map(group => (
+          <div
+            key={group.id}
+            className={`${cardBg} p-4 rounded-lg border ${borderColor} flex items-center justify-between`}
+          >
+            <div>
+              <h2 className={`text-lg font-semibold ${textColor}`}>{group.name}</h2>
+              <p className={`text-sm ${mutedTextColor}`}>Region: {group.region}</p>
+            </div>
             <button
-              onClick={() => handleSort('name')}
-              className={`col-span-4 p-4 text-left font-medium flex items-center space-x-2 ${textColor}`}
+              onClick={() => navigate(`/property-groups/${group.id}`)}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              <span>Group Name</span>
-              <ArrowUpDown size={16} className={sortField === 'name' ? 'text-blue-500' : mutedTextColor} />
-            </button>
-            <div className={`col-span-3 p-4 font-medium ${textColor}`}>Properties</div>
-            <div className={`col-span-3 p-4 font-medium ${textColor}`}>Managers</div>
-            <button
-              onClick={() => handleSort('region')}
-              className={`col-span-2 p-4 text-left font-medium flex items-center space-x-2 ${textColor}`}
-            >
-              <span>Region</span>
-              <ArrowUpDown 
-                size={16} 
-                className={sortField === 'region' ? 'text-blue-500' : mutedTextColor}
-              />
+              View Details
             </button>
           </div>
-        </div>
-
-        <div className="divide-y divide-gray-700">
-          {sortedGroups.map((group) => (
-            <div 
-              key={group.id}
-              onClick={() => navigate(`/property-groups/${group.id}`)}
-              className={`grid grid-cols-12 gap-4 ${hoverBg} cursor-pointer group`}
-            >
-              <div className="col-span-4 p-4">
-                <div className={`font-medium ${textColor} group-hover:text-blue-500 flex items-center space-x-2`}>
-                  <span>{group.name}</span>
-                  {group.status === 'inactive' && (
-                    <span className="px-2 py-0.5 text-xs bg-red-500/10 text-red-500 rounded-full">
-                      Inactive
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="col-span-3 p-4">
-                <div className={`flex items-center space-x-2 ${mutedTextColor}`}>
-                  <Building2 size={16} className="flex-shrink-0" />
-                  <span>{group.properties} Properties</span>
-                </div>
-              </div>
-              <div className="col-span-3 p-4">
-                <div className={`flex items-center space-x-2 ${mutedTextColor}`}>
-                  <Users size={16} className="flex-shrink-0" />
-                  <div className="truncate">
-                    {group.managers.join(', ')}
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2 p-4">
-                <div className={mutedTextColor}>{group.region}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ interface SearchPopoverProps {
 
 export function SearchPopover({ theme }: SearchPopoverProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen] = useState(false);
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';

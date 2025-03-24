@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { 
   FolderKanban, 
-  ArrowLeft, 
-  Users, 
+  ArrowLeft,
   MapPin, 
-  Mail, 
-  Phone, 
-  Plus, 
-  Trash2, 
-  Loader2 
+  PhoneCall, 
+  Mail
 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface PropertyGroupDetailsProps {
   theme: 'dark' | 'light';
@@ -295,7 +291,7 @@ export function PropertyGroupDetails({ theme }: PropertyGroupDetailsProps) {
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone size={20} className={mutedTextColor} />
+                <PhoneCall size={20} className={mutedTextColor} />
                 <div className={mutedTextColor}>{group.contact.phone}</div>
               </div>
               <div className="flex items-center space-x-3">

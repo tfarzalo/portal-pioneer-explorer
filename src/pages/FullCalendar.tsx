@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import { Calendar, ArrowLeft, ArrowRight, Search, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { JobPhase } from '../types/workOrder';

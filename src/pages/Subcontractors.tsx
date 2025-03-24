@@ -1,5 +1,4 @@
-import React from 'react';
-import { Users2, ArrowLeft } from 'lucide-react';
+import { Users, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SubcontractorsProps {
@@ -16,7 +15,7 @@ export function Subcontractors({ theme }: SubcontractorsProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Users2 className={textColor} size={28} />
+          <Users className={textColor} size={28} />
           <h1 className={`text-2xl font-bold ${textColor}`}>Subcontractors</h1>
         </div>
         <button
