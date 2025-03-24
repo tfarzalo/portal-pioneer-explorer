@@ -21,7 +21,33 @@ export const JobActionButtons = ({ jobId, theme, onExtraChargesClick, onExportOp
   const handleDeleteJob = async () => {
     if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
       setIsDeleting(true);
+      console.log('Attempting to delete job with ID:', jobId);
+      
       try {
+        // First check if the job exists
+        const { data: jobExists, error: checkError } = await supabase
+          .from('jobs')
+          .select('id')
+          .eq('id', jobId)
+          .single();
+          
+        if (checkError) {
+          console.error('Error checking job existence:', checkError);
+          toast.error('Failed to verify job details.');
+          setIsDeleting(false);
+          return;
+        }
+        
+        if (!jobExists) {
+          console.error('Job not found:', jobId);
+          toast.error('Job not found in the database.');
+          setIsDeleting(false);
+          return;
+        }
+        
+        console.log('Job found, proceeding with deletion');
+        
+        // Now attempt to delete
         const { error } = await supabase
           .from('jobs')
           .delete()
@@ -29,15 +55,16 @@ export const JobActionButtons = ({ jobId, theme, onExtraChargesClick, onExportOp
         
         if (error) {
           console.error('Error deleting job:', error);
-          toast.error('Failed to delete job.');
+          toast.error(`Failed to delete job: ${error.message}`);
           return;
         }
         
+        console.log('Job successfully deleted');
         toast.success('Job deleted successfully');
         navigate('/jobs');
       } catch (error) {
-        console.error('Error deleting job:', error);
-        toast.error('Failed to delete job.');
+        console.error('Unexpected error deleting job:', error);
+        toast.error('An unexpected error occurred while deleting the job.');
       } finally {
         setIsDeleting(false);
       }
