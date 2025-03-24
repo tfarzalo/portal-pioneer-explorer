@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   Calendar, 
@@ -11,8 +12,7 @@ import {
   Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { JobPhase } from '../types/workOrder';
-import { JOB_PHASE_COLORS } from '../types/workOrder';
+import { JobPhase, JOB_PHASE_COLORS, JobType } from '../types/workOrder';
 
 interface AgendaCalendarProps {
   theme: 'dark' | 'light';
@@ -24,7 +24,7 @@ interface Job {
   property: string;
   propertyId: string;
   unit: string;
-  type: 'Paint' | 'Callback' | 'Repair';
+  type: JobType;
   phase: JobPhase;
   scheduledDate: string;
   notes?: string;
@@ -55,7 +55,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       property: 'La Vie SouthPark',
       propertyId: '1',
       unit: '122',
-      type: 'Paint',
+      type: 'paint',
       phase: 'job_request',
       scheduledDate: new Date().toISOString().split('T')[0],
       address: '6000 Fairview Rd',
@@ -70,7 +70,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       property: 'Riverside Apartments',
       propertyId: '2',
       unit: '204',
-      type: 'Paint',
+      type: 'paint',
       phase: 'work_order',
       scheduledDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
       address: '1234 River Rd',
@@ -84,7 +84,7 @@ export function AgendaCalendar({ theme }: AgendaCalendarProps) {
       property: 'Pine Valley',
       propertyId: '3',
       unit: '305',
-      type: 'Paint',
+      type: 'paint',
       phase: 'grading',
       scheduledDate: new Date(Date.now() + 172800000).toISOString().split('T')[0],
       address: '2000 Pine St',

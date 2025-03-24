@@ -13,7 +13,7 @@ interface JobInformationProps {
     property_address?: string;
     scheduled_date: string | null;
     unit_number: string;
-    job_type: string;
+    job_type: JobType;
     phase: JobPhase;
   };
   theme: 'dark' | 'light';

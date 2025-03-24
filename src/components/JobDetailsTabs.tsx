@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { Camera, Upload, Plus } from 'lucide-react';
+import { JobPhase, JobType } from '../types/workOrder';
 
 interface JobDetailsTabsProps {
   jobData: {
@@ -8,8 +8,8 @@ interface JobDetailsTabsProps {
     base_amount: number | null;
     total_amount: number | null;
     created_at: string | null;
-    phase: string;
-    job_type: string;
+    phase: JobPhase;
+    job_type: JobType;
   };
   theme: 'dark' | 'light';
   formatDate: (dateString: string | null) => string;
@@ -25,18 +25,15 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
 
   // Format job phase to be displayed properly without underscores
-  const formatPhase = (phase: string): string => {
-    if (phase.includes('_')) {
-      return phase
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-    return phase;
+  const formatPhase = (phase: JobPhase): string => {
+    return phase
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   // Format job type to be capitalized
-  const formatJobType = (type: string): string => {
+  const formatJobType = (type: JobType): string => {
     return type
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
