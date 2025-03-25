@@ -5,6 +5,7 @@ import { GoogleMap } from './GoogleMap';
 import { JOB_PHASE_COLORS, JobPhase, JobType } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import { formatDateForInput } from '../utils/formatters';
 
 interface JobInformationProps {
   jobData: {
@@ -38,6 +39,9 @@ export const JobInformation = ({
   const [selectedPhase, setSelectedPhase] = useState<JobPhase>(jobData.phase);
   const [selectedType, setSelectedType] = useState<JobType>(jobData.job_type);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Format date for the input field
+  const formattedDate = formatDateForInput(selectedDate);
   
   const jobPhases: JobPhase[] = [
     'job_request',
@@ -85,6 +89,7 @@ export const JobInformation = ({
   
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value ? event.target.value : null;
+    console.log('Date changed to:', newDate);
     setSelectedDate(newDate);
     setHasChanges(true);
   };
@@ -92,6 +97,13 @@ export const JobInformation = ({
   const handleSubmitChanges = async () => {
     setIsLoading(true);
     try {
+      console.log('Submitting changes:', {
+        job_id: jobData.id,
+        new_phase: selectedPhase,
+        job_type: selectedType,
+        scheduled_date: selectedDate
+      });
+      
       // First, use the update_job_phase function to properly log phase changes if phase has changed
       if (jobData.phase !== selectedPhase) {
         const { error: phaseUpdateError } = await supabase.rpc('update_job_phase', {
@@ -212,7 +224,7 @@ export const JobInformation = ({
             <div className={`p-2 border border-gray-300 rounded flex items-center ${inputBg}`}>
               <input
                 type="date"
-                value={selectedDate || ''}
+                value={formattedDate}
                 onChange={handleDateChange}
                 className={`w-full ${inputBg} ${textColor} focus:outline-none`}
               />
