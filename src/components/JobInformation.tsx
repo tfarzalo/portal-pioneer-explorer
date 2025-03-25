@@ -37,6 +37,9 @@ export const JobInformation = ({
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPhase, setSelectedPhase] = useState<JobPhase>(jobData.phase);
+  const [selectedType, setSelectedType] = useState<JobType>(jobData.job_type);
+  const [hasChanges, setHasChanges] = useState(false);
   
   // Define job phases - use only the snake_case versions to match what's expected in the database
   const jobPhases: JobPhase[] = [
@@ -77,97 +80,65 @@ export const JobInformation = ({
 
   // Update the job phase in the database
   const updateJobPhase = async (phase: JobPhase) => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('jobs')
-        .update({ phase })
-        .eq('id', jobData.id);
-        
-      if (error) {
-        console.error('Error updating job phase:', error);
-        toast.error('Failed to update job phase');
-        return;
-      }
-      
-      toast.success('Job phase updated successfully');
-      refetchJobData();
-    } catch (error) {
-      console.error('Error updating job phase:', error);
-      toast.error('Failed to update job phase');
-    } finally {
-      setIsLoading(false);
-      setIsPhaseDropdownOpen(false);
-    }
+    setSelectedPhase(phase);
+    setHasChanges(true);
+    setIsPhaseDropdownOpen(false);
   };
   
   // Update the job type in the database
   const updateJobType = async (type: JobType) => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('jobs')
-        .update({ job_type: type })
-        .eq('id', jobData.id);
-        
-      if (error) {
-        console.error('Error updating job type:', error);
-        toast.error('Failed to update job type');
-        return;
-      }
-      
-      toast.success('Job type updated successfully');
-      refetchJobData();
-    } catch (error) {
-      console.error('Error updating job type:', error);
-      toast.error('Failed to update job type');
-    } finally {
-      setIsLoading(false);
-      setIsTypeDropdownOpen(false);
-    }
-  };
-  
-  // Update the scheduled date in the database
-  const updateScheduledDate = async (date: string | null) => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('jobs')
-        .update({ scheduled_date: date })
-        .eq('id', jobData.id);
-        
-      if (error) {
-        console.error('Error updating scheduled date:', error);
-        toast.error('Failed to update scheduled date');
-        return;
-      }
-      
-      setSelectedDate(date);
-      toast.success('Scheduled date updated successfully');
-      refetchJobData();
-    } catch (error) {
-      console.error('Error updating scheduled date:', error);
-      toast.error('Failed to update scheduled date');
-    } finally {
-      setIsLoading(false);
-    }
+    setSelectedType(type);
+    setHasChanges(true);
+    setIsTypeDropdownOpen(false);
   };
   
   // Handle date change
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value ? event.target.value : null;
-    updateScheduledDate(newDate);
+    setSelectedDate(newDate);
+    setHasChanges(true);
+  };
+
+  // Handle submit changes
+  const handleSubmitChanges = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ 
+          phase: selectedPhase,
+          job_type: selectedType,
+          scheduled_date: selectedDate
+        })
+        .eq('id', jobData.id);
+        
+      if (error) {
+        console.error('Error updating job:', error);
+        toast.error('Failed to update job');
+        return;
+      }
+      
+      setHasChanges(false);
+      if (onSubmitUpdate) {
+        onSubmitUpdate();
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast.error('Failed to update job');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
-      <div className="w-full md:w-1/2 h-64">
+      <div className="w-full md:w-2/3 h-64">
         {jobData.property_address && (
           <GoogleMap address={jobData.property_address} theme={theme} />
         )}
       </div>
       
-      <div className="w-full md:w-1/2">
+      <div className="w-full md:w-1/3">
         <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor}`}>
           <h2 className={`text-lg font-bold mb-4 ${textColor}`}>CURRENT JOB STATUS</h2>
           
@@ -176,7 +147,7 @@ export const JobInformation = ({
               className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
               onClick={() => setIsPhaseDropdownOpen(!isPhaseDropdownOpen)}
             >
-              <span className={textColor}>{getStatusText(jobData.phase)}</span>
+              <span className={textColor}>{getStatusText(selectedPhase)}</span>
               <ChevronDown className={mutedTextColor} />
             </div>
             
@@ -190,12 +161,12 @@ export const JobInformation = ({
                     <div
                       key={phase}
                       className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
-                        phase === jobData.phase ? 'bg-gray-700' : ''
+                        phase === selectedPhase ? 'bg-gray-700' : ''
                       }`}
                       onClick={() => updateJobPhase(phase)}
                     >
                       <span className={phaseColors.text}>{getStatusText(phase)}</span>
-                      {phase === jobData.phase && <Check size={16} className={phaseColors.text} />}
+                      {phase === selectedPhase && <Check size={16} className={phaseColors.text} />}
                     </div>
                   );
                 })}
@@ -209,7 +180,7 @@ export const JobInformation = ({
               className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
               onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
             >
-              <span className={textColor}>{formatJobType(jobData.job_type)}</span>
+              <span className={textColor}>{formatJobType(selectedType)}</span>
               <ChevronDown className={mutedTextColor} />
             </div>
             
@@ -219,12 +190,12 @@ export const JobInformation = ({
                   <div
                     key={type}
                     className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
-                      type === jobData.job_type ? 'bg-gray-700' : ''
+                      type === selectedType ? 'bg-gray-700' : ''
                     }`}
                     onClick={() => updateJobType(type)}
                   >
                     <span className={textColor}>{formatJobType(type)}</span>
-                    {type === jobData.job_type && <Check size={16} className={textColor} />}
+                    {type === selectedType && <Check size={16} className={textColor} />}
                   </div>
                 ))}
               </div>
@@ -246,10 +217,10 @@ export const JobInformation = ({
           
           {onSubmitUpdate && (
             <button 
-              onClick={onSubmitUpdate}
-              disabled={isLoading}
+              onClick={handleSubmitChanges}
+              disabled={isLoading || !hasChanges}
               className={`w-full p-3 bg-red-500 hover:bg-red-600 text-white rounded flex items-center justify-center ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                (isLoading || !hasChanges) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
               {isLoading ? 'Updating...' : 'Submit Update'}

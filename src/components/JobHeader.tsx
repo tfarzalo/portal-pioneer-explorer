@@ -1,7 +1,7 @@
 
 import { Folder } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { JOB_PHASE_COLORS, JobPhase } from '../types/workOrder';
+import { JobPhase } from '../types/workOrder';
 
 interface JobHeaderProps {
   jobData: {

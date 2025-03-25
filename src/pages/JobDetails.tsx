@@ -63,9 +63,10 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   };
 
   const handleSubmitUpdate = () => {
-    toast.success('Update submitted successfully');
     if (id) {
-      fetchJobDetails(id);
+      fetchJobDetails(id).then(() => {
+        toast.success('Update submitted successfully');
+      });
     }
     console.log('Submit update clicked');
   };
