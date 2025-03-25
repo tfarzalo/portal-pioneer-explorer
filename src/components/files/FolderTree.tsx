@@ -21,6 +21,14 @@ interface TreeNode {
   children: TreeNode[];
 }
 
+interface FolderType {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  path: string;
+  is_system_folder?: boolean;
+}
+
 export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreeProps) {
   const [folderTree, setFolderTree] = useState<TreeNode[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
@@ -43,11 +51,9 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
       if (error) throw error;
       
       if (data && data.length > 0) {
-        // Build tree structure from flat folder data
         const rootNodes: TreeNode[] = [];
         const lookup: Record<string, TreeNode> = {};
         
-        // First pass: create lookup table
         data.forEach(folder => {
           lookup[folder.id] = {
             ...folder,
@@ -55,14 +61,12 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
           };
         });
         
-        // Second pass: create hierarchy
         data.forEach(folder => {
           if (folder.parent_id === null) {
             rootNodes.push(lookup[folder.id]);
           } else if (lookup[folder.parent_id]) {
             lookup[folder.parent_id].children.push(lookup[folder.id]);
           } else {
-            // Orphaned folder, add to root
             rootNodes.push(lookup[folder.id]);
           }
         });
@@ -95,6 +99,26 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
     onFolderSelect(folderId);
   };
   
+  const updateBreadcrumbs = async (folder: FolderType) => {
+    const newBreadcrumbs = [folder];
+    let currentParentId = folder.parent_id;
+    
+    while (currentParentId) {
+      const { data, error } = await (supabase as any)
+        .from('folders')
+        .select('*')
+        .eq('id', currentParentId)
+        .single();
+        
+      if (error) break;
+      
+      newBreadcrumbs.unshift(data);
+      currentParentId = data.parent_id;
+    }
+    
+    newBreadcrumbs.unshift({ id: null, name: 'Root' });
+  };
+  
   const createNewFolder = async () => {
     if (!newFolderName.trim()) {
       toast.error('Please enter a folder name');
@@ -102,7 +126,6 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
     }
     
     try {
-      // Get parent path if a parent folder is selected
       let parentPath = '';
       if (currentParentId) {
         const { data: parent } = await (supabase as any)
@@ -116,12 +139,10 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
         }
       }
       
-      // Create folder path
       const folderPath = currentParentId 
         ? `${parentPath}/${newFolderName}` 
         : `/${newFolderName}`;
       
-      // Create new folder
       const { error } = await (supabase as any)
         .from('folders')
         .insert([
@@ -140,9 +161,7 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
       setNewFolderName('');
       setShowNewFolderDialog(false);
       
-      // Refresh folders
       fetchFolders();
-      
     } catch (error) {
       console.error('Error creating folder:', error);
       toast.error('Failed to create folder');
@@ -159,7 +178,6 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
     const isExpanded = expandedFolders.has(node.id);
     const hasChildren = node.children.length > 0;
     
-    // Determine colors based on theme
     const hoverBg = theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100';
     const textColor = theme === 'dark' ? 'text-gray-200' : 'text-gray-800';
     
@@ -266,7 +284,6 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
         )}
       </div>
       
-      {/* New Folder Dialog */}
       <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
         <DialogContent className={theme === 'dark' ? 'bg-gray-800 text-white border-gray-700' : ''}>
           <DialogHeader>

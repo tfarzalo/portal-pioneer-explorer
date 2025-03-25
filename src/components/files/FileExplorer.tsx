@@ -29,6 +29,8 @@ import { formatFileSize } from '../../lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '../../lib/utils';
 
+type FileCategory = 'property_photo' | 'job_photo' | 'before_photo' | 'after_photo' | 'document' | 'invoice' | 'contract' | 'other' | undefined;
+
 interface FileExplorerProps {
   theme: 'dark' | 'light';
   folders: any[];
@@ -54,7 +56,7 @@ export function FileExplorer({
   const [editTags, setEditTags] = useState(false);
   const [currentTags, setCurrentTags] = useState('');
   const [currentFile, setCurrentFile] = useState<any>(null);
-  const [fileCategory, setFileCategory] = useState<'property_photo' | 'job_photo' | 'before_photo' | 'after_photo' | 'document' | 'invoice' | 'contract' | 'other' | undefined>('document');
+  const [fileCategory, setFileCategory] = useState<FileCategory>('document');
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
@@ -83,7 +85,6 @@ export function FileExplorer({
         
       if (error) throw error;
       
-      // Create a download link
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
@@ -91,7 +92,6 @@ export function FileExplorer({
       a.click();
       URL.revokeObjectURL(url);
       
-      // Update last_accessed_at
       await supabase
         .from('files')
         .update({ updated_at: new Date().toISOString() })
@@ -105,7 +105,6 @@ export function FileExplorer({
 
   const previewFile = async (file: any) => {
     try {
-      // Only preview images for now
       if (!file.mime_type.startsWith('image/')) {
         toast.info('Preview only available for images');
         return;
@@ -120,7 +119,6 @@ export function FileExplorer({
         url: url.publicUrl
       });
       
-      // Update accessed timestamp
       await supabase
         .from('files')
         .update({ updated_at: new Date().toISOString() })
@@ -145,19 +143,16 @@ export function FileExplorer({
     if (!currentFile) return;
     
     try {
-      // Parse tags from input
       const tags = currentTags
         .split(',')
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
       
-      // Prepare metadata update
       const updatedMetadata = {
         ...currentFile.metadata,
         tags
       };
       
-      // Update file record
       const { error } = await supabase
         .from('files')
         .update({ 
@@ -183,14 +178,12 @@ export function FileExplorer({
     }
     
     try {
-      // Delete from storage
       const { error: storageError } = await supabase.storage
         .from('file_management')
         .remove([file.storage_path]);
         
       if (storageError) throw storageError;
       
-      // Delete metadata
       const { error: metadataError } = await supabase
         .from('files')
         .delete()
@@ -198,7 +191,6 @@ export function FileExplorer({
         
       if (metadataError) throw metadataError;
       
-      // Update UI
       toast.success('File deleted successfully');
       
     } catch (error) {
@@ -229,7 +221,6 @@ export function FileExplorer({
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {/* Folders first */}
         {folders.map((folder) => (
           <div 
             key={folder.id} 
@@ -251,7 +242,6 @@ export function FileExplorer({
           </div>
         ))}
         
-        {/* Then files */}
         {files.map((file) => {
           const metadata = file.metadata || {};
           const tags = metadata.tags || [];
@@ -343,7 +333,6 @@ export function FileExplorer({
         </div>
       )}
       
-      {/* New Folder Dialog */}
       <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
         <DialogContent className={theme === 'dark' ? 'bg-gray-800 text-white border-gray-700' : ''}>
           <DialogHeader>
@@ -370,7 +359,6 @@ export function FileExplorer({
         </DialogContent>
       </Dialog>
       
-      {/* File Preview Dialog */}
       <Dialog open={!!filePreview} onOpenChange={() => setFilePreview(null)}>
         <DialogContent className={`max-w-3xl ${dialogBg} ${theme === 'dark' ? 'text-white border-gray-700' : ''}`}>
           <DialogHeader>
@@ -409,7 +397,6 @@ export function FileExplorer({
         </DialogContent>
       </Dialog>
       
-      {/* Edit Tags Dialog */}
       <Dialog open={editTags} onOpenChange={setEditTags}>
         <DialogContent className={`${dialogBg} ${theme === 'dark' ? 'text-white border-gray-700' : ''}`}>
           <DialogHeader>
@@ -420,7 +407,9 @@ export function FileExplorer({
               <label className={`block mb-2 text-sm font-medium ${textColor}`}>
                 File Category
               </label>
-              <Tabs defaultValue={fileCategory} onValueChange={setFileCategory} className="w-full">
+              <Tabs defaultValue={fileCategory} onValueChange={(value: string) => {
+                setFileCategory(value as FileCategory);
+              }} className="w-full">
                 <TabsList className="w-full grid grid-cols-5">
                   <TabsTrigger value="document">Document</TabsTrigger>
                   <TabsTrigger value="image">Image</TabsTrigger>
