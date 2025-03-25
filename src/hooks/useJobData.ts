@@ -34,6 +34,7 @@ export const useJobData = (jobId: string | undefined) => {
   const fetchJobDetails = async (jobId: string) => {
     setLoading(true);
     try {
+      console.log('Fetching job details for ID:', jobId);
       const { data, error } = await supabase
         .from('jobs')
         .select(`
@@ -46,10 +47,12 @@ export const useJobData = (jobId: string | undefined) => {
       if (error) {
         console.error('Error fetching job details:', error);
         toast.error('Failed to load job details.');
+        setLoading(false);
         return;
       }
 
       if (data) {
+        console.log('Retrieved job data:', data);
         // Ensure job_type is one of the allowed types from the database
         const jobType = ['paint', 'callback', 'repair'].includes(data.job_type) 
           ? data.job_type as JobType 

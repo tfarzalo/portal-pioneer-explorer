@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
@@ -63,8 +64,12 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
 
   const handleSubmitUpdate = () => {
     if (id) {
+      console.log('Submitting update for job ID:', id);
       fetchJobDetails(id).then(() => {
         toast.success('Update submitted successfully');
+      }).catch((error) => {
+        console.error('Error fetching job details after update:', error);
+        toast.error('Failed to refresh job details');
       });
     }
     console.log('Submit update clicked');

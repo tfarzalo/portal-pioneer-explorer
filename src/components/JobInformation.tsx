@@ -66,15 +66,18 @@ export const JobInformation = ({
       });
       
       // First, update job details directly using a single update operation
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('jobs')
         .update({ 
           phase: selectedPhase,
           job_type: selectedType,
           scheduled_date: selectedDate
         })
-        .eq('id', jobData.id);
+        .eq('id', jobData.id)
+        .select();
           
+      console.log('Update response:', { error, data });
+      
       if (error) {
         console.error('Error updating job details:', error);
         toast.error('Failed to update job details');
