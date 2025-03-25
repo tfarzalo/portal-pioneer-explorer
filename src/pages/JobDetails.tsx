@@ -7,7 +7,6 @@ import { JobInformation } from '../components/JobInformation';
 import { JobDetailsTabs } from '../components/JobDetailsTabs';
 import { JobActionButtons } from '../components/JobActionButtons';
 import { useJobData } from '../hooks/useJobData';
-import { formatScheduledDate } from '../utils/formatters';
 import { toast } from 'sonner';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
 
