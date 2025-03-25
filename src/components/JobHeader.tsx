@@ -17,6 +17,7 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
   const navigate = useNavigate();
   const textColor = theme === 'dark' ? 'text-gray-100' : 'text-gray-800';
   const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-white';
+  const addressTextColor = theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
   
   // Format job number - remove any existing "WO#" prefix
   const formattedJobNumber = jobData.job_number.replace(/^WO#/i, '');
@@ -31,7 +32,7 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
             {jobData.property_name && `| ${jobData.property_name}`}
           </h1>
           {jobData.property_address && (
-            <p className="text-gray-700 text-sm">| {jobData.property_address}</p>
+            <p className={`${addressTextColor} text-base`}>| {jobData.property_address}</p>
           )}
         </div>
       </div>
