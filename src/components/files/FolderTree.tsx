@@ -55,14 +55,14 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
         const rootNodes: TreeNode[] = [];
         const lookup: Record<string, TreeNode> = {};
         
-        data.forEach(folder => {
+        data.forEach((folder: FolderType) => {
           lookup[folder.id] = {
             ...folder,
             children: []
           };
         });
         
-        data.forEach(folder => {
+        data.forEach((folder: FolderType) => {
           if (folder.parent_id === null) {
             rootNodes.push(lookup[folder.id]);
           } else if (lookup[folder.parent_id]) {
