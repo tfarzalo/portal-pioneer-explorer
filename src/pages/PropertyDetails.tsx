@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
@@ -179,17 +180,17 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <PropertyDetailsPanel property={property} theme={theme} />
           <BillingRates propertyDetails={propertyDetails} theme={theme} />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Callbacks propertyDetails={propertyDetails} theme={theme} />
-            <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
-          </div>
         </div>
 
         <div className="col-span-12 lg:col-span-4 space-y-6">
           <CompliancePanel propertyDetails={propertyDetails} theme={theme} />
           <PaintDetailsPanel propertyDetails={propertyDetails} theme={theme} />
         </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Callbacks propertyDetails={propertyDetails} theme={theme} />
+        <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
       </div>
       
       <RecentJobs propertyDetails={propertyDetails} propertyId={property.id} theme={theme} />
