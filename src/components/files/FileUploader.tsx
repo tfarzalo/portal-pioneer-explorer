@@ -83,10 +83,11 @@ export function FileUploader({
         }
         
         // Update progress for this file - fixed type error here
-        setUploadProgress((prev: { [key: string]: number }) => ({
-          ...prev,
+        // Instead of using a function, pass an object directly
+        setUploadProgress({
+          ...uploadProgress,
           [file.name]: 100
-        }));
+        });
         
         const tagArray = tags
           .split(',')
@@ -150,6 +151,10 @@ export function FileUploader({
     }
   };
 
+  // We need to track the current state of upload progress locally
+  // to avoid the function reference error
+  const uploadProgress: { [key: string]: number } = {};
+  
   return (
     <Button
       onClick={uploadFiles}

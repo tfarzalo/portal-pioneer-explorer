@@ -5,7 +5,7 @@ import { FileUploader } from '../components/files/FileUploader';
 import { FileDetailsForm } from '../components/files/FileDetailsForm';
 import { FilePreview } from '../components/files/FilePreview';
 import { cn } from '../lib/utils';
-import { FileCategory, FileType } from '../types/fileTypes';
+import { FileCategory } from '../types/fileTypes';
 
 interface AddFileProps {
   theme: 'dark' | 'light';
