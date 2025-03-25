@@ -10,6 +10,7 @@ import { JobActionButtons } from '../components/JobActionButtons';
 import { useJobData } from '../hooks/useJobData';
 import { formatDate } from '../utils/formatters';
 import { toast } from 'sonner';
+import { JOB_PHASE_COLORS } from '../types/workOrder';
 
 interface JobDetailsProps {
   theme: 'dark' | 'light';
@@ -63,6 +64,9 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
 
   const handleSubmitUpdate = () => {
     toast.success('Update submitted successfully');
+    if (id) {
+      fetchJobDetails(id);
+    }
     console.log('Submit update clicked');
   };
 
@@ -88,9 +92,19 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     );
   }
 
+  // Get phase-specific color styling
+  const getPhaseColor = () => {
+    if (jobData && JOB_PHASE_COLORS[jobData.phase]) {
+      return JOB_PHASE_COLORS[jobData.phase].bg;
+    }
+    return '#3a82f7'; // Default blue color if phase not found
+  };
+
+  const phaseColor = getPhaseColor();
+
   return (
     <div className="space-y-6">
-      <div className={`rounded-lg overflow-hidden border ${borderColor}`}>
+      <div className={`rounded-lg overflow-hidden border ${borderColor}`} style={{ borderTop: `10px solid ${phaseColor}` }}>
         <JobHeader jobData={jobData} theme={theme} />
         <div className={`p-6 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
           <JobInformation 

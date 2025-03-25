@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
@@ -63,15 +64,15 @@ export const JobInformation = ({
       .join(' ');
   };
 
-  // Get current status based on phase
+  // Get current status based on phase - removing the "Job " prefix
   const getStatusText = (phase: JobPhase): string => {
-    // Format the phase for display
+    // Format the phase for display without the "Job" prefix
     const formattedPhase = phase
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
     
-    return `Job ${formattedPhase}`;
+    return formattedPhase;
   };
 
   // Update the job phase in the database

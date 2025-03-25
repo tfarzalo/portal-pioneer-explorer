@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Camera, Upload, Plus } from 'lucide-react';
 import { JobPhase, JobType } from '../types/workOrder';
@@ -24,7 +25,7 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const headerBg = theme === 'dark' ? 'bg-gray-50' : 'bg-gray-50';
 
-  // Format job phase to be displayed properly without underscores
+  // Format job phase to be displayed properly without underscores and without "Job" prefix
   const formatPhase = (phase: JobPhase): string => {
     return phase
       .split('_')
