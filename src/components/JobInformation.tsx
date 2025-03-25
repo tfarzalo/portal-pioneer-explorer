@@ -108,7 +108,7 @@ export const JobInformation = ({
         }
       }
       
-      // Then update the remaining job details
+      // Then update the remaining job details (job_type and scheduled_date)
       const { error } = await supabase
         .from('jobs')
         .update({ 
