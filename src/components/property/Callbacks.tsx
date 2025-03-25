@@ -1,13 +1,11 @@
 
 import { Plus } from 'lucide-react';
-import { PropertyDetails } from '../../types';
 
 interface CallbacksProps {
-  propertyDetails: PropertyDetails;
   theme: 'dark' | 'light';
 }
 
-export function Callbacks({ propertyDetails, theme }: CallbacksProps) {
+export function Callbacks({ theme }: CallbacksProps) {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';

@@ -189,7 +189,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Callbacks propertyDetails={propertyDetails} theme={theme} />
+        <Callbacks theme={theme} />
         <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
       </div>
       
