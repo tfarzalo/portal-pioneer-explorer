@@ -8,77 +8,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { toast } from 'sonner';
+import { Folder } from 'lucide-react';
 
 interface FolderSelectorProps {
   theme: 'dark' | 'light';
   onFolderSelect: (folderId: string | null) => void;
+  initialFolderId?: string | null;
 }
 
-export function FolderSelector({ theme, onFolderSelect }: FolderSelectorProps) {
+export function FolderSelector({ onFolderSelect, initialFolderId = null }: FolderSelectorProps) {
   const [folders, setFolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFolder, setSelectedFolder] = useState<string>('');
-  
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(initialFolderId);
+
   useEffect(() => {
     fetchFolders();
   }, []);
 
   const fetchFolders = async () => {
-    setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Force TypeScript to accept 'folders' as a valid table name
+      const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
         .order('name');
         
       if (error) throw error;
-      
       setFolders(data || []);
     } catch (error) {
       console.error('Error fetching folders:', error);
-      toast.error('Failed to load folders');
     } finally {
       setLoading(false);
     }
   };
 
-  // Organize folders by path
-  const organizeByPath = (items: any[]) => {
-    // Create a map to store nested structure
-    const itemMap: Record<string, any> = {};
-    
-    // Make a hierarchical representation for display
-    items.forEach(item => {
-      // Calculate depth based on path segments
-      const pathSegments = item.path.split('/').filter(Boolean);
-      item.depth = pathSegments.length;
-      
-      // Store in map
-      itemMap[item.id] = {
-        ...item,
-        displayName: '—'.repeat(Math.max(0, item.depth - 1)) + ' ' + item.name
-      };
-    });
-    
-    return Object.values(itemMap);
-  };
-
-  const handleFolderChange = (value: string) => {
-    setSelectedFolder(value);
-    onFolderSelect(value === 'root' ? null : value);
+  const handleFolderChange = (folderId: string) => {
+    const id = folderId === 'root' ? null : folderId;
+    setSelectedFolder(id);
+    onFolderSelect(id);
   };
 
   return (
-    <Select value={selectedFolder} onValueChange={handleFolderChange}>
-      <SelectTrigger className={loading ? 'opacity-50' : ''}>
+    <Select 
+      value={selectedFolder || 'root'} 
+      onValueChange={handleFolderChange}
+      disabled={loading}
+    >
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Select a folder" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="root">Root (All Files)</SelectItem>
-        {organizeByPath(folders).map(folder => (
-          <SelectItem key={folder.id} value={folder.id}>
-            {folder.displayName}
+        <SelectItem value="root" className="flex items-center">
+          <div className="flex items-center">
+            <Folder className="mr-2 h-4 w-4 text-blue-500" />
+            <span>Root Directory</span>
+          </div>
+        </SelectItem>
+        
+        {folders.map((folder) => (
+          <SelectItem key={folder.id} value={folder.id} className="flex items-center">
+            <div className="flex items-center">
+              <Folder className="mr-2 h-4 w-4 text-blue-500" />
+              <span>{folder.name}</span>
+            </div>
           </SelectItem>
         ))}
       </SelectContent>

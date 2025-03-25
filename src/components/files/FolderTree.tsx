@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../../integrations/supabase/client';
-import { Folder, ChevronRight, ChevronDown, FileText } from 'lucide-react';
-import { toast } from 'sonner';
+import { ChevronRight, ChevronDown, Folder, Home } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 interface FolderTreeProps {
   theme: 'dark' | 'light';
@@ -10,23 +10,27 @@ interface FolderTreeProps {
   onRootSelect: () => void;
 }
 
+interface TreeNode {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  children: TreeNode[];
+}
+
 export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreeProps) {
   const [folders, setFolders] = useState<any[]>([]);
+  const [folderTree, setFolderTree] = useState<TreeNode[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  
-  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const bgHover = theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
 
   useEffect(() => {
     fetchFolders();
   }, []);
 
   const fetchFolders = async () => {
-    setLoading(true);
     try {
-      // Get all folders
-      const { data, error } = await supabase
+      // Force TypeScript to accept 'folders' as a valid table name
+      const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
         .order('name');
@@ -34,100 +38,146 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
       if (error) throw error;
       
       setFolders(data || []);
-      
+      setFolderTree(buildFolderTree(data || []));
     } catch (error) {
       console.error('Error fetching folders:', error);
-      toast.error('Failed to load folder structure');
     } finally {
       setLoading(false);
     }
   };
 
-  // Build folder tree structure
-  const buildFolderTree = (items: any[], parentId: string | null = null) => {
-    return items
-      .filter(item => item.parent_id === parentId)
-      .map(item => ({
-        ...item,
-        children: buildFolderTree(items, item.id)
-      }));
+  const buildFolderTree = (folders: any[]): TreeNode[] => {
+    const folderMap = new Map<string, TreeNode>();
+    
+    // First pass: create TreeNode objects for each folder
+    folders.forEach(folder => {
+      folderMap.set(folder.id, {
+        id: folder.id,
+        name: folder.name,
+        parent_id: folder.parent_id,
+        children: []
+      });
+    });
+    
+    // Second pass: build the tree structure
+    const rootNodes: TreeNode[] = [];
+    
+    folders.forEach(folder => {
+      const node = folderMap.get(folder.id);
+      
+      if (!node) return;
+      
+      if (folder.parent_id === null) {
+        // This is a root folder
+        rootNodes.push(node);
+      } else {
+        // This is a child folder
+        const parentNode = folderMap.get(folder.parent_id);
+        if (parentNode) {
+          parentNode.children.push(node);
+        }
+      }
+    });
+    
+    return rootNodes;
   };
 
-  const folderTree = buildFolderTree(folders);
-
-  const toggleFolder = (folderId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedFolders(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(folderId)) {
-        newSet.delete(folderId);
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prevExpanded => {
+      const newExpanded = new Set(prevExpanded);
+      if (newExpanded.has(folderId)) {
+        newExpanded.delete(folderId);
       } else {
-        newSet.add(folderId);
+        newExpanded.add(folderId);
       }
-      return newSet;
+      return newExpanded;
     });
   };
 
-  const renderFolderTree = (items: any[], level = 0) => {
+  const handleFolderClick = (folderId: string) => {
+    onFolderSelect(folderId);
+  };
+
+  const renderFolderNode = (node: TreeNode, depth = 0) => {
+    const isExpanded = expandedFolders.has(node.id);
+    const hasChildren = node.children.length > 0;
+    
     return (
-      <ul className="space-y-1">
-        {items.map(folder => (
-          <li key={folder.id}>
-            <div 
-              className={`flex items-center py-1 px-2 rounded-md ${bgHover} cursor-pointer`}
-              style={{ paddingLeft: `${(level * 12) + 8}px` }}
-              onClick={() => onFolderSelect(folder.id)}
+      <div key={node.id}>
+        <div 
+          className={cn(
+            "flex items-center py-1 px-2 rounded-md cursor-pointer",
+            theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100',
+            "transition-colors"
+          )}
+          style={{ paddingLeft: `${(depth * 12) + 8}px` }}
+        >
+          {hasChildren ? (
+            <button
+              onClick={() => toggleFolder(node.id)}
+              className="p-1 rounded-full hover:bg-opacity-20 hover:bg-gray-500"
             >
-              {folder.children && folder.children.length > 0 ? (
-                <button
-                  className="mr-1"
-                  onClick={(e) => toggleFolder(folder.id, e)}
-                >
-                  {expandedFolders.has(folder.id) ? (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
               ) : (
-                <span className="ml-5"></span>
+                <ChevronRight className="h-4 w-4" />
               )}
-              
-              <Folder className="h-4 w-4 text-yellow-500 mr-2" />
-              <span className={`text-sm truncate ${textColor}`}>
-                {folder.name}
-              </span>
-            </div>
-            
-            {expandedFolders.has(folder.id) && folder.children && folder.children.length > 0 && (
-              renderFolderTree(folder.children, level + 1)
-            )}
-          </li>
-        ))}
-      </ul>
+            </button>
+          ) : (
+            <div className="w-6"></div>
+          )}
+          
+          <div 
+            className="flex items-center ml-1 flex-1"
+            onClick={() => handleFolderClick(node.id)}
+          >
+            <Folder className="h-4 w-4 mr-2 text-blue-500" />
+            <span className="text-sm truncate">{node.name}</span>
+          </div>
+        </div>
+        
+        {isExpanded && hasChildren && (
+          <div>
+            {node.children.map(childNode => renderFolderNode(childNode, depth + 1))}
+          </div>
+        )}
+      </div>
     );
   };
 
-  if (loading) {
-    return <div className={`p-4 ${textColor}`}>Loading folders...</div>;
-  }
+  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
 
   return (
-    <div className={`rounded-lg border p-4 ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}>
-      <div className="flex items-center mb-4">
-        <Folder className="h-5 w-5 text-yellow-500 mr-2" />
-        <h3 className={`font-semibold ${textColor}`}>Folders</h3>
-      </div>
+    <div className={`rounded-lg border ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'} p-3`}>
+      <h2 className={`text-lg font-semibold mb-3 ${textColor}`}>Folders</h2>
       
       <div 
-        className={`flex items-center py-1 px-2 rounded-md ${bgHover} cursor-pointer mb-2`}
+        className={cn(
+          "flex items-center py-1 px-2 rounded-md cursor-pointer mb-2",
+          theme === 'dark' ? 'hover:bg-gray-700 bg-gray-900' : 'hover:bg-gray-200 bg-gray-100',
+          "transition-colors"
+        )}
         onClick={onRootSelect}
       >
-        <Folder className="h-4 w-4 text-blue-500 mr-2" />
-        <span className={`text-sm ${textColor}`}>All Files (Root)</span>
+        <Home className="h-4 w-4 mr-2 text-blue-500" />
+        <span className="text-sm font-medium">Root Directory</span>
       </div>
       
-      {renderFolderTree(folderTree)}
+      <div className="mt-2 max-h-[250px] overflow-y-auto">
+        {loading ? (
+          <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} py-2 px-2`}>
+            Loading folders...
+          </div>
+        ) : folderTree.length === 0 ? (
+          <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} py-2 px-2`}>
+            No folders found
+          </div>
+        ) : (
+          <div>
+            {folderTree.map(node => renderFolderNode(node))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

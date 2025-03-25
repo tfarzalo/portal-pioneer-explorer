@@ -6,14 +6,13 @@ import { FileExplorer } from '../components/files/FileExplorer';
 import { FolderTree } from '../components/files/FolderTree';
 import { FileUploadZone } from '../components/files/FileUploadZone';
 import { 
-  Folder, 
-  FileItem, 
-  FolderPlus, 
+  FolderIcon, 
+  FileIcon, 
+  FolderPlus as FolderPlusIcon, 
   FileText, 
-  Image, 
-  FilePdf, 
-  BarChart, 
-  File
+  ImageIcon, 
+  File as FileIconBase,
+  BarChart 
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -28,7 +27,6 @@ export function FileManager({ theme }: FileManagerProps) {
   const [loading, setLoading] = useState(true);
   const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
-  const bgColor = theme === 'dark' ? 'bg-gray-900' : 'bg-white';
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
@@ -170,15 +168,15 @@ export function FileManager({ theme }: FileManagerProps) {
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType.startsWith('image/')) {
-      return <Image className="w-6 h-6 text-blue-500" />;
+      return <ImageIcon className="w-6 h-6 text-blue-500" />;
     } else if (mimeType === 'application/pdf') {
-      return <FilePdf className="w-6 h-6 text-red-500" />;
+      return <FileText className="w-6 h-6 text-red-500" />;
     } else if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) {
       return <BarChart className="w-6 h-6 text-green-500" />;
     } else if (mimeType.includes('document') || mimeType.includes('word')) {
       return <FileText className="w-6 h-6 text-indigo-500" />;
     }
-    return <File className="w-6 h-6 text-gray-500" />;
+    return <FileIconBase className="w-6 h-6 text-gray-500" />;
   };
 
   const uploadFiles = async (files: FileList, currentFolderId: string | null) => {
@@ -191,7 +189,7 @@ export function FileManager({ theme }: FileManagerProps) {
           ? `${currentFolder.path}/${file.name}`
           : `root/${file.name}`;
           
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('file_management')
           .upload(filePath, file);
           

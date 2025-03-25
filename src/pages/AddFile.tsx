@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileUploadZone } from '../components/files/FileUploadZone';
@@ -28,7 +28,6 @@ export function AddFile({ theme }: AddFileProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [category, setCategory] = useState<string>('');
   
-  const bgColor = theme === 'dark' ? 'bg-gray-900' : 'bg-white';
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
@@ -78,7 +77,7 @@ export function AddFile({ theme }: AddFileProps) {
           .eq('id', selectedFolder)
           .single();
           
-        if (folder) {
+        if (folder && folder.path) {
           folderPath = folder.path;
         }
       }
@@ -92,7 +91,7 @@ export function AddFile({ theme }: AddFileProps) {
           : `root/${timestamp}_${file.name}`;
         
         // Upload to storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('file_management')
           .upload(filePath, file);
           
