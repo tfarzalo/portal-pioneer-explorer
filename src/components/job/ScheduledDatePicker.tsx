@@ -27,6 +27,9 @@ export const ScheduledDatePicker = ({
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value ? event.target.value : null;
     console.log('Date changed to:', newDate);
+    
+    // Pass the selected date to parent component in ISO format for database storage
+    // This format works with Supabase date columns (YYYY-MM-DD)
     onChange(newDate);
   };
 
