@@ -1,6 +1,4 @@
 
-import { Job } from '../types/workOrder';
-
 export type SortDirection = 'asc' | 'desc';
 export type SortField = 'job_number' | 'property_name' | 'unit_number' | 'job_type' | 'phase' | 'scheduled_date';
 
