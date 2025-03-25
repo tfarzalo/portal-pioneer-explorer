@@ -130,18 +130,17 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
   };
 
   return (
-    <aside className={`sticky top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} border-r bg-background dark:border-slate-700 dark:bg-[#1F2230] transition-all duration-300`}>
+    <aside className={`sticky top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} border-r bg-[#1A1F2C] dark:border-slate-800 text-gray-100 transition-all duration-300`}>
       <div className="flex flex-col gap-4 p-4">
-        {/* Company Logo and Name */}
-        <div className="flex items-center gap-3 pt-6 pb-8">
-          <img src="/logo.png" alt="JG logo" className="h-10 w-auto" />
-          {!isCollapsed && <span className="text-xl font-bold text-foreground">JG Painting</span>}
+        {/* Company Logo Only */}
+        <div className="flex items-center justify-center pt-6 pb-8">
+          <img src="/logo.png" alt="JG logo" className="h-12 w-auto" />
         </div>
 
         {/* Collapse Button */}
         <button 
           onClick={() => onCollapse(!isCollapsed)}
-          className="mb-2 p-2 flex justify-center items-center bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="mb-2 p-2 flex justify-center items-center bg-[#151823] hover:bg-[#222938] rounded-md transition-colors"
         >
           {isCollapsed ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -154,75 +153,218 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
           )}
         </button>
 
-        {/* Main Navigation */}
-        <nav className="flex-1 space-y-1">
-          {sidebarItems.map((item, index) => (
-            <React.Fragment key={index}>
-              <div 
-                onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
-                className={`
-                  flex cursor-pointer items-center justify-between rounded-md px-3 py-2
-                  ${isActive(item.href) ? 'bg-accent dark:bg-blue-700 text-white' : 'hover:bg-accent/50 hover:text-accent-foreground'}
-                  transition-colors
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  {item.icon}
-                  {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+        {/* Main Navigation - Grouped by category */}
+        <nav className="flex-1 space-y-6">
+          {/* Dashboard Group */}
+          <div className="space-y-1">
+            <div 
+              onClick={() => handleNavigate("/", false, "Dashboard")}
+              className={`
+                flex cursor-pointer items-center justify-between rounded-md px-3 py-2
+                ${isActive("/") ? 'bg-blue-700 text-white' : 'hover:bg-[#222938] text-gray-300 hover:text-white'}
+                transition-colors
+              `}
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard className="h-5 w-5" />
+                {!isCollapsed && <span className="text-sm font-medium">Dashboard</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Jobs Group */}
+          <div className="space-y-1">
+            <div className={`${!isCollapsed ? 'px-3 py-2 text-xs font-semibold uppercase text-gray-400' : 'hidden'}`}>
+              Jobs
+            </div>
+            {sidebarItems.slice(1, 5).map((item, index) => (
+              <React.Fragment key={index}>
+                <div 
+                  onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
+                  className={`
+                    flex cursor-pointer items-center justify-between rounded-md px-3 py-2
+                    ${isActive(item.href) ? 'bg-blue-700 text-white' : 'hover:bg-[#222938] text-gray-300 hover:text-white'}
+                    transition-colors
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+                  </div>
+                  {!isCollapsed && (
+                    <div className="flex items-center">
+                      {item.badge && (
+                        <span className={`flex items-center justify-center rounded-full ${item.badgeColor} w-5 h-5 text-xs font-semibold text-white mr-2`}>
+                          {item.badge}
+                        </span>
+                      )}
+                      {item.submenu && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
+                        >
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {!isCollapsed && (
-                  <div className="flex items-center">
-                    {item.badge && (
-                      <span className={`flex items-center justify-center rounded-full ${item.badgeColor} w-5 h-5 text-xs font-semibold text-white mr-2`}>
-                        {item.badge}
-                      </span>
-                    )}
-                    {item.submenu && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
+
+                {/* Submenu items - only show if not collapsed */}
+                {!isCollapsed && item.submenu && activeSubmenu === item.title && (
+                  <div className="ml-4 space-y-1 pt-1">
+                    {item.submenu.map((subItem, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        to={subItem.href}
+                        className={`
+                          flex cursor-pointer items-center gap-3 rounded-md px-3 py-2
+                          ${currentPath === subItem.href ? 'bg-[#222938] text-white' : 'text-gray-400 hover:bg-[#222938] hover:text-white'}
+                          transition-colors
+                        `}
                       >
-                        <polyline points="9 18 15 12 9 6" />
-                      </svg>
-                    )}
+                        <div className="h-1.5 w-1.5 rounded-full bg-current" />
+                        <span className="text-sm">{subItem.title}</span>
+                      </Link>
+                    ))}
                   </div>
                 )}
-              </div>
+              </React.Fragment>
+            ))}
+          </div>
 
-              {/* Submenu items - only show if not collapsed */}
-              {!isCollapsed && item.submenu && activeSubmenu === item.title && (
-                <div className="ml-4 space-y-1 pt-1">
-                  {item.submenu.map((subItem, subIndex) => (
-                    <Link
-                      key={subIndex}
-                      to={subItem.href}
-                      className={`
-                        flex cursor-pointer items-center gap-3 rounded-md px-3 py-2
-                        ${currentPath === subItem.href ? 'bg-accent/50 text-foreground' : 'hover:bg-accent/25 hover:text-accent-foreground'}
-                        transition-colors
-                      `}
+          {/* Calendar & Management Group */}
+          <div className="space-y-1">
+            <div className={`${!isCollapsed ? 'px-3 py-2 text-xs font-semibold uppercase text-gray-400' : 'hidden'}`}>
+              Management
+            </div>
+            {sidebarItems.slice(5, 7).map((item, index) => (
+              <React.Fragment key={index}>
+                <div 
+                  onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
+                  className={`
+                    flex cursor-pointer items-center justify-between rounded-md px-3 py-2
+                    ${isActive(item.href) ? 'bg-blue-700 text-white' : 'hover:bg-[#222938] text-gray-300 hover:text-white'}
+                    transition-colors
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+                  </div>
+                  {!isCollapsed && item.submenu && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
                     >
-                      <div className="h-1.5 w-1.5 rounded-full bg-current" />
-                      <span className="text-sm">{subItem.title}</span>
-                    </Link>
-                  ))}
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  )}
                 </div>
-              )}
-            </React.Fragment>
-          ))}
+
+                {/* Submenu items - only show if not collapsed */}
+                {!isCollapsed && item.submenu && activeSubmenu === item.title && (
+                  <div className="ml-4 space-y-1 pt-1">
+                    {item.submenu.map((subItem, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        to={subItem.href}
+                        className={`
+                          flex cursor-pointer items-center gap-3 rounded-md px-3 py-2
+                          ${currentPath === subItem.href ? 'bg-[#222938] text-white' : 'text-gray-400 hover:bg-[#222938] hover:text-white'}
+                          transition-colors
+                        `}
+                      >
+                        <div className="h-1.5 w-1.5 rounded-full bg-current" />
+                        <span className="text-sm">{subItem.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Files & User Management Group */}
+          <div className="space-y-1">
+            <div className={`${!isCollapsed ? 'px-3 py-2 text-xs font-semibold uppercase text-gray-400' : 'hidden'}`}>
+              Files & Users
+            </div>
+            {sidebarItems.slice(7).map((item, index) => (
+              <React.Fragment key={index}>
+                <div 
+                  onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
+                  className={`
+                    flex cursor-pointer items-center justify-between rounded-md px-3 py-2
+                    ${isActive(item.href) ? 'bg-blue-700 text-white' : 'hover:bg-[#222938] text-gray-300 hover:text-white'}
+                    transition-colors
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+                  </div>
+                  {!isCollapsed && item.submenu && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  )}
+                </div>
+
+                {/* Submenu items - only show if not collapsed */}
+                {!isCollapsed && item.submenu && activeSubmenu === item.title && (
+                  <div className="ml-4 space-y-1 pt-1">
+                    {item.submenu.map((subItem, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        to={subItem.href}
+                        className={`
+                          flex cursor-pointer items-center gap-3 rounded-md px-3 py-2
+                          ${currentPath === subItem.href ? 'bg-[#222938] text-white' : 'text-gray-400 hover:bg-[#222938] hover:text-white'}
+                          transition-colors
+                        `}
+                      >
+                        <div className="h-1.5 w-1.5 rounded-full bg-current" />
+                        <span className="text-sm">{subItem.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </nav>
 
         {/* Help Button */}
         <div className="mt-auto">
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-gray-400 hover:bg-[#222938] hover:text-white">
             <HelpCircle className="h-5 w-5" />
             {!isCollapsed && <span className="text-sm font-medium">Help</span>}
           </button>
