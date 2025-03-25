@@ -16,7 +16,6 @@ export const JobPhaseSelector = ({
 }: JobPhaseSelectorProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-600/40' : 'border-gray-300/70';
   
   const jobPhases: JobPhase[] = [
