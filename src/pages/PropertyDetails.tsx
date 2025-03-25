@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
@@ -13,14 +14,34 @@ import {
   Calendar
 } from 'lucide-react';
 import { GoogleMap } from '../components/GoogleMap';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PropertyDetailsProps {
   theme: 'dark' | 'light';
 }
 
+interface Property {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  property_management_group?: string;
+  community_manager_name?: string;
+  community_manager_email?: string;
+  community_manager_phone?: string;
+  maintenance_supervisor_name?: string;
+  maintenance_supervisor_email?: string;
+  maintenance_supervisor_phone?: string;
+}
+
 export function PropertyDetails({ theme }: PropertyDetailsProps) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [property, setProperty] = useState<Property | null>(null);
+  const [loading, setLoading] = useState(true);
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
@@ -28,79 +49,40 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
 
-  // Mock data - replace with actual data fetching
-  const property = {
-    id: '1',
-    name: '511 Queens',
-    address: '511 Queens Road',
-    city: 'Charlotte',
-    state: 'NC',
-    zip: '28207',
-    region: 'Region',
-    managementCompany: 'RKW Residential',
-    grade: 'A',
-    contact: {
-      name: 'John Smith',
-      role: 'Maintenance Supervisor',
-      phone: '(555) 123-4567',
-      email: 'john.smith@example.com'
-    },
-    billing: {
-      regular: {
-        '2 Bedroom': { bill: 250, sub: 185, profit: 105 },
-        '3 Bedroom': { bill: 325, sub: 200, profit: 125 }
-      },
-      ceiling: {
-        '2 Bedroom': { bill: 175, sub: 150, profit: 75 },
-        '3 Bedroom': { bill: 195, sub: 120, profit: 75 }
-      },
-      extras: {
-        'Prep Work': { bill: 45, sub: 25, profit: 20 },
-        'Paint Over Accent Wall': { bill: 85, sub: 40, profit: 45 }
+  useEffect(() => {
+    async function fetchPropertyDetails() {
+      if (!id) return;
+      
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (error) {
+          console.error('Error fetching property details:', error);
+          toast.error('Failed to load property details');
+          return;
+        }
+        
+        if (data) {
+          setProperty(data);
+        } else {
+          toast.error('Property not found');
+          navigate('/properties');
+        }
+      } catch (error) {
+        console.error('Error fetching property details:', error);
+        toast.error('Failed to load property details');
+      } finally {
+        setLoading(false);
       }
-    },
-    compliance: {
-      status: 'Compliant',
-      approved: true,
-      approvalDate: '2024-01-15',
-      coiAddress: 'on file',
-      w9Status: 'Verified',
-      lastInspection: '2024-02-20'
-    },
-    paintDetails: {
-      locations: ['Regular Apartments', 'Common Areas', 'Exterior'],
-      selections: {
-        walls: 'SW7029 Agreeable Gray',
-        trim: 'SW7006 Extra White',
-        doors: 'SW7006 Extra White',
-        ceilings: 'Flat White'
-      }
-    },
-    recentJobs: [
-      {
-        id: 'WO#42',
-        unit: '12',
-        type: 'Paint',
-        status: 'Completed',
-        date: '2024-02-25'
-      },
-      {
-        id: 'WO#46',
-        unit: '2/25',
-        type: 'Paint',
-        status: 'In Progress',
-        date: '2024-02-26'
-      }
-    ],
-    notes: [
-      {
-        date: '2/10/25',
-        updateType: 'Test',
-        note: 'Test note update',
-        postedBy: 'Timothy Farzalo'
-      }
-    ]
-  };
+    }
+    
+    fetchPropertyDetails();
+  }, [id, navigate]);
 
   const stats = [
     {
@@ -129,8 +111,98 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     }
   ];
 
-  // Create the full address string for the Google Map
+  const mockData = {
+    billing: {
+      regular: {
+        '2 Bedroom': { bill: 250, sub: 185, profit: 105 },
+        '3 Bedroom': { bill: 325, sub: 200, profit: 125 }
+      },
+      ceiling: {
+        '2 Bedroom': { bill: 175, sub: 150, profit: 75 },
+        '3 Bedroom': { bill: 195, sub: 120, profit: 75 }
+      },
+      extras: {
+        'Prep Work': { bill: 45, sub: 25, profit: 20 },
+        'Paint Over Accent Wall': { bill: 85, sub: 40, profit: 45 }
+      }
+    },
+    compliance: {
+      status: 'Compliant',
+      approved: true,
+      approvalDate: '2024-01-15',
+      coiAddress: 'on file',
+      w9Status: 'Verified',
+      lastInspection: '2024-02-20'
+    },
+    paintDetails: {
+      locations: ['Regular Apartments', 'Common Areas', 'Exterior'],
+      selections: {
+        walls: property?.colors_walls || 'SW7029 Agreeable Gray',
+        trim: property?.colors_trim_base_doors || 'SW7006 Extra White',
+        doors: property?.colors_trim_base_doors || 'SW7006 Extra White',
+        ceilings: property?.colors_ceilings || 'Flat White'
+      }
+    },
+    recentJobs: [
+      {
+        id: 'WO#42',
+        unit: '12',
+        type: 'Paint',
+        status: 'Completed',
+        date: '2024-02-25'
+      },
+      {
+        id: 'WO#46',
+        unit: '2/25',
+        type: 'Paint',
+        status: 'In Progress',
+        date: '2024-02-26'
+      }
+    ],
+    notes: [
+      {
+        date: '2/10/25',
+        updateType: 'Test',
+        note: 'Test note update',
+        postedBy: 'Timothy Farzalo'
+      }
+    ]
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className={`text-center ${textColor}`}>
+          <p className="text-xl">Loading property details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className={`text-center ${textColor}`}>
+          <p className="text-xl">Property not found</p>
+          <button
+            onClick={() => navigate('/properties')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Properties
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const fullAddress = `${property.address}, ${property.city}, ${property.state} ${property.zip}`;
+
+  const contactInfo = {
+    name: property.community_manager_name || property.maintenance_supervisor_name || 'Contact Name Not Available',
+    role: property.maintenance_supervisor_name ? 'Maintenance Supervisor' : 'Community Manager',
+    phone: property.community_manager_phone || property.maintenance_supervisor_phone || 'Phone Not Available',
+    email: property.community_manager_email || property.maintenance_supervisor_email || 'Email Not Available'
+  };
 
   return (
     <div className="space-y-6">
@@ -216,7 +288,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                   <Users className={mutedTextColor} size={20} />
                   <div>
                     <div className={`font-medium ${textColor}`}>Management Company</div>
-                    <div className={mutedTextColor}>{property.managementCompany}</div>
+                    <div className={mutedTextColor}>{property.property_management_group || 'Not Specified'}</div>
                   </div>
                 </div>
               </div>
@@ -225,14 +297,14 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                   <Phone className={mutedTextColor} size={20} />
                   <div>
                     <div className={`font-medium ${textColor}`}>Contact Phone</div>
-                    <div className={mutedTextColor}>{property.contact.phone}</div>
+                    <div className={mutedTextColor}>{contactInfo.phone}</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Mail className={mutedTextColor} size={20} />
                   <div>
                     <div className={`font-medium ${textColor}`}>Contact Email</div>
-                    <div className={mutedTextColor}>{property.contact.email}</div>
+                    <div className={mutedTextColor}>{contactInfo.email}</div>
                   </div>
                 </div>
               </div>
@@ -464,3 +536,4 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     </div>
   );
 }
+
