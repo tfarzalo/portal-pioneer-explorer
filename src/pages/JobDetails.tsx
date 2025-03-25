@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
@@ -68,12 +69,6 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       });
     }
     console.log('Submit update clicked');
-  };
-
-  const refetchJobData = () => {
-    if (id) {
-      fetchJobDetails(id);
-    }
   };
 
   if (loading) {
