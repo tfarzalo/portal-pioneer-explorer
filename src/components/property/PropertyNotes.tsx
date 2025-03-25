@@ -9,7 +9,6 @@ interface PropertyNotesProps {
 
 export function PropertyNotes({ propertyDetails, theme }: PropertyNotesProps) {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const sectionBg = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50';
