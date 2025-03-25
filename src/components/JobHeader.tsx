@@ -18,12 +18,18 @@ export const JobHeader = ({ jobData, theme }: JobHeaderProps) => {
   const textColor = theme === 'dark' ? 'text-gray-100' : 'text-gray-800';
   const headerBg = theme === 'dark' ? 'bg-gray-800' : 'bg-white';
   
+  // Format job number - remove any existing "WO#" prefix
+  const formattedJobNumber = jobData.job_number.replace(/^WO#/i, '');
+  
   return (
     <div className={`w-full ${headerBg} py-4 px-6 flex items-center justify-between rounded-t-lg`}>
       <div className="flex items-center space-x-3">
         <Folder className={textColor} size={24} />
         <div>
-          <h1 className={`text-xl font-bold ${textColor}`}>WO#{jobData.job_number} | {jobData.property_name || 'N/A'}</h1>
+          <h1 className={`text-xl font-bold ${textColor}`}>
+            {jobData.phase !== 'job_request' ? `WO#${formattedJobNumber}` : ''} 
+            {jobData.property_name && `| ${jobData.property_name}`}
+          </h1>
           {jobData.property_address && (
             <p className="text-gray-700 text-sm">| {jobData.property_address}</p>
           )}
