@@ -231,6 +231,41 @@ export type Database = {
         }
         Relationships: []
       }
+      folders: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_system_folder: boolean | null
+          name: string
+          parent_id: string | null
+          path: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_system_folder?: boolean | null
+          name: string
+          parent_id?: string | null
+          path: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_system_folder?: boolean | null
+          name?: string
+          parent_id?: string | null
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_phase_history: {
         Row: {
           changed_at: string | null

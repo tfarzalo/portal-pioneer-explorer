@@ -21,13 +21,17 @@ interface AddFileProps {
   theme: 'dark' | 'light';
 }
 
+// Define allowed file categories to match database enum
+type FileCategory = 'document' | 'image' | 'pdf' | 'other' | 'property_photo' | 
+  'job_photo' | 'before_photo' | 'after_photo' | 'invoice' | 'contract';
+
 export function AddFile({ theme }: AddFileProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [category, setCategory] = useState<string>('');
+  const [category, setCategory] = useState<FileCategory>('document');
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
@@ -48,13 +52,13 @@ export function AddFile({ theme }: AddFileProps) {
     setSelectedFolder(folderId);
   };
 
-  const getCategoryFromMimeType = (mimeType: string): string => {
+  const getCategoryFromMimeType = (mimeType: string): FileCategory => {
     if (mimeType.startsWith('image/')) {
       return 'image';
     } else if (mimeType === 'application/pdf') {
       return 'pdf';
     } else if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) {
-      return 'spreadsheet';
+      return 'document';
     } else if (mimeType.includes('document') || mimeType.includes('word')) {
       return 'document';
     }
@@ -99,7 +103,7 @@ export function AddFile({ theme }: AddFileProps) {
           throw new Error(`Folder error: ${error.message}`);
         }
           
-        if (folder && folder.path) {
+        if (folder) {
           folderPath = folder.path;
           folderId = folder.id;
         }
@@ -113,9 +117,15 @@ export function AddFile({ theme }: AddFileProps) {
           : `root/${timestamp}_${file.name}`;
         
         // Setup upload with progress tracking
-        const { data, error: uploadError } = await supabase.storage
+        const options = {
+          cacheControl: '3600',
+          upsert: false
+        };
+        
+        // Track progress using the onProgress callback
+        const { data: storageData, error: uploadError } = await supabase.storage
           .from('file_management')
-          .upload(filePath, file, {
+          .upload(filePath, file, options, {
             onUploadProgress: (progress) => {
               const percent = Math.round((progress.loaded / progress.total) * 100);
               setUploadProgress(prev => ({
@@ -123,7 +133,6 @@ export function AddFile({ theme }: AddFileProps) {
                 [file.name]: percent
               }));
             },
-            cacheControl: '3600'
           });
           
         if (uploadError) {
@@ -136,14 +145,16 @@ export function AddFile({ theme }: AddFileProps) {
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
+        const detectedCategory = getCategoryFromMimeType(file.type);
+        
         const fileMetadata = {
           filename: file.name,
           original_filename: file.name,
           description: description,
           size: file.size,
           mime_type: file.type,
-          file_type: getCategoryFromMimeType(file.type),
-          category: category || getCategoryFromMimeType(file.type),
+          file_type: detectedCategory,
+          category: category || detectedCategory,
           storage_path: filePath,
           folder_id: folderId,
           metadata: { tags: tagArray }
@@ -151,7 +162,10 @@ export function AddFile({ theme }: AddFileProps) {
         
         const { data: fileData, error: metadataError } = await supabase
           .from('files')
-          .insert(fileMetadata)
+          .insert({
+            ...fileMetadata,
+            category: category || detectedCategory
+          })
           .select()
           .single();
           
@@ -238,7 +252,10 @@ export function AddFile({ theme }: AddFileProps) {
                   <label htmlFor="category" className={`block mb-2 text-sm font-medium ${textColor}`}>
                     Category
                   </label>
-                  <Select value={category} onValueChange={setCategory}>
+                  <Select 
+                    value={category} 
+                    onValueChange={(value) => setCategory(value as FileCategory)}
+                  >
                     <SelectTrigger className={inputBg}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -246,7 +263,12 @@ export function AddFile({ theme }: AddFileProps) {
                       <SelectItem value="document">Document</SelectItem>
                       <SelectItem value="image">Image</SelectItem>
                       <SelectItem value="pdf">PDF</SelectItem>
-                      <SelectItem value="spreadsheet">Spreadsheet</SelectItem>
+                      <SelectItem value="invoice">Invoice</SelectItem>
+                      <SelectItem value="contract">Contract</SelectItem>
+                      <SelectItem value="property_photo">Property Photo</SelectItem>
+                      <SelectItem value="job_photo">Job Photo</SelectItem>
+                      <SelectItem value="before_photo">Before Photo</SelectItem>
+                      <SelectItem value="after_photo">After Photo</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
