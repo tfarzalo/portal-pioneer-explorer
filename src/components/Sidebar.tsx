@@ -54,7 +54,6 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
       icon: <ShoppingBag className="h-5 w-5" />,
       submenu: [
         { title: "All Jobs", href: "/jobs" },
-        { title: "Scheduling", href: "/scheduling" },
         { title: "Completed", href: "/completed" },
         { title: "Cancelled", href: "/cancelled" },
         { title: "Grading", href: "/grading" },
@@ -94,6 +93,11 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
         { title: "Full Calendar", href: "/calendar/full" },
         { title: "Agenda", href: "/calendar/agenda" }
       ]
+    },
+    { 
+      title: "Scheduling", 
+      href: "/scheduling", 
+      icon: <Calendar className="h-5 w-5" /> 
     },
     { 
       title: "JG Management", 
@@ -246,7 +250,7 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
             <div className={`${!isCollapsed ? 'px-3 py-2 text-xs font-semibold uppercase text-gray-400' : 'hidden'}`}>
               Management
             </div>
-            {sidebarItems.slice(5, 7).map((item, index) => (
+            {sidebarItems.slice(5, 8).map((item, index) => (
               <React.Fragment key={index}>
                 <div 
                   onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
@@ -306,7 +310,7 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
             <div className={`${!isCollapsed ? 'px-3 py-2 text-xs font-semibold uppercase text-gray-400' : 'hidden'}`}>
               Files & Users
             </div>
-            {sidebarItems.slice(7).map((item, index) => (
+            {sidebarItems.slice(8).map((item, index) => (
               <React.Fragment key={index}>
                 <div 
                   onClick={() => handleNavigate(item.href, Boolean(item.submenu), item.title)}
