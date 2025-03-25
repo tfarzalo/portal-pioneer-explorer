@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Camera, Upload, Plus } from 'lucide-react';
 import { JobPhase, JobType } from '../types/workOrder';
-import { formatScheduledDate, formatDateTime } from '../utils/formatters';
+import { formatDateTime } from '../utils/formatters';
 
 interface JobDetailsTabsProps {
   jobData: {
@@ -14,10 +14,9 @@ interface JobDetailsTabsProps {
     job_type: JobType;
   };
   theme: 'dark' | 'light';
-  formatDate: (dateString: string | null) => string;
 }
 
-export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsProps) => {
+export const JobDetailsTabs = ({ jobData, theme }: JobDetailsTabsProps) => {
   const [activeTab, setActiveTab] = useState<'details' | 'photos' | 'notes'>('details');
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';

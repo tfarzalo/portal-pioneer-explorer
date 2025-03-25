@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
-import { formatDateForInput, TIMEZONE } from '../utils/formatters';
+import { formatDateForInput } from '../utils/formatters';
 
 interface Property {
   id: string;

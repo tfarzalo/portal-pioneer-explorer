@@ -1,6 +1,6 @@
 
 import { format, parseISO } from 'date-fns';
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 /**
  * Eastern Time Zone identifier
@@ -20,7 +20,7 @@ export const formatDate = (dateString: string | null): string => {
     const date = parseISO(dateString);
     
     // Convert to Eastern Time
-    const easternDate = utcToZonedTime(date, TIMEZONE);
+    const easternDate = toZonedTime(date, TIMEZONE);
     
     // Format the date
     return format(easternDate, 'MMMM d, yyyy');
@@ -73,7 +73,7 @@ export const formatDateTime = (dateString: string | null): string => {
     const date = parseISO(dateString);
     
     // Convert to Eastern Time
-    const easternDate = utcToZonedTime(date, TIMEZONE);
+    const easternDate = toZonedTime(date, TIMEZONE);
     
     // Format the date and time
     return format(easternDate, 'MMMM d, yyyy h:mm a');
@@ -82,4 +82,3 @@ export const formatDateTime = (dateString: string | null): string => {
     return 'N/A';
   }
 };
-
