@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
@@ -13,6 +12,7 @@ import { RecentJobs } from '../components/property/RecentJobs';
 import { PropertyNotes } from '../components/property/PropertyNotes';
 import { CompliancePanel } from '../components/property/CompliancePanel';
 import { PaintDetailsPanel } from '../components/property/PaintDetailsPanel';
+import { Callbacks } from '../components/property/Callbacks';
 
 interface PropertyDetailsProps {
   theme: 'dark' | 'light';
@@ -44,7 +44,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         }
         
         if (data) {
-          // Transform the data to match our Property type
           const propertyData: Property = {
             id: data.id,
             name: data.name,
@@ -67,8 +66,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
           
           setProperty(propertyData);
           
-          // Create the extended property details with the mock data for now
-          // In a real application, this should come from the API
           const detailsData: PropertyDetailsType = {
             ...propertyData,
             billing: {
@@ -182,7 +179,11 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <PropertyDetailsPanel property={property} theme={theme} />
           <BillingRates propertyDetails={propertyDetails} theme={theme} />
-          <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Callbacks propertyDetails={propertyDetails} theme={theme} />
+            <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
+          </div>
         </div>
 
         <div className="col-span-12 lg:col-span-4 space-y-6">
@@ -191,7 +192,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         </div>
       </div>
       
-      {/* Moved RecentJobs component here to be full width at the bottom */}
       <RecentJobs propertyDetails={propertyDetails} propertyId={property.id} theme={theme} />
     </div>
   );
