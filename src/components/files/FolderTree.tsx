@@ -38,17 +38,25 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
       if (error) throw error;
       
       if (data) {
-        // Filter files that have folder_id in their metadata
-        const filesWithFolders = data.filter(file => 
-          file.metadata && typeof file.metadata === 'object' && file.metadata.folder_id
-        );
+        // Filter files that have folder_id in their metadata (ensuring proper type checks)
+        const filesWithFolders = data.filter(file => {
+          if (!file.metadata) return false;
+          
+          const metadata = file.metadata;
+          // Check if metadata is an object and has folder_id property
+          return typeof metadata === 'object' && 
+                 metadata !== null && 
+                 !Array.isArray(metadata) && 
+                 'folder_id' in metadata;
+        });
         
         // Create a unique list of folder IDs from metadata
         const uniqueFolderIds = Array.from(
           new Set(
-            filesWithFolders.map(file => 
-              typeof file.metadata === 'object' ? file.metadata.folder_id : null
-            ).filter(Boolean)
+            filesWithFolders.map(file => {
+              const metadata = file.metadata as Record<string, any>;
+              return metadata?.folder_id;
+            }).filter(Boolean)
           )
         );
         
