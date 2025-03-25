@@ -1,6 +1,6 @@
 
 import { format, parseISO } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 /**
  * Eastern Time Zone identifier

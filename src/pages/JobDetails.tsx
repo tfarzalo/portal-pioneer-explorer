@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
@@ -17,15 +16,15 @@ interface JobDetailsProps {
 }
 
 const JobDetails = ({ theme }: JobDetailsProps) => {
+  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
+
   const { id } = useParams();
   const { jobData, loading, fetchJobDetails } = useJobData(id);
   const [showExtraCharges, setShowExtraCharges] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
   
-  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
-  const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
-
   const mockWorkOrderData = {
     workOrderNumber: jobData?.job_number || '',
     property: jobData?.property_name || '',
@@ -114,7 +113,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       </div>
       
       <div className={`${cardBg} p-6 rounded-lg border ${borderColor}`}>
-        <JobDetailsTabs jobData={jobData} theme={theme} formatDate={formatScheduledDate} />
+        <JobDetailsTabs jobData={jobData} theme={theme} />
       </div>
       
       <JobActionButtons 
