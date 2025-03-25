@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleMapProps {
@@ -72,7 +71,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
     };
   }, [theme]);
   
-  // Separate function to geocode the address and place the marker
   const geocodeAddress = (addressToGeocode: string) => {
     if (!geocoderRef.current || !mapInstanceRef.current) return;
     
@@ -99,7 +97,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
     });
   };
   
-  // When address changes, update the map
   useEffect(() => {
     if (address && geocoderRef.current && mapInstanceRef.current) {
       geocodeAddress(address);

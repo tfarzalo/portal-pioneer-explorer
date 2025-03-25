@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { GoogleMap } from './GoogleMap';
 import { JobPhase, JobType } from '../types/workOrder';
@@ -65,7 +64,6 @@ export const JobInformation = ({
         scheduled_date: selectedDate
       });
       
-      // First, update job details directly using a single update operation
       const { error, data } = await supabase
         .from('jobs')
         .update({ 
@@ -85,7 +83,6 @@ export const JobInformation = ({
         return;
       }
       
-      // If phase has changed, also log the phase change history using the update_job_phase function
       if (jobData.phase !== selectedPhase) {
         const { error: phaseUpdateError } = await supabase.rpc('update_job_phase', {
           job_id: jobData.id,
@@ -95,7 +92,6 @@ export const JobInformation = ({
         
         if (phaseUpdateError) {
           console.error('Error updating job phase history:', phaseUpdateError);
-          // We continue since the main update succeeded
           toast.warning('Job updated but failed to log phase change');
         }
       }
@@ -115,7 +111,7 @@ export const JobInformation = ({
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
-      <div className="w-full md:w-2/3 h-64">
+      <div className="w-full md:w-2/3 h-full">
         {jobData.property_address && (
           <GoogleMap address={jobData.property_address} theme={theme} />
         )}
