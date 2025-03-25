@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ export function AddFile({ theme }: AddFileProps) {
   const [tags, setTags] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [category, setCategory] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
@@ -37,7 +39,7 @@ export function AddFile({ theme }: AddFileProps) {
     const fileArray = Array.from(files);
     setSelectedFiles(fileArray);
     
-    if (fileArray[0]) {
+    if (fileArray.length > 0 && !category) {
       setCategory(getCategoryFromMimeType(fileArray[0].type));
     }
   };
@@ -87,11 +89,15 @@ export function AddFile({ theme }: AddFileProps) {
       let folderId = null;
       
       if (selectedFolder) {
-        const { data: folder } = await (supabase as any)
+        const { data: folder, error } = await supabase
           .from('folders')
           .select('path, id')
           .eq('id', selectedFolder)
           .single();
+          
+        if (error) {
+          throw new Error(`Folder error: ${error.message}`);
+        }
           
         if (folder && folder.path) {
           folderPath = folder.path;
@@ -99,19 +105,30 @@ export function AddFile({ theme }: AddFileProps) {
         }
       }
       
-      for (const file of selectedFiles) {
+      // Create an array to store successful upload promises
+      const uploadPromises = selectedFiles.map(async (file) => {
         const timestamp = new Date().getTime();
         const filePath = folderPath 
           ? `${folderPath}/${timestamp}_${file.name}`
           : `root/${timestamp}_${file.name}`;
         
-        const { error: uploadError } = await supabase.storage
+        // Setup upload with progress tracking
+        const { data, error: uploadError } = await supabase.storage
           .from('file_management')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            onUploadProgress: (progress) => {
+              const percent = Math.round((progress.loaded / progress.total) * 100);
+              setUploadProgress(prev => ({
+                ...prev,
+                [file.name]: percent
+              }));
+            },
+            cacheControl: '3600'
+          });
           
         if (uploadError) {
           toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
-          continue;
+          return null;
         }
         
         const tagArray = tags
@@ -132,25 +149,33 @@ export function AddFile({ theme }: AddFileProps) {
           metadata: { tags: tagArray }
         };
         
-        const { error: metadataError } = await (supabase as any)
+        const { data: fileData, error: metadataError } = await supabase
           .from('files')
-          .insert(fileMetadata);
+          .insert(fileMetadata)
+          .select()
+          .single();
           
         if (metadataError) {
-          toast.error(`Failed to save metadata for ${file.name}`);
-          continue;
+          toast.error(`Failed to save metadata for ${file.name}: ${metadataError.message}`);
+          return null;
         }
         
         toast.success(`Uploaded ${file.name}`);
-      }
+        return fileData;
+      });
       
+      // Wait for all uploads to complete
+      await Promise.all(uploadPromises);
+      
+      // Reset form after successful uploads
       setSelectedFiles([]);
       setDescription('');
       setTags('');
+      setUploadProgress({});
       
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('An error occurred during upload');
+      toast.error(`An error occurred during upload: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
@@ -167,7 +192,7 @@ export function AddFile({ theme }: AddFileProps) {
               <h2 className={`text-lg font-semibold mb-2 ${textColor}`}>Select Files</h2>
               <FileUploadZone 
                 theme={theme} 
-                currentFolderId={null}
+                currentFolderId={selectedFolder}
                 onUpload={(files) => handleFilesSelected(files)}
                 dropZoneText="Drag and drop files here or click to browse"
                 showFilesPreview={true}
@@ -183,10 +208,20 @@ export function AddFile({ theme }: AddFileProps) {
                 <h3 className={`text-md font-semibold mb-2 ${textColor}`}>Selected Files ({selectedFiles.length})</h3>
                 <ul className="space-y-2">
                   {selectedFiles.map((file, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-blue-500" />
-                      <span className={`text-sm ${textColor}`}>{file.name}</span>
-                      <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(2)} KB)</span>
+                    <li key={index} className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-blue-500" />
+                        <span className={`text-sm ${textColor}`}>{file.name}</span>
+                        <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(2)} KB)</span>
+                      </div>
+                      {uploadProgress[file.name] !== undefined && (
+                        <div className="mt-1 w-full bg-gray-300 rounded-full h-1.5">
+                          <div 
+                            className="bg-blue-500 h-1.5 rounded-full" 
+                            style={{ width: `${uploadProgress[file.name]}%` }}
+                          />
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
