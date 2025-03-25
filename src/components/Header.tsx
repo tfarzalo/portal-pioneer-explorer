@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Sun, Moon, Bell, Plus, User, Menu, X, Calendar, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
