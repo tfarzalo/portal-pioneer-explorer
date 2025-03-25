@@ -40,7 +40,7 @@ declare namespace google.maps {
     map?: Map;
     title?: string;
     icon?: string;
-    animation?: Animation;
+    animation?: number; // Changed from Animation to number to match the actual type
   }
 
   interface GeocoderRequest {
