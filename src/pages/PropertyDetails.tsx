@@ -10,7 +10,7 @@ import {
   Briefcase,
   Clock,
   CheckCircle,
-  AlertCircle
+  Calendar
 } from 'lucide-react';
 import { GoogleMap } from '../components/GoogleMap';
 
@@ -92,15 +92,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         date: '2024-02-26'
       }
     ],
-    callbacks: [
-      {
-        date: '2/26/25',
-        painter: 'Subby',
-        unit: '1200',
-        reason: 'Left early.',
-        postedBy: 'Timothy Farzalo'
-      }
-    ],
     notes: [
       {
         date: '2/10/25',
@@ -125,16 +116,16 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
       color: 'bg-yellow-500'
     },
     {
+      label: 'Scheduled Jobs',
+      value: '5',
+      icon: Calendar,
+      color: 'bg-purple-500'
+    },
+    {
       label: 'Completed',
       value: '38',
       icon: CheckCircle,
       color: 'bg-green-500'
-    },
-    {
-      label: 'Callbacks',
-      value: '1',
-      icon: AlertCircle,
-      color: 'bg-red-500'
     }
   ];
 
@@ -368,42 +359,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                         </span>
                       </td>
                       <td className={`px-4 py-2 ${textColor}`}>{job.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className={`${cardBg} rounded-lg border ${borderColor} p-6`}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className={`text-lg font-semibold ${textColor}`}>Callbacks</h2>
-              <button 
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              >
-                <Plus size={16} />
-                <span>Add Callback</span>
-              </button>
-            </div>
-            <div className={`${sectionBg} rounded-lg overflow-hidden`}>
-              <table className="w-full">
-                <thead>
-                  <tr className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                    <th className={`px-4 py-2 text-left text-sm ${textColor}`}>Date</th>
-                    <th className={`px-4 py-2 text-left text-sm ${textColor}`}>Painter</th>
-                    <th className={`px-4 py-2 text-left text-sm ${textColor}`}>Unit</th>
-                    <th className={`px-4 py-2 text-left text-sm ${textColor}`}>Reason</th>
-                    <th className={`px-4 py-2 text-left text-sm ${textColor}`}>Posted By</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {property.callbacks.map((callback, index) => (
-                    <tr key={index}>
-                      <td className={`px-4 py-2 ${textColor}`}>{callback.date}</td>
-                      <td className={`px-4 py-2 ${textColor}`}>{callback.painter}</td>
-                      <td className={`px-4 py-2 ${textColor}`}>{callback.unit}</td>
-                      <td className={`px-4 py-2 ${textColor}`}>{callback.reason}</td>
-                      <td className={`px-4 py-2 ${textColor}`}>{callback.postedBy}</td>
                     </tr>
                   ))}
                 </tbody>

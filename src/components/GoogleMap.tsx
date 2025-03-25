@@ -10,6 +10,7 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
   
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   
@@ -62,6 +63,12 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
       }
       // Fix the TypeScript error by assigning a function instead of null
       window.initMap = function() {};
+      
+      // Clear marker on unmount
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+        markerRef.current = null;
+      }
     };
   }, [theme]);
   
@@ -76,9 +83,16 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
           if (mapInstanceRef.current) {
             mapInstanceRef.current.setCenter(location);
             
-            new google.maps.Marker({
+            // Clear any existing marker
+            if (markerRef.current) {
+              markerRef.current.setMap(null);
+            }
+            
+            // Create new marker
+            markerRef.current = new google.maps.Marker({
               map: mapInstanceRef.current,
-              position: location
+              position: location,
+              animation: google.maps.Animation.DROP
             });
           }
         }
