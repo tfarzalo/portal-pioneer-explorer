@@ -8,3 +8,9 @@ export type FileCategory =
   | "invoice" 
   | "contract" 
   | "other";
+
+export type FileType = 
+  | "document" 
+  | "image" 
+  | "pdf" 
+  | "other";

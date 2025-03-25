@@ -3,7 +3,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Save } from 'lucide-react';
-import { FileCategory } from '../../types/fileTypes';
+import { FileCategory, FileType } from '../../types/fileTypes';
 
 interface FileUploaderProps {
   selectedFiles: File[];
@@ -82,8 +82,8 @@ export function FileUploader({
           return null;
         }
         
-        // Update progress for this file
-        setUploadProgress(prev => ({
+        // Update progress for this file - fixed type error here
+        setUploadProgress((prev: { [key: string]: number }) => ({
           ...prev,
           [file.name]: 100
         }));
@@ -93,10 +93,20 @@ export function FileUploader({
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
+        // Determine appropriate file type
+        const getMimeBasedFileType = (mimeType: string): FileType => {
+          if (mimeType.startsWith('image/')) return 'image';
+          if (mimeType === 'application/pdf') return 'pdf';
+          if (mimeType.includes('document') || mimeType.includes('spreadsheet')) return 'document';
+          return 'other';
+        };
+        
         const detectedCategory = getCategoryFromMimeType(file.type);
         // Make sure we have a valid category
-        const fileCategory: FileCategory = 
-          (category || detectedCategory) as FileCategory;
+        const fileCategory: FileCategory = category || detectedCategory;
+        
+        // Get file type based on mime type
+        const fileType: FileType = getMimeBasedFileType(file.type);
         
         const fileMetadata = {
           filename: file.name,
@@ -104,7 +114,7 @@ export function FileUploader({
           description: description,
           size: file.size,
           mime_type: file.type,
-          file_type: detectedCategory,
+          file_type: fileType,
           category: fileCategory,
           storage_path: filePath,
           folder_id: folderId,
