@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { GoogleMap } from './GoogleMap';
 import { JobPhase, JobType } from '../types/workOrder';
@@ -123,8 +124,8 @@ export const JobInformation = ({
         <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor} shadow-sm`}>
           <h2 className={`text-lg font-bold mb-4 ${textColor}`}>CURRENT JOB STATUS</h2>
           
-          <div className="space-y-4 flex flex-col h-[calc(100%-80px)]">
-            <div className="flex-grow space-y-4">
+          <div className="space-y-4 flex flex-col h-[calc(100%-80px)] justify-between">
+            <div className="space-y-4">
               <JobPhaseSelector 
                 selectedPhase={selectedPhase} 
                 onChange={updateJobPhase} 
@@ -145,7 +146,7 @@ export const JobInformation = ({
             </div>
             
             {onSubmitUpdate && (
-              <div className="mt-auto">
+              <div className="mt-2">
                 <JobUpdateButton 
                   onClick={handleSubmitChanges}
                   isLoading={isLoading}

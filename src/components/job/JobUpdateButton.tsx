@@ -14,7 +14,7 @@ export const JobUpdateButton = ({
     <button 
       onClick={onClick}
       disabled={isLoading || !hasChanges}
-      className={`w-full p-3 rounded-md transition-all duration-200 flex items-center justify-center
+      className={`w-full p-2.5 rounded-md transition-all duration-200 flex items-center justify-center text-sm
         ${hasChanges 
           ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm' 
           : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
