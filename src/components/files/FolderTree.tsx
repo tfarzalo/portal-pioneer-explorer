@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { FolderPlus } from 'lucide-react';
-import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { FolderTreeProps, TreeNode } from './folder/types';
 import { fetchFolders, createFolder } from './folder/folderService';
