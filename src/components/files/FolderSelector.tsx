@@ -27,8 +27,8 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
 
   const fetchFolders = async () => {
     try {
-      // Force TypeScript to accept 'folders' as a valid table name
-      const { data, error } = await (supabase as any)
+      // Use "from" API to access custom tables not in TypeScript definition
+      const { data, error } = await supabase
         .from('folders')
         .select('*')
         .order('name');

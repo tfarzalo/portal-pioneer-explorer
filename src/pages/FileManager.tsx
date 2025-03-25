@@ -6,12 +6,9 @@ import { FileExplorer } from '../components/files/FileExplorer';
 import { FolderTree } from '../components/files/FolderTree';
 import { FileUploadZone } from '../components/files/FileUploadZone';
 import { 
-  FolderIcon, 
-  FileIcon, 
-  FolderPlus as FolderPlusIcon, 
-  FileText, 
+  FileText,
   ImageIcon, 
-  File as FileIconBase,
+  FileIcon as FileIconBase,
   BarChart 
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -39,7 +36,7 @@ export function FileManager({ theme }: FileManagerProps) {
     setLoading(true);
     try {
       // Get the root folders (those without a parent)
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
         .is('parent_id', null);
@@ -52,7 +49,7 @@ export function FileManager({ theme }: FileManagerProps) {
       
       // Get files in the root folder (i.e., those with no folder_id)
       const { data: rootFiles, error: filesError } = await supabase
-        .from('file_metadata')
+        .from('files')
         .select('*')
         .is('folder_id', null);
         
@@ -70,7 +67,7 @@ export function FileManager({ theme }: FileManagerProps) {
     setLoading(true);
     try {
       // Get the selected folder
-      const { data: folder, error: folderError } = await supabase
+      const { data: folder, error: folderError } = await (supabase as any)
         .from('folders')
         .select('*')
         .eq('id', folderId)
@@ -79,7 +76,7 @@ export function FileManager({ theme }: FileManagerProps) {
       if (folderError) throw folderError;
       
       // Get subfolders
-      const { data: subfolders, error: subfoldersError } = await supabase
+      const { data: subfolders, error: subfoldersError } = await (supabase as any)
         .from('folders')
         .select('*')
         .eq('parent_id', folderId);
@@ -88,7 +85,7 @@ export function FileManager({ theme }: FileManagerProps) {
       
       // Get files in this folder
       const { data: folderFiles, error: filesError } = await supabase
-        .from('file_metadata')
+        .from('files')
         .select('*')
         .eq('folder_id', folderId);
         
@@ -115,7 +112,7 @@ export function FileManager({ theme }: FileManagerProps) {
     
     // Add all parents
     while (currentParentId) {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
         .eq('id', currentParentId)
@@ -141,7 +138,7 @@ export function FileManager({ theme }: FileManagerProps) {
         is_system_folder: false
       };
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('folders')
         .insert(newFolder)
         .select()
@@ -179,13 +176,13 @@ export function FileManager({ theme }: FileManagerProps) {
     return <FileIconBase className="w-6 h-6 text-gray-500" />;
   };
 
-  const uploadFiles = async (files: FileList, currentFolderId: string | null) => {
+  const uploadFiles = async (files: FileList) => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
       try {
         // Upload to storage
-        const filePath = currentFolderId 
+        const filePath = currentFolder?.id 
           ? `${currentFolder.path}/${file.name}`
           : `root/${file.name}`;
           
@@ -202,14 +199,14 @@ export function FileManager({ theme }: FileManagerProps) {
           description: '',
           size: file.size,
           mime_type: file.type,
-          category: getCategoryFromMimeType(file.type),
-          folder_id: currentFolderId,
-          storage_path: filePath,
-          tags: []
+          file_type: getCategoryFromMimeType(file.type),
+          category: file.type.startsWith('image/') ? 'property_photo' : 'document',
+          folder_id: currentFolder?.id || null,
+          storage_path: filePath
         };
         
-        const { data: metadataData, error: metadataError } = await supabase
-          .from('file_metadata')
+        const { data: metadataData, error: metadataError } = await (supabase as any)
+          .from('files')
           .insert(fileMetadata)
           .select()
           .single();
@@ -225,8 +222,8 @@ export function FileManager({ theme }: FileManagerProps) {
     }
     
     // Refresh the current view
-    if (currentFolderId) {
-      fetchFolder(currentFolderId);
+    if (currentFolder?.id) {
+      fetchFolder(currentFolder.id);
     } else {
       fetchRootFolder();
     }
@@ -310,7 +307,7 @@ export function FileManager({ theme }: FileManagerProps) {
                 <FileExplorer 
                   theme={theme}
                   folders={[]} /* No folders in filtered views */
-                  files={files.filter(file => file.category === 'image')}
+                  files={files.filter(file => file.mime_type.startsWith('image/'))}
                   loading={loading}
                   onFolderClick={fetchFolder}
                   onCreateFolder={createFolder}
@@ -323,9 +320,9 @@ export function FileManager({ theme }: FileManagerProps) {
                   theme={theme}
                   folders={[]}
                   files={files.filter(file => 
-                    file.category === 'document' || 
-                    file.category === 'pdf' ||
-                    file.category === 'spreadsheet'
+                    file.mime_type.includes('document') || 
+                    file.mime_type === 'application/pdf' ||
+                    file.mime_type.includes('spreadsheet')
                   )}
                   loading={loading}
                   onFolderClick={fetchFolder}
@@ -339,7 +336,10 @@ export function FileManager({ theme }: FileManagerProps) {
                   theme={theme}
                   folders={[]}
                   files={files.filter(file => 
-                    file.category === 'other'
+                    !file.mime_type.startsWith('image/') &&
+                    !file.mime_type.includes('document') &&
+                    file.mime_type !== 'application/pdf' &&
+                    !file.mime_type.includes('spreadsheet')
                   )}
                   loading={loading}
                   onFolderClick={fetchFolder}

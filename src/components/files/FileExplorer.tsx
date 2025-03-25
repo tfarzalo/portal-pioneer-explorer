@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { 
   Folder, 
   FileText, 
-  FolderPlus,
   MoreHorizontal,
   Download,
   Trash2,
@@ -84,8 +83,8 @@ export function FileExplorer({
       
       // Update last_accessed_at
       await supabase
-        .from('file_metadata')
-        .update({ last_accessed_at: new Date().toISOString() })
+        .from('files')
+        .update({ updated_at: new Date().toISOString() })
         .eq('id', file.id);
         
     } catch (error) {
@@ -111,10 +110,10 @@ export function FileExplorer({
         url: url.publicUrl
       });
       
-      // Update last_accessed_at
+      // Update accessed timestamp
       await supabase
-        .from('file_metadata')
-        .update({ last_accessed_at: new Date().toISOString() })
+        .from('files')
+        .update({ updated_at: new Date().toISOString() })
         .eq('id', file.id);
         
     } catch (error) {
@@ -138,14 +137,13 @@ export function FileExplorer({
       
       // Delete metadata
       const { error: metadataError } = await supabase
-        .from('file_metadata')
+        .from('files')
         .delete()
         .eq('id', file.id);
         
       if (metadataError) throw metadataError;
       
       // Update UI
-      // We'll just show a toast and let the parent component handle refreshing
       toast.success('File deleted successfully');
       
     } catch (error) {
@@ -169,7 +167,7 @@ export function FileExplorer({
           {folders.length} Folders, {files.length} Files
         </h2>
         <Button onClick={() => setShowNewFolderDialog(true)} variant="outline" size="sm">
-          <FolderPlus className="mr-2 h-4 w-4" />
+          <Folder className="mr-2 h-4 w-4" />
           New Folder
         </Button>
       </div>
@@ -243,7 +241,7 @@ export function FileExplorer({
           <Folder className="h-16 w-16 text-gray-400 mb-4" />
           <p className="text-lg mb-2">This folder is empty</p>
           <Button variant="outline" size="sm" onClick={() => setShowNewFolderDialog(true)}>
-            <FolderPlus className="mr-2 h-4 w-4" />
+            <Folder className="mr-2 h-4 w-4" />
             Create a folder
           </Button>
         </div>

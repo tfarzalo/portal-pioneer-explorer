@@ -18,7 +18,6 @@ interface TreeNode {
 }
 
 export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreeProps) {
-  const [folders, setFolders] = useState<any[]>([]);
   const [folderTree, setFolderTree] = useState<TreeNode[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -29,15 +28,13 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
 
   const fetchFolders = async () => {
     try {
-      // Force TypeScript to accept 'folders' as a valid table name
-      const { data, error } = await (supabase as any)
+      // Use "from" API to access custom tables not in TypeScript definition
+      const { data, error } = await supabase
         .from('folders')
         .select('*')
         .order('name');
         
       if (error) throw error;
-      
-      setFolders(data || []);
       setFolderTree(buildFolderTree(data || []));
     } catch (error) {
       console.error('Error fetching folders:', error);

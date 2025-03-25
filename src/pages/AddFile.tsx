@@ -71,7 +71,8 @@ export function AddFile({ theme }: AddFileProps) {
       // Get folder path if a folder is selected
       let folderPath = '';
       if (selectedFolder) {
-        const { data: folder } = await supabase
+        // Using custom table access method, ensuring we're using a type assertion
+        const { data: folder } = await (supabase as any)
           .from('folders')
           .select('path')
           .eq('id', selectedFolder)
@@ -106,21 +107,21 @@ export function AddFile({ theme }: AddFileProps) {
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
-        // Add metadata
+        // Add metadata - using type assertion since 'files' is the table in the database
         const fileMetadata = {
           filename: file.name,
           original_filename: file.name,
           description: description,
           size: file.size,
           mime_type: file.type,
-          category: category || getCategoryFromMimeType(file.type),
-          folder_id: selectedFolder,
+          file_type: getCategoryFromMimeType(file.type),
+          category: category === 'pdf' ? 'document' : 'other',
           storage_path: filePath,
-          tags: tagArray
+          metadata: { tags: tagArray }
         };
         
-        const { error: metadataError } = await supabase
-          .from('file_metadata')
+        const { error: metadataError } = await (supabase as any)
+          .from('files')
           .insert(fileMetadata);
           
         if (metadataError) {
