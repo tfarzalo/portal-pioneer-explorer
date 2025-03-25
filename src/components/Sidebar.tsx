@@ -1,8 +1,5 @@
 
 import {
-  BarChart,
-  CheckSquare,
-  Clock,
   HelpCircle,
   Calendar,
   LayoutDashboard,
@@ -14,7 +11,7 @@ import {
   BuildingIcon,
   Wrench,
   FileIcon,
-  Folder
+  Folder as FolderIcon
 } from "lucide-react";
 import React, { ReactNode, useState } from "react";
 import { useLocation, Link, useNavigate } from 'react-router-dom';
@@ -33,7 +30,12 @@ type SidebarSubItem = {
   href: string;
 };
 
-export function Sidebar() {
+type SidebarProps = {
+  isCollapsed: boolean;
+  onCollapse: (isCollapsed: boolean) => void;
+};
+
+export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -130,13 +132,29 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="sticky top-0 h-screen w-64 border-r bg-background dark:border-slate-700 dark:bg-[#1F2230]">
+    <aside className={`sticky top-0 h-screen ${isCollapsed ? 'w-20' : 'w-64'} border-r bg-background dark:border-slate-700 dark:bg-[#1F2230] transition-all duration-300`}>
       <div className="flex flex-col gap-4 p-4">
         {/* Company Logo and Name */}
         <div className="flex items-center gap-3 pt-6 pb-8">
           <img src="/logo.png" alt="JG logo" className="h-10 w-auto" />
-          <span className="text-xl font-bold text-foreground">JG Painting</span>
+          {!isCollapsed && <span className="text-xl font-bold text-foreground">JG Painting</span>}
         </div>
+
+        {/* Collapse Button */}
+        <button 
+          onClick={() => onCollapse(!isCollapsed)}
+          className="mb-2 p-2 flex justify-center items-center bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+        >
+          {isCollapsed ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <polyline points="15 6 9 12 15 18" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          )}
+        </button>
 
         {/* Main Navigation */}
         <nav className="flex-1 space-y-1">
@@ -206,10 +224,9 @@ export function Sidebar() {
         <div className="mt-auto">
           <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">
             <HelpCircle className="h-5 w-5" />
-            <span className="text-sm font-medium">Help</span>
+            {!isCollapsed && <span className="text-sm font-medium">Help</span>}
           </button>
         </div>
-
       </div>
     </aside>
   );

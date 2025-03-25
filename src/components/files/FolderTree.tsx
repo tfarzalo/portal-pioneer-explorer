@@ -37,18 +37,20 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
         
       if (error) throw error;
       
-      // Create a basic folder structure from the folder_ids
-      // Since we don't have actual parent-child relationships, we'll make all folders root-level
-      const folderNodes: TreeNode[] = Array.from(
-        new Set(data?.map(item => item.folder_id))
-      ).map(folderId => ({
-        id: folderId,
-        name: `Folder ${folderId.substring(0, 8)}`, // Use part of the ID as a name
-        parent_id: null, // All folders at root level
-        children: []
-      }));
-      
-      setFolderTree(folderNodes);
+      if (data) {
+        // Create a basic folder structure from the folder_ids
+        // Since we don't have actual parent-child relationships, we'll make all folders root-level
+        const folderNodes: TreeNode[] = Array.from(
+          new Set(data.map(item => item.folder_id).filter(Boolean))
+        ).map(folderId => ({
+          id: String(folderId),
+          name: `Folder ${String(folderId).substring(0, 8)}`, // Use part of the ID as a name
+          parent_id: null, // All folders at root level
+          children: []
+        }));
+        
+        setFolderTree(folderNodes);
+      }
     } catch (error) {
       console.error('Error fetching folders:', error);
     } finally {

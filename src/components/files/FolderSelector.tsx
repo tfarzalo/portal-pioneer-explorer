@@ -36,15 +36,17 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
         
       if (error) throw error;
       
-      // Create a unique list of folders with names derived from folder_id
-      const uniqueFolders = Array.from(
-        new Set(data?.map(item => item.folder_id))
-      ).map(folderId => ({
-        id: folderId,
-        name: `Folder ${folderId.substring(0, 8)}` // Use part of the ID as a name
-      }));
-      
-      setFolders(uniqueFolders);
+      if (data) {
+        // Create a unique list of folders with names derived from folder_id
+        const uniqueFolders = Array.from(
+          new Set(data.map(item => item.folder_id).filter(Boolean))
+        ).map(folderId => ({
+          id: folderId,
+          name: `Folder ${String(folderId).substring(0, 8)}` // Use part of the ID as a name
+        }));
+        
+        setFolders(uniqueFolders);
+      }
     } catch (error) {
       console.error('Error fetching folders:', error);
     } finally {
