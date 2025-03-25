@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleMapProps {
@@ -44,6 +45,11 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
         
         mapInstanceRef.current = new google.maps.Map(mapRef.current, mapOptions);
         geocoderRef.current = new google.maps.Geocoder();
+        
+        // After map is created, immediately geocode the address
+        if (address && geocoderRef.current) {
+          geocodeAddress(address);
+        }
       }
     };
     
@@ -66,29 +72,39 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
     };
   }, [theme]);
   
-  useEffect(() => {
-    if (mapInstanceRef.current && geocoderRef.current && address) {
-      geocoderRef.current.geocode({ address }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          const location = results[0].geometry.location;
+  // Separate function to geocode the address and place the marker
+  const geocodeAddress = (addressToGeocode: string) => {
+    if (!geocoderRef.current || !mapInstanceRef.current) return;
+    
+    geocoderRef.current.geocode({ address: addressToGeocode }, (results, status) => {
+      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+        const location = results[0].geometry.location;
+        
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter(location);
           
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.setCenter(location);
-            
-            if (markerRef.current) {
-              markerRef.current.setMap(null);
-            }
-            
-            markerRef.current = new google.maps.Marker({
-              map: mapInstanceRef.current,
-              position: location,
-              animation: google.maps.Animation.DROP
-            });
+          if (markerRef.current) {
+            markerRef.current.setMap(null);
           }
+          
+          markerRef.current = new google.maps.Marker({
+            map: mapInstanceRef.current,
+            position: location,
+            animation: google.maps.Animation.DROP
+          });
         }
-      });
+      } else {
+        console.error(`Geocoding failed for address: ${addressToGeocode}. Status: ${status}`);
+      }
+    });
+  };
+  
+  // When address changes, update the map
+  useEffect(() => {
+    if (address && geocoderRef.current && mapInstanceRef.current) {
+      geocodeAddress(address);
     }
-  }, [address, mapInstanceRef.current, geocoderRef.current]);
+  }, [address]);
   
   return (
     <div className={`w-full h-full rounded-lg border ${borderColor} overflow-hidden`} ref={mapRef}></div>

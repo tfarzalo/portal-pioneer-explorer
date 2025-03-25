@@ -1,6 +1,9 @@
-import { useState, useMemo } from 'react';
+
+import { useState, useMemo, useEffect } from 'react';
 import { ArrowUpDown, Building2, MapPin, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PropertyProps {
   theme: 'dark' | 'light';
@@ -13,52 +16,55 @@ interface Property {
   city: string;
   state: string;
   zip: string;
-  managementCompany: string;
+  managementCompany?: string;
+  property_management_group?: string;
 }
 
 export function Properties({ theme }: PropertyProps) {
   const [sortField, setSortField] = useState<'name' | 'managementCompany'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const properties: Property[] = [
-    {
-      id: '1',
-      name: '511 Queens',
-      address: '511 Queens Rd',
-      city: 'Charlotte',
-      state: 'NC',
-      zip: '28207',
-      managementCompany: 'RKW Residential'
-    },
-    {
-      id: '2',
-      name: 'Affinity at Hudson',
-      address: '2348 Layman Dr',
-      city: 'Gastonia',
-      state: 'NC',
-      zip: '28054',
-      managementCompany: 'Greystar'
-    },
-    {
-      id: '3',
-      name: 'Affinity at Kendrick',
-      address: '3308 Glade Dr',
-      city: 'Gastonia',
-      state: 'NC',
-      zip: '28056',
-      managementCompany: 'Greystar'
-    },
-    {
-      id: '4',
-      name: 'Alexan Research Park',
-      address: '9821 Research Dr',
-      city: 'Charlotte',
-      state: 'NC',
-      zip: '28262',
-      managementCompany: 'Greystar'
+  useEffect(() => {
+    async function fetchProperties() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('id, name, address, city, state, zip, property_management_group');
+        
+        if (error) {
+          console.error('Error fetching properties:', error);
+          toast.error('Failed to load properties');
+          return;
+        }
+        
+        if (data) {
+          // Transform data to match the Property interface
+          const transformedData = data.map(property => ({
+            id: property.id,
+            name: property.name,
+            address: property.address,
+            city: property.city,
+            state: property.state,
+            zip: property.zip,
+            managementCompany: property.property_management_group || 'Not Specified'
+          }));
+          
+          setProperties(transformedData);
+        }
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+        toast.error('Failed to load properties');
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    
+    fetchProperties();
+  }, []);
 
   const handleSort = (field: 'name' | 'managementCompany') => {
     if (sortField === field) {
@@ -71,8 +77,8 @@ export function Properties({ theme }: PropertyProps) {
 
   const sortedProperties = useMemo(() => {
     return [...properties].sort((a, b) => {
-      const aValue = a[sortField].toLowerCase();
-      const bValue = b[sortField].toLowerCase();
+      const aValue = a[sortField]?.toLowerCase() || '';
+      const bValue = b[sortField]?.toLowerCase() || '';
       
       if (sortDirection === 'asc') {
         return aValue.localeCompare(bValue);
@@ -129,34 +135,44 @@ export function Properties({ theme }: PropertyProps) {
         </div>
 
         <div className="divide-y divide-gray-700">
-          {sortedProperties.map((property) => (
-            <div 
-              key={property.id}
-              onClick={() => navigate(`/properties/${property.id}`)}
-              className={`grid grid-cols-12 gap-4 ${hoverBg} cursor-pointer group`}
-            >
-              <div className="col-span-4 p-4">
-                <div className={`font-medium ${textColor} group-hover:text-blue-500`}>
-                  {property.name}
+          {loading ? (
+            <div className="p-4 text-center">
+              <p className={textColor}>Loading properties...</p>
+            </div>
+          ) : sortedProperties.length === 0 ? (
+            <div className="p-4 text-center">
+              <p className={textColor}>No properties found.</p>
+            </div>
+          ) : (
+            sortedProperties.map((property) => (
+              <div 
+                key={property.id}
+                onClick={() => navigate(`/properties/${property.id}`)}
+                className={`grid grid-cols-12 gap-4 ${hoverBg} cursor-pointer group`}
+              >
+                <div className="col-span-4 p-4">
+                  <div className={`font-medium ${textColor} group-hover:text-blue-500`}>
+                    {property.name}
+                  </div>
                 </div>
-              </div>
-              <div className="col-span-4 p-4">
-                <div className={`flex items-start space-x-2 ${mutedTextColor}`}>
-                  <MapPin size={16} className="mt-1 flex-shrink-0" />
-                  <div>
-                    <div>{property.address}</div>
-                    <div>{property.city}, {property.state} {property.zip}</div>
+                <div className="col-span-4 p-4">
+                  <div className={`flex items-start space-x-2 ${mutedTextColor}`}>
+                    <MapPin size={16} className="mt-1 flex-shrink-0" />
+                    <div>
+                      <div>{property.address}</div>
+                      <div>{property.city}, {property.state} {property.zip}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-4 p-4">
+                  <div className={`flex items-center space-x-2 ${mutedTextColor}`}>
+                    <Users size={16} className="flex-shrink-0" />
+                    <span>{property.managementCompany}</span>
                   </div>
                 </div>
               </div>
-              <div className="col-span-4 p-4">
-                <div className={`flex items-center space-x-2 ${mutedTextColor}`}>
-                  <Users size={16} className="flex-shrink-0" />
-                  <span>{property.managementCompany}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
