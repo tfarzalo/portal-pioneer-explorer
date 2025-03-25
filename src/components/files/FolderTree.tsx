@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { ChevronRight, ChevronDown, Folder, Home, FolderPlus } from 'lucide-react';
@@ -97,26 +98,6 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
 
   const handleFolderClick = (folderId: string) => {
     onFolderSelect(folderId);
-  };
-  
-  const updateBreadcrumbs = async (folder: FolderType) => {
-    const newBreadcrumbs = [folder];
-    let currentParentId = folder.parent_id;
-    
-    while (currentParentId) {
-      const { data, error } = await (supabase as any)
-        .from('folders')
-        .select('*')
-        .eq('id', currentParentId)
-        .single();
-        
-      if (error) break;
-      
-      newBreadcrumbs.unshift(data);
-      currentParentId = data.parent_id;
-    }
-    
-    newBreadcrumbs.unshift({ id: null, name: 'Root' });
   };
   
   const createNewFolder = async () => {
