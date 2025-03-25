@@ -110,7 +110,6 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
             jobData={jobData} 
             theme={theme} 
             onSubmitUpdate={handleSubmitUpdate}
-            refetchJobData={refetchJobData}
           />
         </div>
       </div>
