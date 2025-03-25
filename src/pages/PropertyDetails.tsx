@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import { GoogleMap } from '../components/GoogleMap';
 
 interface PropertyDetailsProps {
   theme: 'dark' | 'light';
@@ -137,6 +138,9 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     }
   ];
 
+  // Create the full address string for the Google Map
+  const fullAddress = `${property.address}, ${property.city}, ${property.state} ${property.zip}`;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -184,18 +188,8 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className={`${cardBg} rounded-lg border ${borderColor} p-6`}>
           <h2 className={`text-lg font-semibold ${textColor} mb-4`}>Location Map</h2>
-          <div className="aspect-video w-full bg-gray-800 rounded-lg overflow-hidden">
-            <iframe
-              src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(
-                `${property.address}, ${property.city}, ${property.state} ${property.zip}`
-              )}`}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+          <div className="aspect-video w-full rounded-lg overflow-hidden">
+            <GoogleMap address={fullAddress} theme={theme} />
           </div>
         </div>
 
