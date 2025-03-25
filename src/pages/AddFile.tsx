@@ -1,12 +1,11 @@
 
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { FileUploadZone } from '../components/files/FileUploadZone';
-import { FolderSelector } from '../components/files/FolderSelector';
 import { FileUploader } from '../components/files/FileUploader';
 import { FileDetailsForm } from '../components/files/FileDetailsForm';
 import { FilePreview } from '../components/files/FilePreview';
 import { cn } from '../lib/utils';
+import { FileCategory } from '../types/fileTypes';
 
 interface AddFileProps {
   theme: 'dark' | 'light';
@@ -18,7 +17,7 @@ export function AddFile({ theme }: AddFileProps) {
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [category, setCategory] = useState<string>('document');
+  const [category, setCategory] = useState<FileCategory>('document');
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
@@ -39,11 +38,11 @@ export function AddFile({ theme }: AddFileProps) {
     setSelectedFolder(folderId);
   };
 
-  const getCategoryFromMimeType = (mimeType: string): string => {
+  const getCategoryFromMimeType = (mimeType: string): FileCategory => {
     if (mimeType.startsWith('image/')) {
-      return 'image';
+      return 'property_photo';
     } else if (mimeType === 'application/pdf') {
-      return 'pdf';
+      return 'document';
     } else if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) {
       return 'document';
     } else if (mimeType.includes('document') || mimeType.includes('word')) {

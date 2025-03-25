@@ -1,20 +1,20 @@
 
-import { useState } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Save } from 'lucide-react';
+import { FileCategory } from '../../types/fileTypes';
 
 interface FileUploaderProps {
   selectedFiles: File[];
   selectedFolder: string | null;
   description: string;
   tags: string;
-  category: string;
+  category: FileCategory;
   isUploading: boolean;
   setIsUploading: (isUploading: boolean) => void;
   setUploadProgress: (progress: { [key: string]: number }) => void;
-  getCategoryFromMimeType: (mimeType: string) => string;
+  getCategoryFromMimeType: (mimeType: string) => FileCategory;
   onUploadComplete: () => void;
 }
 
@@ -73,7 +73,7 @@ export function FileUploader({
         };
         
         // Track progress using the onUploadProgress callback
-        const { data: storageData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('file_management')
           .upload(filePath, file, options);
           
@@ -82,13 +82,21 @@ export function FileUploader({
           return null;
         }
         
+        // Update progress for this file
+        setUploadProgress(prev => ({
+          ...prev,
+          [file.name]: 100
+        }));
+        
         const tagArray = tags
           .split(',')
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
         const detectedCategory = getCategoryFromMimeType(file.type);
-        const safeCategory = category || detectedCategory;
+        // Make sure we have a valid category
+        const fileCategory: FileCategory = 
+          (category || detectedCategory) as FileCategory;
         
         const fileMetadata = {
           filename: file.name,
@@ -97,7 +105,7 @@ export function FileUploader({
           size: file.size,
           mime_type: file.type,
           file_type: detectedCategory,
-          category: safeCategory,
+          category: fileCategory,
           storage_path: filePath,
           folder_id: folderId,
           metadata: { tags: tagArray }

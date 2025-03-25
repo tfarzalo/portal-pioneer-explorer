@@ -7,16 +7,16 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  Select,
   SelectValue,
 } from '../ui/select';
 import { FolderSelector } from './FolderSelector';
 import { cn } from '../../lib/utils';
+import { FileCategory } from '../../types/fileTypes';
 
 interface FileDetailsFormProps {
   theme: 'dark' | 'light';
-  category: string;
-  setCategory: (category: string) => void;
+  category: FileCategory;
+  setCategory: (category: FileCategory) => void;
   description: string;
   setDescription: (description: string) => void;
   tags: string;
@@ -34,7 +34,6 @@ export function FileDetailsForm({
   setDescription,
   tags,
   setTags,
-  selectedFolder,
   onFolderSelect,
   onTagClick
 }: FileDetailsFormProps) {
@@ -54,7 +53,7 @@ export function FileDetailsForm({
         </label>
         <Select 
           value={category} 
-          onValueChange={setCategory}
+          onValueChange={(value) => setCategory(value as FileCategory)}
         >
           <SelectTrigger className={inputBg}>
             <SelectValue placeholder="Select category" />
