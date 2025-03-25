@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { GoogleMap } from './GoogleMap';
 import { JobPhase, JobType } from '../types/workOrder';
@@ -110,14 +111,16 @@ export const JobInformation = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4">
+    <div className="flex flex-col md:flex-row gap-4 h-[400px]">
       <div className="w-full md:w-2/3 h-full">
         {jobData.property_address && (
-          <GoogleMap address={jobData.property_address} theme={theme} />
+          <div className="h-full">
+            <GoogleMap address={jobData.property_address} theme={theme} />
+          </div>
         )}
       </div>
       
-      <div className="w-full md:w-1/3">
+      <div className="w-full md:w-1/3 h-full">
         <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor}`}>
           <h2 className={`text-lg font-bold mb-4 ${textColor}`}>CURRENT JOB STATUS</h2>
           
