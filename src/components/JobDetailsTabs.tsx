@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Camera, Upload, Plus } from 'lucide-react';
 import { JobPhase, JobType } from '../types/workOrder';
+import { formatScheduledDate, formatDateTime } from '../utils/formatters';
 
 interface JobDetailsTabsProps {
   jobData: {
@@ -102,7 +103,7 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
             )}
             <div>
               <p className={`${mutedTextColor} text-sm`}>Created</p>
-              <p className={textColor}>{jobData.created_at ? new Date(jobData.created_at).toLocaleString() : 'N/A'}</p>
+              <p className={textColor}>{jobData.created_at ? formatDateTime(jobData.created_at) : 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -132,7 +133,7 @@ export const JobDetailsTabs = ({ jobData, theme, formatDate }: JobDetailsTabsPro
             <div className={`p-4 rounded-lg ${headerBg}`}>
               <div className="flex justify-between">
                 <span className={`font-medium ${textColor}`}>System</span>
-                <span className={mutedTextColor}>{jobData.created_at ? formatDate(jobData.created_at) : 'N/A'}</span>
+                <span className={mutedTextColor}>{jobData.created_at ? formatDateTime(jobData.created_at) : 'N/A'}</span>
               </div>
               <p className={mutedTextColor}>Job created in phase: {formatPhase(jobData.phase)}</p>
             </div>

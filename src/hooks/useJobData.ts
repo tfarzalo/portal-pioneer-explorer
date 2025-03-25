@@ -58,6 +58,7 @@ export const useJobData = (jobId: string | undefined) => {
           ? data.job_type as JobType 
           : 'paint' as JobType; // Default to 'paint' if type is not recognized
 
+        // Store dates as ISO strings for consistent handling
         setJobData({
           id: data.id,
           job_number: data.job_number,
@@ -65,12 +66,12 @@ export const useJobData = (jobId: string | undefined) => {
           unit_number: data.unit_number,
           job_type: jobType,
           phase: data.phase as JobPhase,
-          scheduled_date: data.scheduled_date,
+          scheduled_date: data.scheduled_date, // Store as ISO string
           submitted_by: data.submitted_by,
           base_amount: data.base_amount,
           total_amount: data.total_amount,
           description: data.description,
-          created_at: data.created_at,
+          created_at: data.created_at, // Store as ISO string
           property_name: data.properties?.property_name || 'N/A',
           property_address: data.properties?.property_address || 'N/A'
         });

@@ -5,6 +5,7 @@ import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 import { JobPhase } from '../types/workOrder';
+import { formatScheduledDate } from '../utils/formatters';
 
 interface WorkOrdersProps {
   theme: 'dark' | 'light';
@@ -120,7 +121,7 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
   const handleRowClick = (jobId: string) => {
     navigate(`/jobs/${jobId}`);
   };
-  
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -200,7 +201,7 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
                       <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
+                      <div className={`font-medium ${textColor}`}>{formatScheduledDate(job.scheduled_date)}</div>
                     </td>
                   </tr>
                 ))

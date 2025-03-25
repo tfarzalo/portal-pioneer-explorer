@@ -1,4 +1,3 @@
-
 import { 
   FileText, 
   ArrowLeft, 
@@ -9,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import { formatDateForInput, TIMEZONE } from '../utils/formatters';
 
 interface Property {
   id: string;
@@ -30,7 +30,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
   const [formData, setFormData] = useState({
     propertyId: '',
     unitNumber: '',
-    scheduledDate: '',
+    scheduledDate: formatDateForInput(new Date().toISOString()), // Default to today
     jobType: '' as JobType, // Type assertion to ensure it's treated as JobType
     specialInstructions: ''
   });
@@ -109,6 +109,9 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
       // Generate a job number
       const jobNumber = await generateJobNumber();
       
+      // Ensure date is stored as YYYY-MM-DD without time component
+      const scheduledDate = formData.scheduledDate;
+      
       // Insert the new job
       const { data, error } = await supabase
         .from('jobs')
@@ -116,7 +119,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
           job_number: jobNumber,
           property_id: formData.propertyId,
           unit_number: formData.unitNumber,
-          scheduled_date: formData.scheduledDate,
+          scheduled_date: scheduledDate,
           job_type: formData.jobType as JobType,
           description: formData.specialInstructions, // Use description field for special instructions
           phase: 'job_request' // Explicitly set phase to job_request
@@ -204,7 +207,7 @@ export function NewJobRequest({ theme }: NewJobRequestProps) {
             <div>
               <label className={`block text-sm font-medium mb-2 ${textColor}`}>
                 <Calendar size={16} className={`inline mr-2 ${calendarIconColor}`} />
-                Scheduled Work Date
+                Scheduled Work Date (Eastern Time)
               </label>
               <input
                 type="date"

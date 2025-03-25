@@ -1,6 +1,14 @@
 
+import { format, parseISO } from 'date-fns';
+import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+
 /**
- * Formats a date string to a readable format
+ * Eastern Time Zone identifier
+ */
+export const TIMEZONE = 'America/New_York';
+
+/**
+ * Formats a date string to a readable format (Month Day, Year)
  * @param dateString The date string to format
  * @returns Formatted date string or a fallback message
  */
@@ -8,20 +16,28 @@ export const formatDate = (dateString: string | null): string => {
   if (!dateString) return 'Not scheduled';
   
   try {
-    // Parse the date without applying timezone conversion
-    const date = new Date(dateString);
+    // Parse the date string to a Date object
+    const date = parseISO(dateString);
     
-    // Format the date directly without timezone adjustments
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC' // Use UTC to prevent timezone shifts
-    });
+    // Convert to Eastern Time
+    const easternDate = utcToZonedTime(date, TIMEZONE);
+    
+    // Format the date
+    return format(easternDate, 'MMMM d, yyyy');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Invalid date';
   }
+};
+
+/**
+ * Formats a date specifically for scheduled dates display 
+ * with consistent "Month Day, Year" format
+ * @param dateString The date string to format
+ * @returns Formatted date string or 'Not scheduled'
+ */
+export const formatScheduledDate = (dateString: string | null): string => {
+  return formatDate(dateString);
 };
 
 /**
@@ -34,18 +50,36 @@ export const formatDateForInput = (dateString: string | null): string => {
   
   try {
     // Parse the date
-    const date = new Date(dateString);
+    const date = parseISO(dateString);
     
-    // Get year, month, and day components
-    const year = date.getUTCFullYear();
-    // Month is 0-indexed in JS Date, so add 1
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    
-    // Format as YYYY-MM-DD for HTML date input
-    return `${year}-${month}-${day}`;
+    // Format as YYYY-MM-DD for HTML date input (without time component)
+    return format(date, 'yyyy-MM-dd');
   } catch (error) {
     console.error('Error formatting date for input:', error);
     return '';
   }
 };
+
+/**
+ * Formats a datetime for display in Eastern Time
+ * @param dateString The date string to format
+ * @returns Formatted date and time string or 'N/A'
+ */
+export const formatDateTime = (dateString: string | null): string => {
+  if (!dateString) return 'N/A';
+  
+  try {
+    // Parse the date string to a Date object
+    const date = parseISO(dateString);
+    
+    // Convert to Eastern Time
+    const easternDate = utcToZonedTime(date, TIMEZONE);
+    
+    // Format the date and time
+    return format(easternDate, 'MMMM d, yyyy h:mm a');
+  } catch (error) {
+    console.error('Error formatting datetime:', error);
+    return 'N/A';
+  }
+};
+

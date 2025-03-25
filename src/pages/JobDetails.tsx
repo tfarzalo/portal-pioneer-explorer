@@ -8,7 +8,7 @@ import { JobInformation } from '../components/JobInformation';
 import { JobDetailsTabs } from '../components/JobDetailsTabs';
 import { JobActionButtons } from '../components/JobActionButtons';
 import { useJobData } from '../hooks/useJobData';
-import { formatDate } from '../utils/formatters';
+import { formatScheduledDate } from '../utils/formatters';
 import { toast } from 'sonner';
 import { JOB_PHASE_COLORS } from '../types/workOrder';
 
@@ -114,7 +114,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
       </div>
       
       <div className={`${cardBg} p-6 rounded-lg border ${borderColor}`}>
-        <JobDetailsTabs jobData={jobData} theme={theme} formatDate={formatDate} />
+        <JobDetailsTabs jobData={jobData} theme={theme} formatDate={formatScheduledDate} />
       </div>
       
       <JobActionButtons 

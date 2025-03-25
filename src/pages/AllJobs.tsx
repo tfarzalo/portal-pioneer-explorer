@@ -1,4 +1,3 @@
-
 import { FileText, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -6,6 +5,7 @@ import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 import { JobPhase } from '../types/workOrder';
+import { formatScheduledDate } from '../utils/formatters';
 
 interface AllJobsProps {
   theme: 'dark' | 'light';
@@ -200,7 +200,7 @@ export function AllJobs({ theme }: AllJobsProps) {
                       <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
+                      <div className={`font-medium ${textColor}`}>{formatScheduledDate(job.scheduled_date)}</div>
                     </td>
                   </tr>
                 ))
