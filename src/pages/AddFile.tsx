@@ -14,7 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { FileText, Save } from 'lucide-react';
+import { FileText, Save, Tag } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface AddFileProps {
   theme: 'dark' | 'light';
@@ -29,8 +30,10 @@ export function AddFile({ theme }: AddFileProps) {
   const [category, setCategory] = useState<string>('');
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
+  const inputBg = theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
 
   const handleFilesSelected = (files: FileList) => {
     const fileArray = Array.from(files);
@@ -59,6 +62,21 @@ export function AddFile({ theme }: AddFileProps) {
     return 'other';
   };
 
+  const suggestedTags = [
+    'invoice', 'report', 'contract', 'important', 'archive',
+    'client', 'project', 'draft', 'final', 'review'
+  ];
+
+  const addTag = (tag: string) => {
+    const currentTags = tags.split(',').map(t => t.trim()).filter(t => t !== '');
+    if (!currentTags.includes(tag)) {
+      const newTags = currentTags.length > 0 
+        ? `${tags}, ${tag}` 
+        : tag;
+      setTags(newTags);
+    }
+  };
+
   const uploadFiles = async () => {
     if (selectedFiles.length === 0) {
       toast.error('Please select at least one file');
@@ -70,16 +88,19 @@ export function AddFile({ theme }: AddFileProps) {
     try {
       // Get folder path if a folder is selected
       let folderPath = '';
+      let folderId = null;
+      
       if (selectedFolder) {
-        // Using custom table access method, ensuring we're using a type assertion
+        // Get folder info
         const { data: folder } = await (supabase as any)
           .from('folders')
-          .select('path')
+          .select('path, id')
           .eq('id', selectedFolder)
           .single();
           
         if (folder && folder.path) {
           folderPath = folder.path;
+          folderId = folder.id;
         }
       }
       
@@ -107,7 +128,7 @@ export function AddFile({ theme }: AddFileProps) {
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
-        // Add metadata - using type assertion since 'files' is the table in the database
+        // Add metadata
         const fileMetadata = {
           filename: file.name,
           original_filename: file.name,
@@ -115,8 +136,9 @@ export function AddFile({ theme }: AddFileProps) {
           size: file.size,
           mime_type: file.type,
           file_type: getCategoryFromMimeType(file.type),
-          category: category === 'pdf' ? 'document' : 'other',
+          category: category || getCategoryFromMimeType(file.type),
           storage_path: filePath,
+          folder_id: folderId,
           metadata: { tags: tagArray }
         };
         
@@ -147,7 +169,7 @@ export function AddFile({ theme }: AddFileProps) {
 
   return (
     <div className="container mx-auto">
-      <div className={`p-6 rounded-lg border ${borderColor} ${cardBg} mb-6`}>
+      <div className={cn("p-6 rounded-lg border", borderColor, cardBg, "mb-6")}>
         <h1 className={`text-2xl font-bold mb-6 ${textColor}`}>Add Files</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -165,7 +187,10 @@ export function AddFile({ theme }: AddFileProps) {
             </div>
             
             {selectedFiles.length > 0 && (
-              <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} mt-4`}>
+              <div className={cn(
+                "p-4 rounded-lg mt-4",
+                theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
+              )}>
                 <h3 className={`text-md font-semibold mb-2 ${textColor}`}>Selected Files ({selectedFiles.length})</h3>
                 <ul className="space-y-2">
                   {selectedFiles.map((file, index) => (
@@ -190,10 +215,10 @@ export function AddFile({ theme }: AddFileProps) {
                     Category
                   </label>
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
+                    <SelectTrigger className={inputBg}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
                       <SelectItem value="document">Document</SelectItem>
                       <SelectItem value="image">Image</SelectItem>
                       <SelectItem value="pdf">PDF</SelectItem>
@@ -212,7 +237,7 @@ export function AddFile({ theme }: AddFileProps) {
                     placeholder="Enter a description for the file(s)"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="resize-none"
+                    className={cn("resize-none", inputBg)}
                   />
                 </div>
                 
@@ -225,7 +250,25 @@ export function AddFile({ theme }: AddFileProps) {
                     placeholder="e.g. invoice, property, report"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
+                    className={inputBg}
                   />
+                  
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {suggestedTags.map((tag, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => addTag(tag)}
+                        className={cn(
+                          "inline-flex items-center px-2 py-1 rounded-md text-xs",
+                          theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        )}
+                      >
+                        <Tag className="h-3 w-3 mr-1" />
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 
                 <div>

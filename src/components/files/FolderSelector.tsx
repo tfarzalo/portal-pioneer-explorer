@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Folder } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface FolderSelectorProps {
   theme: 'dark' | 'light';
@@ -16,7 +17,7 @@ interface FolderSelectorProps {
   initialFolderId?: string | null;
 }
 
-export function FolderSelector({ onFolderSelect, initialFolderId = null }: FolderSelectorProps) {
+export function FolderSelector({ theme, onFolderSelect, initialFolderId = null }: FolderSelectorProps) {
   const [folders, setFolders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(initialFolderId);
@@ -27,48 +28,18 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
 
   const fetchFolders = async () => {
     try {
-      // Use the metadata column to get folders since there's no direct folder_id column
-      const { data, error } = await supabase
-        .from('files')
-        .select('id, metadata')
-        .not('metadata', 'is', null)
-        .order('created_at');
+      // Get folders from the folders table
+      const { data: folderData, error: folderError } = await (supabase as any)
+        .from('folders')
+        .select('id, name, path')
+        .order('name');
         
-      if (error) throw error;
+      if (folderError) throw folderError;
       
-      if (data) {
-        // Filter files that have folder_id in their metadata (ensuring proper type checks)
-        const filesWithFolders = data.filter(file => {
-          if (!file.metadata) return false;
-          
-          const metadata = file.metadata;
-          // Check if metadata is an object and has folder_id property
-          return typeof metadata === 'object' && 
-                 metadata !== null && 
-                 !Array.isArray(metadata) && 
-                 'folder_id' in metadata;
-        });
-        
-        // Create a unique list of folder IDs from metadata
-        const uniqueFolderIds = Array.from(
-          new Set(
-            filesWithFolders.map(file => {
-              const metadata = file.metadata as Record<string, any>;
-              return metadata?.folder_id;
-            }).filter(Boolean)
-          )
-        );
-        
-        // Map folder IDs to folder objects
-        const folderObjects = uniqueFolderIds.map(folderId => ({
-          id: folderId,
-          name: `Folder ${String(folderId).substring(0, 8)}` // Use part of the ID as a name
-        }));
-        
-        setFolders(folderObjects);
-      }
+      setFolders(folderData || []);
     } catch (error) {
       console.error('Error fetching folders:', error);
+      toast.error('Failed to load folders');
     } finally {
       setLoading(false);
     }
@@ -80,17 +51,20 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
     onFolderSelect(id);
   };
 
+  const textColor = theme === 'dark' ? 'text-gray-200' : 'text-gray-700';
+  const selectBg = theme === 'dark' ? 'bg-gray-800' : 'bg-white';
+
   return (
     <Select 
       value={selectedFolder || 'root'} 
       onValueChange={handleFolderChange}
       disabled={loading}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className={`w-full ${selectBg}`}>
         <SelectValue placeholder="Select a folder" />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="root" className="flex items-center">
+      <SelectContent className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+        <SelectItem value="root" className={`flex items-center ${textColor}`}>
           <div className="flex items-center">
             <Folder className="mr-2 h-4 w-4 text-blue-500" />
             <span>Root Directory</span>
@@ -98,7 +72,7 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
         </SelectItem>
         
         {folders.map((folder) => (
-          <SelectItem key={folder.id} value={folder.id} className="flex items-center">
+          <SelectItem key={folder.id} value={folder.id} className={`flex items-center ${textColor}`}>
             <div className="flex items-center">
               <Folder className="mr-2 h-4 w-4 text-blue-500" />
               <span>{folder.name}</span>

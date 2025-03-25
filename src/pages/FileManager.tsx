@@ -9,9 +9,12 @@ import {
   FileText,
   ImageIcon, 
   FileIcon as FileIconBase,
-  BarChart 
+  BarChart,
+  FileSpreadsheet,
+  File
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '../lib/utils';
 
 interface FileManagerProps {
   theme: 'dark' | 'light';
@@ -25,8 +28,11 @@ export function FileManager({ theme }: FileManagerProps) {
   const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
+  const breadcrumbBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100';
+  const tabColor = theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200';
 
   useEffect(() => {
     fetchRootFolder();
@@ -39,7 +45,8 @@ export function FileManager({ theme }: FileManagerProps) {
       const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
-        .is('parent_id', null);
+        .is('parent_id', null)
+        .order('name');
 
       if (error) throw error;
       
@@ -51,7 +58,8 @@ export function FileManager({ theme }: FileManagerProps) {
       const { data: rootFiles, error: filesError } = await supabase
         .from('files')
         .select('*')
-        .is('folder_id', null);
+        .is('folder_id', null)
+        .order('created_at', { ascending: false });
         
       if (filesError) throw filesError;
       setFiles(rootFiles || []);
@@ -79,7 +87,8 @@ export function FileManager({ theme }: FileManagerProps) {
       const { data: subfolders, error: subfoldersError } = await (supabase as any)
         .from('folders')
         .select('*')
-        .eq('parent_id', folderId);
+        .eq('parent_id', folderId)
+        .order('name');
         
       if (subfoldersError) throw subfoldersError;
       
@@ -87,7 +96,8 @@ export function FileManager({ theme }: FileManagerProps) {
       const { data: folderFiles, error: filesError } = await supabase
         .from('files')
         .select('*')
-        .eq('folder_id', folderId);
+        .eq('folder_id', folderId)
+        .order('created_at', { ascending: false });
         
       if (filesError) throw filesError;
       
@@ -169,11 +179,11 @@ export function FileManager({ theme }: FileManagerProps) {
     } else if (mimeType === 'application/pdf') {
       return <FileText className="w-6 h-6 text-red-500" />;
     } else if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) {
-      return <BarChart className="w-6 h-6 text-green-500" />;
+      return <FileSpreadsheet className="w-6 h-6 text-green-500" />;
     } else if (mimeType.includes('document') || mimeType.includes('word')) {
       return <FileText className="w-6 h-6 text-indigo-500" />;
     }
-    return <FileIconBase className="w-6 h-6 text-gray-500" />;
+    return <File className="w-6 h-6 text-gray-500" />;
   };
 
   const uploadFiles = async (files: FileList) => {
@@ -181,10 +191,13 @@ export function FileManager({ theme }: FileManagerProps) {
       const file = files[i];
       
       try {
+        // Generate timestamp for unique filename
+        const timestamp = new Date().getTime();
+        
         // Upload to storage
         const filePath = currentFolder?.id 
-          ? `${currentFolder.path}/${file.name}`
-          : `root/${file.name}`;
+          ? `${currentFolder.path}/${timestamp}_${file.name}`
+          : `root/${timestamp}_${file.name}`;
           
         const { error: uploadError } = await supabase.storage
           .from('file_management')
@@ -200,9 +213,10 @@ export function FileManager({ theme }: FileManagerProps) {
           size: file.size,
           mime_type: file.type,
           file_type: getCategoryFromMimeType(file.type),
-          category: file.type.startsWith('image/') ? 'property_photo' : 'document',
+          category: file.type.startsWith('image/') ? 'image' : 'document',
           folder_id: currentFolder?.id || null,
-          storage_path: filePath
+          storage_path: filePath,
+          metadata: { tags: [] }
         };
         
         const { data: metadataData, error: metadataError } = await (supabase as any)
@@ -213,19 +227,12 @@ export function FileManager({ theme }: FileManagerProps) {
           
         if (metadataError) throw metadataError;
         
-        setFiles([...files, metadataData]);
+        setFiles(prevFiles => [metadataData, ...prevFiles]);
         toast.success(`Uploaded ${file.name}`);
       } catch (error) {
         console.error('Upload error:', error);
         toast.error(`Failed to upload ${file.name}`);
       }
-    }
-    
-    // Refresh the current view
-    if (currentFolder?.id) {
-      fetchFolder(currentFolder.id);
-    } else {
-      fetchRootFolder();
     }
   };
 
@@ -244,7 +251,7 @@ export function FileManager({ theme }: FileManagerProps) {
 
   return (
     <div className="container mx-auto">
-      <div className={`p-6 rounded-lg border ${borderColor} ${cardBg} mb-6`}>
+      <div className={cn("p-6 rounded-lg border", borderColor, cardBg, "mb-6")}>
         <h1 className={`text-2xl font-bold mb-6 ${textColor}`}>File Manager</h1>
         
         <div className="flex flex-col md:flex-row gap-6">
@@ -265,7 +272,7 @@ export function FileManager({ theme }: FileManagerProps) {
           </div>
           
           <div className="w-full md:w-3/4">
-            <div className={`mb-4 p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+            <div className={cn("mb-4 p-3 rounded-lg", breadcrumbBg)}>
               <nav className="flex" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 md:space-x-2">
                   {breadcrumbs.map((item, index) => (
@@ -284,11 +291,11 @@ export function FileManager({ theme }: FileManagerProps) {
             </div>
             
             <Tabs defaultValue="all">
-              <TabsList className="mb-4">
-                <TabsTrigger value="all">All Files</TabsTrigger>
-                <TabsTrigger value="images">Images</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-                <TabsTrigger value="others">Others</TabsTrigger>
+              <TabsList className={`mb-4 ${theme === 'dark' ? 'bg-gray-800' : ''}`}>
+                <TabsTrigger value="all" className={theme === 'dark' ? 'data-[state=active]:bg-gray-700' : ''}>All Files</TabsTrigger>
+                <TabsTrigger value="images" className={theme === 'dark' ? 'data-[state=active]:bg-gray-700' : ''}>Images</TabsTrigger>
+                <TabsTrigger value="documents" className={theme === 'dark' ? 'data-[state=active]:bg-gray-700' : ''}>Documents</TabsTrigger>
+                <TabsTrigger value="others" className={theme === 'dark' ? 'data-[state=active]:bg-gray-700' : ''}>Others</TabsTrigger>
               </TabsList>
               
               <TabsContent value="all">
@@ -307,7 +314,7 @@ export function FileManager({ theme }: FileManagerProps) {
                 <FileExplorer 
                   theme={theme}
                   folders={[]} /* No folders in filtered views */
-                  files={files.filter(file => file.mime_type.startsWith('image/'))}
+                  files={files.filter(file => file.mime_type?.startsWith('image/'))}
                   loading={loading}
                   onFolderClick={fetchFolder}
                   onCreateFolder={createFolder}
@@ -320,9 +327,9 @@ export function FileManager({ theme }: FileManagerProps) {
                   theme={theme}
                   folders={[]}
                   files={files.filter(file => 
-                    file.mime_type.includes('document') || 
+                    file.mime_type?.includes('document') || 
                     file.mime_type === 'application/pdf' ||
-                    file.mime_type.includes('spreadsheet')
+                    file.mime_type?.includes('spreadsheet')
                   )}
                   loading={loading}
                   onFolderClick={fetchFolder}
@@ -336,10 +343,10 @@ export function FileManager({ theme }: FileManagerProps) {
                   theme={theme}
                   folders={[]}
                   files={files.filter(file => 
-                    !file.mime_type.startsWith('image/') &&
-                    !file.mime_type.includes('document') &&
+                    !file.mime_type?.startsWith('image/') &&
+                    !file.mime_type?.includes('document') &&
                     file.mime_type !== 'application/pdf' &&
-                    !file.mime_type.includes('spreadsheet')
+                    !file.mime_type?.includes('spreadsheet')
                   )}
                   loading={loading}
                   onFolderClick={fetchFolder}

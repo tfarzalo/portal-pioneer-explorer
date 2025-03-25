@@ -2,11 +2,12 @@
 import { useState, useRef } from 'react';
 import { Upload, File, X } from 'lucide-react';
 import { Button } from '../ui/button';
+import { cn } from '../../lib/utils';
 
 interface FileUploadZoneProps {
   theme: 'dark' | 'light';
   currentFolderId: string | null;
-  onUpload: (files: FileList, folderId: string | null) => void;
+  onUpload: (files: FileList) => void;
   dropZoneText?: string;
   showFilesPreview?: boolean;
   buttonLabel?: string;
@@ -16,7 +17,7 @@ export function FileUploadZone({
   theme, 
   currentFolderId, 
   onUpload,
-  dropZoneText = "Drop files here",
+  dropZoneText = "Drag and drop files here or click to browse",
   showFilesPreview = false,
   buttonLabel = "Upload Files"
 }: FileUploadZoneProps) {
@@ -29,6 +30,7 @@ export function FileUploadZone({
   const bgColor = theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-100/50';
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const textMuted = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
+  const fileBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100';
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -67,7 +69,7 @@ export function FileUploadZone({
     if (showFilesPreview) {
       setSelectedFiles(Array.from(files));
     } else {
-      onUpload(files, currentFolderId);
+      onUpload(files);
     }
   };
 
@@ -79,7 +81,7 @@ export function FileUploadZone({
     if (selectedFiles.length > 0) {
       const fileList = new DataTransfer();
       selectedFiles.forEach(file => fileList.items.add(file));
-      onUpload(fileList.files, currentFolderId);
+      onUpload(fileList.files);
       setSelectedFiles([]);
     } else {
       fileInputRef.current?.click();
@@ -89,17 +91,19 @@ export function FileUploadZone({
   return (
     <div>
       <div
-        className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
-          isDragging ? borderActive : borderColor
-        } ${bgColor}`}
+        className={cn(
+          "border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
+          isDragging ? borderActive : borderColor,
+          bgColor
+        )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <div className="flex flex-col items-center justify-center cursor-pointer">
-          <Upload className={`h-10 w-10 mb-2 ${isDragging ? 'text-blue-500' : textMuted}`} />
+        <div className="flex flex-col items-center justify-center">
+          <Upload className={cn("h-10 w-10 mb-2", isDragging ? "text-blue-500" : textMuted)} />
           <p className={`text-sm text-center ${textColor}`}>{dropZoneText}</p>
           <p className={`text-xs mt-1 ${textMuted}`}>
             Supports images, documents, PDFs, and more
@@ -117,9 +121,15 @@ export function FileUploadZone({
       {showFilesPreview && selectedFiles.length > 0 && (
         <div className="mt-4">
           <h4 className={`text-sm font-medium mb-2 ${textColor}`}>Selected Files ({selectedFiles.length})</h4>
-          <ul className={`space-y-2 max-h-40 overflow-auto ${theme === 'dark' ? 'scrollbar-dark' : 'scrollbar-light'}`}>
+          <ul className={cn(
+            "space-y-2 max-h-40 overflow-auto scrollbar-thin",
+            theme === 'dark' ? 'scrollbar-track-gray-700 scrollbar-thumb-gray-600' : 'scrollbar-track-gray-200 scrollbar-thumb-gray-300'
+          )}>
             {selectedFiles.map((file, index) => (
-              <li key={index} className={`flex items-center justify-between p-2 rounded-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+              <li key={index} className={cn(
+                "flex items-center justify-between p-2 rounded-md", 
+                fileBg
+              )}>
                 <div className="flex items-center">
                   <File className="h-4 w-4 mr-2 text-blue-500" />
                   <div>
