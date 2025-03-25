@@ -65,7 +65,24 @@ export const JobInformation = ({
         scheduled_date: selectedDate
       });
       
-      // First, use the update_job_phase function to properly log phase changes if phase has changed
+      // First, update job details directly using a single update operation
+      const { error } = await supabase
+        .from('jobs')
+        .update({ 
+          phase: selectedPhase,
+          job_type: selectedType,
+          scheduled_date: selectedDate
+        })
+        .eq('id', jobData.id);
+          
+      if (error) {
+        console.error('Error updating job details:', error);
+        toast.error('Failed to update job details');
+        setIsLoading(false);
+        return;
+      }
+      
+      // If phase has changed, also log the phase change history using the update_job_phase function
       if (jobData.phase !== selectedPhase) {
         const { error: phaseUpdateError } = await supabase.rpc('update_job_phase', {
           job_id: jobData.id,
@@ -74,28 +91,9 @@ export const JobInformation = ({
         });
         
         if (phaseUpdateError) {
-          console.error('Error updating job phase:', phaseUpdateError);
-          toast.error('Failed to update job phase');
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        // If phase didn't change, we still need to update the other fields directly
-        // This is the critical fix - ensuring we update job_type and scheduled_date 
-        // even when the phase doesn't change
-        const { error } = await supabase
-          .from('jobs')
-          .update({ 
-            job_type: selectedType,
-            scheduled_date: selectedDate
-          })
-          .eq('id', jobData.id);
-          
-        if (error) {
-          console.error('Error updating job details:', error);
-          toast.error('Failed to update job details');
-          setIsLoading(false);
-          return;
+          console.error('Error updating job phase history:', phaseUpdateError);
+          // We continue since the main update succeeded
+          toast.warning('Job updated but failed to log phase change');
         }
       }
       
