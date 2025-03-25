@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { ChevronRight, ChevronDown, Folder, Home, FolderPlus } from 'lucide-react';
@@ -123,7 +122,7 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
         : `/${newFolderName}`;
       
       // Create new folder
-      const { data, error } = await (supabase as any)
+      const { error } = await (supabase as any)
         .from('folders')
         .insert([
           { 
@@ -162,7 +161,6 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
     
     // Determine colors based on theme
     const hoverBg = theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100';
-    const activeBg = theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200';
     const textColor = theme === 'dark' ? 'text-gray-200' : 'text-gray-800';
     
     return (

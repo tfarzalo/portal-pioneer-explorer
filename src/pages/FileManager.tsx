@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -8,10 +7,8 @@ import { FileUploadZone } from '../components/files/FileUploadZone';
 import { 
   FileText,
   ImageIcon, 
-  FileIcon as FileIconBase,
-  BarChart,
-  FileSpreadsheet,
-  File
+  File,
+  FileSpreadsheet
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
@@ -28,11 +25,9 @@ export function FileManager({ theme }: FileManagerProps) {
   const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const breadcrumbBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100';
-  const tabColor = theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200';
 
   useEffect(() => {
     fetchRootFolder();
@@ -41,7 +36,6 @@ export function FileManager({ theme }: FileManagerProps) {
   const fetchRootFolder = async () => {
     setLoading(true);
     try {
-      // Get the root folders (those without a parent)
       const { data, error } = await (supabase as any)
         .from('folders')
         .select('*')
@@ -54,7 +48,6 @@ export function FileManager({ theme }: FileManagerProps) {
       setBreadcrumbs([{ id: null, name: 'Root' }]);
       setCurrentFolder(null);
       
-      // Get files in the root folder (i.e., those with no folder_id)
       const { data: rootFiles, error: filesError } = await supabase
         .from('files')
         .select('*')
@@ -74,7 +67,6 @@ export function FileManager({ theme }: FileManagerProps) {
   const fetchFolder = async (folderId: string) => {
     setLoading(true);
     try {
-      // Get the selected folder
       const { data: folder, error: folderError } = await (supabase as any)
         .from('folders')
         .select('*')
@@ -83,7 +75,6 @@ export function FileManager({ theme }: FileManagerProps) {
         
       if (folderError) throw folderError;
       
-      // Get subfolders
       const { data: subfolders, error: subfoldersError } = await (supabase as any)
         .from('folders')
         .select('*')
@@ -92,7 +83,6 @@ export function FileManager({ theme }: FileManagerProps) {
         
       if (subfoldersError) throw subfoldersError;
       
-      // Get files in this folder
       const { data: folderFiles, error: filesError } = await supabase
         .from('files')
         .select('*')
@@ -105,7 +95,6 @@ export function FileManager({ theme }: FileManagerProps) {
       setFolders(subfolders || []);
       setFiles(folderFiles || []);
       
-      // Update breadcrumbs
       updateBreadcrumbs(folder);
     } catch (error) {
       console.error('Error fetching folder:', error);
@@ -116,11 +105,9 @@ export function FileManager({ theme }: FileManagerProps) {
   };
 
   const updateBreadcrumbs = async (folder: any) => {
-    // Start with the current folder
     const newBreadcrumbs = [folder];
     let currentParentId = folder.parent_id;
     
-    // Add all parents
     while (currentParentId) {
       const { data, error } = await (supabase as any)
         .from('folders')
@@ -134,7 +121,6 @@ export function FileManager({ theme }: FileManagerProps) {
       currentParentId = data.parent_id;
     }
     
-    // Add the root
     newBreadcrumbs.unshift({ id: null, name: 'Root' });
     setBreadcrumbs(newBreadcrumbs);
   };
@@ -191,10 +177,8 @@ export function FileManager({ theme }: FileManagerProps) {
       const file = files[i];
       
       try {
-        // Generate timestamp for unique filename
         const timestamp = new Date().getTime();
         
-        // Upload to storage
         const filePath = currentFolder?.id 
           ? `${currentFolder.path}/${timestamp}_${file.name}`
           : `root/${timestamp}_${file.name}`;
@@ -205,7 +189,6 @@ export function FileManager({ theme }: FileManagerProps) {
           
         if (uploadError) throw uploadError;
         
-        // Add metadata
         const fileMetadata = {
           filename: file.name,
           original_filename: file.name,
@@ -313,7 +296,7 @@ export function FileManager({ theme }: FileManagerProps) {
               <TabsContent value="images">
                 <FileExplorer 
                   theme={theme}
-                  folders={[]} /* No folders in filtered views */
+                  folders={[]}
                   files={files.filter(file => file.mime_type?.startsWith('image/'))}
                   loading={loading}
                   onFolderClick={fetchFolder}

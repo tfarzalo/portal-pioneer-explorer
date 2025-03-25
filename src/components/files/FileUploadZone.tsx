@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Upload, File, X } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -6,7 +5,7 @@ import { cn } from '../../lib/utils';
 
 interface FileUploadZoneProps {
   theme: 'dark' | 'light';
-  currentFolderId: string | null;
+  currentFolderId?: string | null;
   onUpload: (files: FileList) => void;
   dropZoneText?: string;
   showFilesPreview?: boolean;
@@ -15,7 +14,6 @@ interface FileUploadZoneProps {
 
 export function FileUploadZone({ 
   theme, 
-  currentFolderId, 
   onUpload,
   dropZoneText = "Drag and drop files here or click to browse",
   showFilesPreview = false,

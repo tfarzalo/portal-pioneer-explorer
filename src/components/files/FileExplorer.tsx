@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   Folder, 
@@ -7,9 +6,7 @@ import {
   Download,
   Trash2,
   ExternalLink,
-  Plus,
-  Tag,
-  Edit
+  Tag
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -29,7 +26,7 @@ import {
 import { supabase } from '../../integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatFileSize } from '../../lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { cn } from '../../lib/utils';
 
 interface FileExplorerProps {
@@ -57,7 +54,7 @@ export function FileExplorer({
   const [editTags, setEditTags] = useState(false);
   const [currentTags, setCurrentTags] = useState('');
   const [currentFile, setCurrentFile] = useState<any>(null);
-  const [fileCategory, setFileCategory] = useState('');
+  const [fileCategory, setFileCategory] = useState<'property_photo' | 'job_photo' | 'before_photo' | 'after_photo' | 'document' | 'invoice' | 'contract' | 'other' | undefined>('document');
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
@@ -139,7 +136,7 @@ export function FileExplorer({
     const metadata = file.metadata || {};
     const tags = metadata.tags || [];
     setCurrentTags(tags.join(', '));
-    setFileCategory(file.category || '');
+    setFileCategory(file.category || 'document');
     setCurrentFile(file);
     setEditTags(true);
   };

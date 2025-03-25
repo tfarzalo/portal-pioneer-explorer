@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
@@ -30,7 +29,6 @@ export function AddFile({ theme }: AddFileProps) {
   const [category, setCategory] = useState<string>('');
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const mutedColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
   const inputBg = theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
@@ -39,7 +37,6 @@ export function AddFile({ theme }: AddFileProps) {
     const fileArray = Array.from(files);
     setSelectedFiles(fileArray);
     
-    // Auto-detect category from first file
     if (fileArray[0]) {
       setCategory(getCategoryFromMimeType(fileArray[0].type));
     }
@@ -86,12 +83,10 @@ export function AddFile({ theme }: AddFileProps) {
     setIsUploading(true);
     
     try {
-      // Get folder path if a folder is selected
       let folderPath = '';
       let folderId = null;
       
       if (selectedFolder) {
-        // Get folder info
         const { data: folder } = await (supabase as any)
           .from('folders')
           .select('path, id')
@@ -104,15 +99,12 @@ export function AddFile({ theme }: AddFileProps) {
         }
       }
       
-      // Process each file
       for (const file of selectedFiles) {
-        // Create storage path
         const timestamp = new Date().getTime();
         const filePath = folderPath 
           ? `${folderPath}/${timestamp}_${file.name}`
           : `root/${timestamp}_${file.name}`;
         
-        // Upload to storage
         const { error: uploadError } = await supabase.storage
           .from('file_management')
           .upload(filePath, file);
@@ -122,13 +114,11 @@ export function AddFile({ theme }: AddFileProps) {
           continue;
         }
         
-        // Prepare tags array
         const tagArray = tags
           .split(',')
           .map(tag => tag.trim())
           .filter(tag => tag.length > 0);
         
-        // Add metadata
         const fileMetadata = {
           filename: file.name,
           original_filename: file.name,
@@ -154,7 +144,6 @@ export function AddFile({ theme }: AddFileProps) {
         toast.success(`Uploaded ${file.name}`);
       }
       
-      // Reset form after successful upload
       setSelectedFiles([]);
       setDescription('');
       setTags('');
