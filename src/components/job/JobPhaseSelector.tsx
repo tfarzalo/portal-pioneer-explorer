@@ -18,7 +18,7 @@ export const JobPhaseSelector = ({
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
-  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const borderColor = theme === 'dark' ? 'border-gray-600/40' : 'border-gray-300/70';
   
   const jobPhases: JobPhase[] = [
     'job_request',
@@ -45,14 +45,14 @@ export const JobPhaseSelector = ({
   };
 
   return (
-    <div className="mb-6 relative">
-      <h3 className={`font-bold mb-2 ${textColor}`}>JOB STATUS</h3>
+    <div className="relative">
+      <h3 className={`font-bold mb-2 ${textColor} text-base`}>JOB STATUS</h3>
       <div 
-        className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
+        className={`p-2.5 border ${borderColor} rounded-md flex items-center justify-between cursor-pointer ${inputBg} shadow-sm transition-all duration-200 hover:border-gray-400`}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        <span className={textColor}>{getStatusText(selectedPhase)}</span>
-        <ChevronDown className={mutedTextColor} />
+        <span className={`${textColor} text-sm`}>{getStatusText(selectedPhase)}</span>
+        <ChevronDown className={mutedTextColor} size={18} />
       </div>
       
       {isDropdownOpen && (
@@ -68,7 +68,7 @@ export const JobPhaseSelector = ({
                 }`}
                 onClick={() => handlePhaseChange(phase)}
               >
-                <span className={phaseColors.text}>{getStatusText(phase)}</span>
+                <span className={`${phaseColors.text} text-sm`}>{getStatusText(phase)}</span>
                 {phase === selectedPhase && <Check size={16} className={phaseColors.text} />}
               </div>
             );

@@ -18,7 +18,7 @@ export const JobTypeSelector = ({
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
   const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
-  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const borderColor = theme === 'dark' ? 'border-gray-600/40' : 'border-gray-300/70';
   
   const jobTypes: JobType[] = [
     'paint',
@@ -39,14 +39,14 @@ export const JobTypeSelector = ({
   };
 
   return (
-    <div className="mb-6">
-      <h3 className={`font-bold mb-2 ${textColor}`}>JOB TYPE</h3>
+    <div className="relative">
+      <h3 className={`font-bold mb-2 ${textColor} text-base`}>JOB TYPE</h3>
       <div 
-        className={`p-2 border border-gray-300 rounded flex items-center justify-between cursor-pointer ${inputBg}`}
+        className={`p-2.5 border ${borderColor} rounded-md flex items-center justify-between cursor-pointer ${inputBg} shadow-sm transition-all duration-200 hover:border-gray-400`}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        <span className={textColor}>{formatJobType(selectedType)}</span>
-        <ChevronDown className={mutedTextColor} />
+        <span className={`${textColor} text-sm`}>{formatJobType(selectedType)}</span>
+        <ChevronDown className={mutedTextColor} size={18} />
       </div>
       
       {isDropdownOpen && (
@@ -59,7 +59,7 @@ export const JobTypeSelector = ({
               }`}
               onClick={() => handleTypeChange(type)}
             >
-              <span className={textColor}>{formatJobType(type)}</span>
+              <span className={`${textColor} text-sm`}>{formatJobType(type)}</span>
               {type === selectedType && <Check size={16} className={textColor} />}
             </div>
           ))}

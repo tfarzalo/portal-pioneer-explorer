@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { GoogleMap } from './GoogleMap';
 import { JobPhase, JobType } from '../types/workOrder';
@@ -30,7 +29,7 @@ export const JobInformation = ({
 }: JobInformationProps) => {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const cardBg = theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50';
-  const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
+  const borderColor = theme === 'dark' ? 'border-gray-700/50' : 'border-gray-200/70';
   
   const [selectedDate, setSelectedDate] = useState<string | null>(jobData.scheduled_date);
   const [isLoading, setIsLoading] = useState(false);
@@ -121,34 +120,40 @@ export const JobInformation = ({
       </div>
       
       <div className="w-full md:w-1/3 h-full">
-        <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor}`}>
+        <div className={`p-6 rounded-lg ${cardBg} h-full border ${borderColor} shadow-sm`}>
           <h2 className={`text-lg font-bold mb-4 ${textColor}`}>CURRENT JOB STATUS</h2>
           
-          <JobPhaseSelector 
-            selectedPhase={selectedPhase} 
-            onChange={updateJobPhase} 
-            theme={theme} 
-          />
-          
-          <JobTypeSelector 
-            selectedType={selectedType} 
-            onChange={updateJobType} 
-            theme={theme} 
-          />
-          
-          <ScheduledDatePicker 
-            selectedDate={selectedDate} 
-            onChange={handleDateChange} 
-            theme={theme} 
-          />
-          
-          {onSubmitUpdate && (
-            <JobUpdateButton 
-              onClick={handleSubmitChanges}
-              isLoading={isLoading}
-              hasChanges={hasChanges}
-            />
-          )}
+          <div className="space-y-4 flex flex-col h-[calc(100%-80px)]">
+            <div className="flex-grow space-y-4">
+              <JobPhaseSelector 
+                selectedPhase={selectedPhase} 
+                onChange={updateJobPhase} 
+                theme={theme} 
+              />
+              
+              <JobTypeSelector 
+                selectedType={selectedType} 
+                onChange={updateJobType} 
+                theme={theme} 
+              />
+              
+              <ScheduledDatePicker 
+                selectedDate={selectedDate} 
+                onChange={handleDateChange} 
+                theme={theme} 
+              />
+            </div>
+            
+            {onSubmitUpdate && (
+              <div className="mt-auto">
+                <JobUpdateButton 
+                  onClick={handleSubmitChanges}
+                  isLoading={isLoading}
+                  hasChanges={hasChanges}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
