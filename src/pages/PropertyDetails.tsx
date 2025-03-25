@@ -182,7 +182,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <PropertyDetailsPanel property={property} theme={theme} />
           <BillingRates propertyDetails={propertyDetails} theme={theme} />
-          <RecentJobs propertyDetails={propertyDetails} propertyId={property.id} theme={theme} />
           <PropertyNotes propertyDetails={propertyDetails} theme={theme} />
         </div>
 
@@ -191,6 +190,9 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
           <PaintDetailsPanel propertyDetails={propertyDetails} theme={theme} />
         </div>
       </div>
+      
+      {/* Moved RecentJobs component here to be full width at the bottom */}
+      <RecentJobs propertyDetails={propertyDetails} propertyId={property.id} theme={theme} />
     </div>
   );
 }
