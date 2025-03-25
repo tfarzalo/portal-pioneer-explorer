@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
@@ -91,10 +92,26 @@ export const JobInformation = ({
   const handleSubmitChanges = async () => {
     setIsLoading(true);
     try {
+      // First, use the update_job_phase function to properly log phase changes if phase has changed
+      if (jobData.phase !== selectedPhase) {
+        const { error: phaseUpdateError } = await supabase.rpc('update_job_phase', {
+          job_id: jobData.id,
+          new_phase: selectedPhase,
+          reason: 'Updated via job details form'
+        });
+        
+        if (phaseUpdateError) {
+          console.error('Error updating job phase:', phaseUpdateError);
+          toast.error('Failed to update job phase');
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Then update the remaining job details
       const { error } = await supabase
         .from('jobs')
         .update({ 
-          phase: selectedPhase,
           job_type: selectedType,
           scheduled_date: selectedDate
         })
@@ -107,6 +124,7 @@ export const JobInformation = ({
       }
       
       setHasChanges(false);
+      toast.success('Job updated successfully');
       if (onSubmitUpdate) {
         onSubmitUpdate();
       }
