@@ -120,7 +120,7 @@ export const JobInformation = ({
         }
       }
       
-      // Then update the remaining job details (job_type and scheduled_date)
+      // Then update the job_type and scheduled_date fields
       const { error } = await supabase
         .from('jobs')
         .update({ 
@@ -130,8 +130,9 @@ export const JobInformation = ({
         .eq('id', jobData.id);
         
       if (error) {
-        console.error('Error updating job:', error);
-        toast.error('Failed to update job');
+        console.error('Error updating job details:', error);
+        toast.error('Failed to update job details');
+        setIsLoading(false);
         return;
       }
       
