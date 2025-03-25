@@ -40,6 +40,7 @@ declare namespace google.maps {
     map?: Map;
     title?: string;
     icon?: string;
+    animation?: Animation;
   }
 
   interface GeocoderRequest {
@@ -70,6 +71,11 @@ declare namespace google.maps {
     TERRAIN: string;
   };
 
+  const Animation: {
+    BOUNCE: number;
+    DROP: number;
+  };
+
   const GeocoderStatus: {
     OK: string;
     ZERO_RESULTS: string;
@@ -79,3 +85,4 @@ declare namespace google.maps {
     UNKNOWN_ERROR: string;
   };
 }
+

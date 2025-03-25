@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleMapProps {
@@ -15,7 +14,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   
   useEffect(() => {
-    // Define initMap function for the window object
     window.initMap = function() {
       if (mapRef.current) {
         const mapOptions: google.maps.MapOptions = {
@@ -49,7 +47,6 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
       }
     };
     
-    // Load Google Maps API with the updated API key
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD3SUZZIXsUR620thfkUqa-v08YrOQB52k&callback=initMap`;
     script.async = true;
@@ -57,14 +54,11 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
     document.head.appendChild(script);
     
     return () => {
-      // Clean up
       if (document.head.contains(script)) {
         document.head.removeChild(script);
       }
-      // Fix the TypeScript error by assigning a function instead of null
       window.initMap = function() {};
       
-      // Clear marker on unmount
       if (markerRef.current) {
         markerRef.current.setMap(null);
         markerRef.current = null;
@@ -72,23 +66,19 @@ export const GoogleMap: React.FC<GoogleMapProps> = ({ address, theme }) => {
     };
   }, [theme]);
   
-  // Update map when address changes
   useEffect(() => {
     if (mapInstanceRef.current && geocoderRef.current && address) {
       geocoderRef.current.geocode({ address }, (results, status) => {
         if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
           const location = results[0].geometry.location;
           
-          // Fix the TypeScript error by checking if mapInstanceRef.current exists
           if (mapInstanceRef.current) {
             mapInstanceRef.current.setCenter(location);
             
-            // Clear any existing marker
             if (markerRef.current) {
               markerRef.current.setMap(null);
             }
             
-            // Create new marker
             markerRef.current = new google.maps.Marker({
               map: mapInstanceRef.current,
               position: location,
