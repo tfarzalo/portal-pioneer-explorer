@@ -27,14 +27,24 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
 
   const fetchFolders = async () => {
     try {
-      // Use "from" API to access custom tables not in TypeScript definition
+      // Since there's no folders table, let's get distinct folder_id values from the files table
       const { data, error } = await supabase
-        .from('folders')
-        .select('*')
-        .order('name');
+        .from('files')
+        .select('folder_id, id')
+        .not('folder_id', 'is', null)
+        .order('created_at');
         
       if (error) throw error;
-      setFolders(data || []);
+      
+      // Create a unique list of folders with names derived from folder_id
+      const uniqueFolders = Array.from(
+        new Set(data?.map(item => item.folder_id))
+      ).map(folderId => ({
+        id: folderId,
+        name: `Folder ${folderId.substring(0, 8)}` // Use part of the ID as a name
+      }));
+      
+      setFolders(uniqueFolders);
     } catch (error) {
       console.error('Error fetching folders:', error);
     } finally {

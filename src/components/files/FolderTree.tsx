@@ -28,55 +28,32 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
 
   const fetchFolders = async () => {
     try {
-      // Use "from" API to access custom tables not in TypeScript definition
+      // Since there's no folders table, let's get distinct folder_id values from the files table
       const { data, error } = await supabase
-        .from('folders')
-        .select('*')
-        .order('name');
+        .from('files')
+        .select('folder_id, id')
+        .not('folder_id', 'is', null)
+        .order('created_at');
         
       if (error) throw error;
-      setFolderTree(buildFolderTree(data || []));
+      
+      // Create a basic folder structure from the folder_ids
+      // Since we don't have actual parent-child relationships, we'll make all folders root-level
+      const folderNodes: TreeNode[] = Array.from(
+        new Set(data?.map(item => item.folder_id))
+      ).map(folderId => ({
+        id: folderId,
+        name: `Folder ${folderId.substring(0, 8)}`, // Use part of the ID as a name
+        parent_id: null, // All folders at root level
+        children: []
+      }));
+      
+      setFolderTree(folderNodes);
     } catch (error) {
       console.error('Error fetching folders:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const buildFolderTree = (folders: any[]): TreeNode[] => {
-    const folderMap = new Map<string, TreeNode>();
-    
-    // First pass: create TreeNode objects for each folder
-    folders.forEach(folder => {
-      folderMap.set(folder.id, {
-        id: folder.id,
-        name: folder.name,
-        parent_id: folder.parent_id,
-        children: []
-      });
-    });
-    
-    // Second pass: build the tree structure
-    const rootNodes: TreeNode[] = [];
-    
-    folders.forEach(folder => {
-      const node = folderMap.get(folder.id);
-      
-      if (!node) return;
-      
-      if (folder.parent_id === null) {
-        // This is a root folder
-        rootNodes.push(node);
-      } else {
-        // This is a child folder
-        const parentNode = folderMap.get(folder.parent_id);
-        if (parentNode) {
-          parentNode.children.push(node);
-        }
-      }
-    });
-    
-    return rootNodes;
   };
 
   const toggleFolder = (folderId: string) => {

@@ -50,7 +50,6 @@ function App() {
     <Router>
       <div className={`flex min-h-screen ${theme === 'dark' ? 'bg-[#151823]' : 'bg-gray-50'}`}>
         <Sidebar 
-          theme={theme} 
           isCollapsed={isSidebarCollapsed}
           onCollapse={setIsSidebarCollapsed}
         />
