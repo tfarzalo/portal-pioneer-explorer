@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Calendar, Check, ChevronDown } from 'lucide-react';
 import { GoogleMap } from './GoogleMap';
@@ -18,14 +17,12 @@ interface JobInformationProps {
   };
   theme: 'dark' | 'light';
   onSubmitUpdate?: () => void;
-  refetchJobData: () => void;
 }
 
 export const JobInformation = ({ 
   jobData, 
   theme, 
-  onSubmitUpdate,
-  refetchJobData 
+  onSubmitUpdate
 }: JobInformationProps) => {
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
@@ -41,7 +38,6 @@ export const JobInformation = ({
   const [selectedType, setSelectedType] = useState<JobType>(jobData.job_type);
   const [hasChanges, setHasChanges] = useState(false);
   
-  // Define job phases - use only the snake_case versions to match what's expected in the database
   const jobPhases: JobPhase[] = [
     'job_request',
     'work_order',
@@ -52,14 +48,12 @@ export const JobInformation = ({
     'cancelled'
   ];
   
-  // Common job types that match our JobType definition - limited to the three main types from the jobs table
   const jobTypes: JobType[] = [
     'paint',
     'callback',
     'repair'
   ];
 
-  // Format job type to be capitalized
   const formatJobType = (type: string): string => {
     return type
       .split('_')
@@ -67,9 +61,7 @@ export const JobInformation = ({
       .join(' ');
   };
 
-  // Get current status based on phase - removing the "Job " prefix
   const getStatusText = (phase: JobPhase): string => {
-    // Format the phase for display without the "Job" prefix
     const formattedPhase = phase
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -78,28 +70,24 @@ export const JobInformation = ({
     return formattedPhase;
   };
 
-  // Update the job phase in the database
   const updateJobPhase = async (phase: JobPhase) => {
     setSelectedPhase(phase);
     setHasChanges(true);
     setIsPhaseDropdownOpen(false);
   };
   
-  // Update the job type in the database
   const updateJobType = async (type: JobType) => {
     setSelectedType(type);
     setHasChanges(true);
     setIsTypeDropdownOpen(false);
   };
   
-  // Handle date change
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = event.target.value ? event.target.value : null;
     setSelectedDate(newDate);
     setHasChanges(true);
   };
 
-  // Handle submit changes
   const handleSubmitChanges = async () => {
     setIsLoading(true);
     try {
@@ -154,7 +142,6 @@ export const JobInformation = ({
             {isPhaseDropdownOpen && (
               <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
                 {jobPhases.map((phase) => {
-                  // Cast phase to JobPhase for type safety - this is already correct since we defined jobPhases as JobPhase[]
                   const phaseColors = JOB_PHASE_COLORS[phase];
                   
                   return (

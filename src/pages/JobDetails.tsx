@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ExportOptions } from '../components/ExportOptions';
@@ -93,7 +92,6 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     );
   }
 
-  // Get phase-specific color styling
   const getPhaseColor = () => {
     if (jobData && JOB_PHASE_COLORS[jobData.phase]) {
       return JOB_PHASE_COLORS[jobData.phase].bg;
