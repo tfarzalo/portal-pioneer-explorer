@@ -26,9 +26,11 @@ import { JGManagement } from './pages/JGManagement';
 import { Subcontractors } from './pages/Subcontractors';
 import { NewJobRequest } from './pages/NewJobRequest';
 import { AllJobs } from './pages/AllJobs';
-import JobDetails from './pages/JobDetails'; // Changed from destructured import to default import
+import JobDetails from './pages/JobDetails';
 import { NewWorkOrder } from './pages/NewWorkOrder';
 import { Scheduling } from './pages/Scheduling';
+import { FileManager } from './pages/FileManager';
+import { AddFile } from './pages/AddFile';
 
 function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -86,6 +88,8 @@ function App() {
               <Route path="/administrators" element={<Administrators theme={theme} />} />
               <Route path="/jg-management" element={<JGManagement theme={theme} />} />
               <Route path="/subcontractors" element={<Subcontractors theme={theme} />} />
+              <Route path="/file-manager" element={<FileManager theme={theme} />} />
+              <Route path="/add-file" element={<AddFile theme={theme} />} />
             </Routes>
           </main>
         </div>

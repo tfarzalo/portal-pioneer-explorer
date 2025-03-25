@@ -23,7 +23,10 @@ import {
   Shield,
   UserCog,
   Users2,
-  CalendarDays
+  CalendarDays,
+  Files,
+  FolderPlus,
+  FileUp
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -71,6 +74,13 @@ export function Sidebar({ theme, isCollapsed, onCollapse }: SidebarProps) {
         { icon: Building2, label: 'Properties', path: '/properties' },
         { icon: Plus, label: 'Add New Property', path: '/add-property' },
         { icon: FolderKanban, label: 'Property Groups', path: '/property-groups' }
+      ]
+    },
+    {
+      title: 'FILE MANAGEMENT',
+      items: [
+        { icon: Files, label: 'File Manager', path: '/file-manager' },
+        { icon: FileUp, label: 'Add File', path: '/add-file' }
       ]
     },
     {
