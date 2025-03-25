@@ -27,25 +27,37 @@ export function FolderSelector({ onFolderSelect, initialFolderId = null }: Folde
 
   const fetchFolders = async () => {
     try {
-      // Since there's no folders table, let's get distinct folder_id values from the files table
+      // Use the metadata column to get folders since there's no direct folder_id column
       const { data, error } = await supabase
         .from('files')
-        .select('folder_id, id')
-        .not('folder_id', 'is', null)
+        .select('id, metadata')
+        .not('metadata', 'is', null)
         .order('created_at');
         
       if (error) throw error;
       
       if (data) {
-        // Create a unique list of folders with names derived from folder_id
-        const uniqueFolders = Array.from(
-          new Set(data.map(item => item.folder_id).filter(Boolean))
-        ).map(folderId => ({
+        // Filter files that have folder_id in their metadata
+        const filesWithFolders = data.filter(file => 
+          file.metadata && typeof file.metadata === 'object' && file.metadata.folder_id
+        );
+        
+        // Create a unique list of folder IDs from metadata
+        const uniqueFolderIds = Array.from(
+          new Set(
+            filesWithFolders.map(file => 
+              typeof file.metadata === 'object' ? file.metadata.folder_id : null
+            ).filter(Boolean)
+          )
+        );
+        
+        // Map folder IDs to folder objects
+        const folderObjects = uniqueFolderIds.map(folderId => ({
           id: folderId,
           name: `Folder ${String(folderId).substring(0, 8)}` // Use part of the ID as a name
         }));
         
-        setFolders(uniqueFolders);
+        setFolders(folderObjects);
       }
     } catch (error) {
       console.error('Error fetching folders:', error);

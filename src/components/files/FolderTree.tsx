@@ -28,24 +28,35 @@ export function FolderTree({ theme, onFolderSelect, onRootSelect }: FolderTreePr
 
   const fetchFolders = async () => {
     try {
-      // Since there's no folders table, let's get distinct folder_id values from the files table
+      // Use the metadata column to get folders since there's no direct folder_id column
       const { data, error } = await supabase
         .from('files')
-        .select('folder_id, id')
-        .not('folder_id', 'is', null)
+        .select('id, metadata')
+        .not('metadata', 'is', null)
         .order('created_at');
         
       if (error) throw error;
       
       if (data) {
-        // Create a basic folder structure from the folder_ids
-        // Since we don't have actual parent-child relationships, we'll make all folders root-level
-        const folderNodes: TreeNode[] = Array.from(
-          new Set(data.map(item => item.folder_id).filter(Boolean))
-        ).map(folderId => ({
+        // Filter files that have folder_id in their metadata
+        const filesWithFolders = data.filter(file => 
+          file.metadata && typeof file.metadata === 'object' && file.metadata.folder_id
+        );
+        
+        // Create a unique list of folder IDs from metadata
+        const uniqueFolderIds = Array.from(
+          new Set(
+            filesWithFolders.map(file => 
+              typeof file.metadata === 'object' ? file.metadata.folder_id : null
+            ).filter(Boolean)
+          )
+        );
+        
+        // Create tree nodes for each unique folder ID
+        const folderNodes: TreeNode[] = uniqueFolderIds.map(folderId => ({
           id: String(folderId),
           name: `Folder ${String(folderId).substring(0, 8)}`, // Use part of the ID as a name
-          parent_id: null, // All folders at root level
+          parent_id: null, // All folders at root level since we don't have parent-child info
           children: []
         }));
         
