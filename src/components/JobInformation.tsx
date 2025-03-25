@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleMap } from './GoogleMap';
 import { JobPhase, JobType } from '../types/workOrder';
 import { supabase } from '../integrations/supabase/client';
@@ -37,6 +36,13 @@ export const JobInformation = ({
   const [selectedPhase, setSelectedPhase] = useState<JobPhase>(jobData.phase);
   const [selectedType, setSelectedType] = useState<JobType>(jobData.job_type);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  useEffect(() => {
+    setSelectedDate(jobData.scheduled_date);
+    setSelectedPhase(jobData.phase);
+    setSelectedType(jobData.job_type);
+    setHasChanges(false);
+  }, [jobData]);
   
   const updateJobPhase = (phase: JobPhase) => {
     setSelectedPhase(phase);
@@ -97,12 +103,10 @@ export const JobInformation = ({
         }
       }
       
-      // Verify that the data was actually updated
       if (data && data.length > 0) {
         setHasChanges(false);
         toast.success('Changes saved successfully');
         
-        // Call the parent component's onSubmitUpdate if it exists
         if (onSubmitUpdate) {
           onSubmitUpdate();
         }

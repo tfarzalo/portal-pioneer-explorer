@@ -64,13 +64,13 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
     if (id) {
       console.log('Submitting update for job ID:', id);
       fetchJobDetails(id).then(() => {
-        toast.success('Update submitted successfully');
+        console.log('Job details refreshed after update');
+        toast.success('Changes saved successfully');
       }).catch((error) => {
         console.error('Error fetching job details after update:', error);
         toast.error('Failed to refresh job details');
       });
     }
-    console.log('Submit update clicked');
   };
 
   if (loading) {
