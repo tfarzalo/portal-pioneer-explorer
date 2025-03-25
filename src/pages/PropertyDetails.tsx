@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -16,31 +17,17 @@ import {
 import { GoogleMap } from '../components/GoogleMap';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import { Property, PropertyDetails as PropertyDetailsType } from '../types';
 
 interface PropertyDetailsProps {
   theme: 'dark' | 'light';
-}
-
-interface Property {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  property_management_group?: string;
-  community_manager_name?: string;
-  community_manager_email?: string;
-  community_manager_phone?: string;
-  maintenance_supervisor_name?: string;
-  maintenance_supervisor_email?: string;
-  maintenance_supervisor_phone?: string;
 }
 
 export function PropertyDetails({ theme }: PropertyDetailsProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
+  const [propertyDetails, setPropertyDetails] = useState<PropertyDetailsType | null>(null);
   const [loading, setLoading] = useState(true);
   
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
@@ -68,7 +55,91 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
         }
         
         if (data) {
-          setProperty(data);
+          // Transform the data to match our Property type
+          const propertyData: Property = {
+            id: data.id,
+            name: data.name,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            zip: data.zip,
+            status: data.status || 'active',
+            property_management_group: data.property_management_group || undefined,
+            community_manager_name: data.community_manager_name || undefined,
+            community_manager_email: data.community_manager_email || undefined,
+            community_manager_phone: data.community_manager_phone || undefined,
+            maintenance_supervisor_name: data.maintenance_supervisor_name || undefined,
+            maintenance_supervisor_email: data.maintenance_supervisor_email || undefined,
+            maintenance_supervisor_phone: data.maintenance_supervisor_phone || undefined,
+            colors_walls: data.colors_walls || undefined,
+            colors_trim_base_doors: data.colors_trim_base_doors || undefined,
+            colors_ceilings: data.colors_ceilings || undefined
+          };
+          
+          setProperty(propertyData);
+          
+          // Create the extended property details with the mock data for now
+          // In a real application, this should come from the API
+          const detailsData: PropertyDetailsType = {
+            ...propertyData,
+            billing: {
+              regular: {
+                '2 Bedroom': { bill: 250, sub: 185, profit: 105 },
+                '3 Bedroom': { bill: 325, sub: 200, profit: 125 }
+              },
+              ceiling: {
+                '2 Bedroom': { bill: 175, sub: 150, profit: 75 },
+                '3 Bedroom': { bill: 195, sub: 120, profit: 75 }
+              },
+              extras: {
+                'Prep Work': { bill: 45, sub: 25, profit: 20 },
+                'Paint Over Accent Wall': { bill: 85, sub: 40, profit: 45 }
+              }
+            },
+            compliance: {
+              status: 'Compliant',
+              approved: true,
+              approvalDate: '2024-01-15',
+              coiAddress: 'on file',
+              w9Status: 'Verified',
+              lastInspection: '2024-02-20'
+            },
+            paintDetails: {
+              locations: ['Regular Apartments', 'Common Areas', 'Exterior'],
+              selections: {
+                walls: propertyData.colors_walls || 'SW7029 Agreeable Gray',
+                trim: propertyData.colors_trim_base_doors || 'SW7006 Extra White',
+                doors: propertyData.colors_trim_base_doors || 'SW7006 Extra White',
+                ceilings: propertyData.colors_ceilings || 'Flat White'
+              }
+            },
+            recentJobs: [
+              {
+                id: 'WO#42',
+                unit: '12',
+                type: 'Paint',
+                status: 'Completed',
+                date: '2024-02-25'
+              },
+              {
+                id: 'WO#46',
+                unit: '2/25',
+                type: 'Paint',
+                status: 'In Progress',
+                date: '2024-02-26'
+              }
+            ],
+            notes: [
+              {
+                date: '2/10/25',
+                updateType: 'Test',
+                note: 'Test note update',
+                postedBy: 'Timothy Farzalo'
+              }
+            ]
+          };
+          
+          setPropertyDetails(detailsData);
         } else {
           toast.error('Property not found');
           navigate('/properties');
@@ -111,64 +182,6 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     }
   ];
 
-  const mockData = {
-    billing: {
-      regular: {
-        '2 Bedroom': { bill: 250, sub: 185, profit: 105 },
-        '3 Bedroom': { bill: 325, sub: 200, profit: 125 }
-      },
-      ceiling: {
-        '2 Bedroom': { bill: 175, sub: 150, profit: 75 },
-        '3 Bedroom': { bill: 195, sub: 120, profit: 75 }
-      },
-      extras: {
-        'Prep Work': { bill: 45, sub: 25, profit: 20 },
-        'Paint Over Accent Wall': { bill: 85, sub: 40, profit: 45 }
-      }
-    },
-    compliance: {
-      status: 'Compliant',
-      approved: true,
-      approvalDate: '2024-01-15',
-      coiAddress: 'on file',
-      w9Status: 'Verified',
-      lastInspection: '2024-02-20'
-    },
-    paintDetails: {
-      locations: ['Regular Apartments', 'Common Areas', 'Exterior'],
-      selections: {
-        walls: property?.colors_walls || 'SW7029 Agreeable Gray',
-        trim: property?.colors_trim_base_doors || 'SW7006 Extra White',
-        doors: property?.colors_trim_base_doors || 'SW7006 Extra White',
-        ceilings: property?.colors_ceilings || 'Flat White'
-      }
-    },
-    recentJobs: [
-      {
-        id: 'WO#42',
-        unit: '12',
-        type: 'Paint',
-        status: 'Completed',
-        date: '2024-02-25'
-      },
-      {
-        id: 'WO#46',
-        unit: '2/25',
-        type: 'Paint',
-        status: 'In Progress',
-        date: '2024-02-26'
-      }
-    ],
-    notes: [
-      {
-        date: '2/10/25',
-        updateType: 'Test',
-        note: 'Test note update',
-        postedBy: 'Timothy Farzalo'
-      }
-    ]
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -179,7 +192,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     );
   }
 
-  if (!property) {
+  if (!property || !propertyDetails) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className={`text-center ${textColor}`}>
@@ -327,7 +340,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
-                      {Object.entries(property.billing.regular).map(([type, rates]) => (
+                      {Object.entries(propertyDetails.billing.regular).map(([type, rates]) => (
                         <tr key={type}>
                           <td className={`px-4 py-2 ${textColor}`}>{type}</td>
                           <td className={`px-4 py-2 ${textColor}`}>${rates.bill}</td>
@@ -353,7 +366,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
-                      {Object.entries(property.billing.ceiling).map(([type, rates]) => (
+                      {Object.entries(propertyDetails.billing.ceiling).map(([type, rates]) => (
                         <tr key={type}>
                           <td className={`px-4 py-2 ${textColor}`}>{type}</td>
                           <td className={`px-4 py-2 ${textColor}`}>${rates.bill}</td>
@@ -379,7 +392,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
-                      {Object.entries(property.billing.extras).map(([service, rates]) => (
+                      {Object.entries(propertyDetails.billing.extras).map(([service, rates]) => (
                         <tr key={service}>
                           <td className={`px-4 py-2 ${textColor}`}>{service}</td>
                           <td className={`px-4 py-2 ${textColor}`}>${rates.bill}</td>
@@ -416,7 +429,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {property.recentJobs.map((job) => (
+                  {propertyDetails.recentJobs.map((job) => (
                     <tr key={job.id}>
                       <td className={`px-4 py-2 ${textColor}`}>{job.id}</td>
                       <td className={`px-4 py-2 ${textColor}`}>{job.unit}</td>
@@ -459,7 +472,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {property.notes.map((note, index) => (
+                  {propertyDetails.notes.map((note, index) => (
                     <tr key={index}>
                       <td className={`px-4 py-2 ${textColor}`}>{note.date}</td>
                       <td className={`px-4 py-2 ${textColor}`}>{note.updateType}</td>
@@ -480,24 +493,24 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
               <div className="flex items-center justify-between">
                 <span className={mutedTextColor}>Status</span>
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  property.compliance.status === 'Compliant'
+                  propertyDetails.compliance.status === 'Compliant'
                     ? 'bg-green-500/20 text-green-500'
                     : 'bg-red-500/20 text-red-500'
                 }`}>
-                  {property.compliance.status}
+                  {propertyDetails.compliance.status}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className={mutedTextColor}>Last Inspection</span>
-                <span className={textColor}>{property.compliance.lastInspection}</span>
+                <span className={textColor}>{propertyDetails.compliance.lastInspection}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className={mutedTextColor}>COI Status</span>
-                <span className={textColor}>{property.compliance.coiAddress}</span>
+                <span className={textColor}>{propertyDetails.compliance.coiAddress}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className={mutedTextColor}>W9 Status</span>
-                <span className={textColor}>{property.compliance.w9Status}</span>
+                <span className={textColor}>{propertyDetails.compliance.w9Status}</span>
               </div>
             </div>
           </div>
@@ -508,7 +521,7 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
               <div>
                 <h3 className={`text-sm font-medium ${mutedTextColor} mb-2`}>Paint Locations</h3>
                 <div className="flex flex-wrap gap-2">
-                  {property.paintDetails.locations.map((location) => (
+                  {propertyDetails.paintDetails.locations.map((location) => (
                     <span 
                       key={location}
                       className={`px-3 py-1 rounded-full text-xs ${sectionBg} ${textColor}`}
@@ -521,10 +534,10 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
               <div>
                 <h3 className={`text-sm font-medium ${mutedTextColor} mb-2`}>Paint Selections</h3>
                 <div className="space-y-2">
-                  {Object.entries(property.paintDetails.selections).map(([surface, color]) => (
+                  {Object.entries(propertyDetails.paintDetails.selections).map(([surface, color]) => (
                     <div key={surface} className="flex items-center justify-between">
                       <span className={`capitalize ${mutedTextColor}`}>{surface}</span>
-                      <span className={textColor}>{color}</span>
+                      <span className={textColor}>{String(color)}</span>
                     </div>
                   ))}
                 </div>
@@ -536,4 +549,3 @@ export function PropertyDetails({ theme }: PropertyDetailsProps) {
     </div>
   );
 }
-
