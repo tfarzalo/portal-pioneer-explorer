@@ -97,10 +97,17 @@ export const JobInformation = ({
         }
       }
       
-      setHasChanges(false);
-      toast.success('Job updated successfully');
-      if (onSubmitUpdate) {
-        onSubmitUpdate();
+      // Verify that the data was actually updated
+      if (data && data.length > 0) {
+        setHasChanges(false);
+        toast.success('Changes saved successfully');
+        
+        // Call the parent component's onSubmitUpdate if it exists
+        if (onSubmitUpdate) {
+          onSubmitUpdate();
+        }
+      } else {
+        toast.warning('No changes were applied');
       }
     } catch (error) {
       console.error('Error updating job:', error);

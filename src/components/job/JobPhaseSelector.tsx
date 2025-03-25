@@ -17,7 +17,6 @@ export const JobPhaseSelector = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
   const mutedTextColor = theme === 'dark' ? 'text-gray-400' : 'text-gray-500';
-  const inputBg = theme === 'dark' ? 'bg-gray-700' : 'bg-white';
   const borderColor = theme === 'dark' ? 'border-gray-600/40' : 'border-gray-300/70';
   
   const jobPhases: JobPhase[] = [
@@ -44,27 +43,34 @@ export const JobPhaseSelector = ({
     setIsDropdownOpen(false);
   };
 
+  // Get the current phase colors to use for the selected field
+  const currentPhaseColors = JOB_PHASE_COLORS[selectedPhase];
+
   return (
     <div className="relative">
       <h3 className={`font-bold mb-2 ${textColor} text-base`}>JOB STATUS</h3>
       <div 
-        className={`p-2.5 border ${borderColor} rounded-md flex items-center justify-between cursor-pointer ${inputBg} shadow-sm transition-all duration-200 hover:border-gray-400`}
+        className={`p-2.5 border ${borderColor} rounded-md flex items-center justify-between cursor-pointer shadow-sm transition-all duration-200 hover:border-gray-400`}
+        style={{ 
+          backgroundColor: `${currentPhaseColors.bg}20`,  // Using 20% opacity
+          borderColor: currentPhaseColors.bg 
+        }}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        <span className={`${textColor} text-sm`}>{getStatusText(selectedPhase)}</span>
-        <ChevronDown className={mutedTextColor} size={18} />
+        <span className={`${currentPhaseColors.text} text-sm font-medium`}>{getStatusText(selectedPhase)}</span>
+        <ChevronDown className={currentPhaseColors.text} size={18} />
       </div>
       
       {isDropdownOpen && (
-        <div className={`absolute z-10 w-full mt-1 py-1 ${inputBg} border ${borderColor} rounded-md shadow-lg`}>
+        <div className={`absolute z-10 w-full mt-1 py-1 ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${borderColor} rounded-md shadow-lg`}>
           {jobPhases.map((phase) => {
             const phaseColors = JOB_PHASE_COLORS[phase];
             
             return (
               <div
                 key={phase}
-                className={`px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
-                  phase === selectedPhase ? 'bg-gray-700' : ''
+                className={`px-4 py-2 hover:bg-gray-700/20 cursor-pointer flex items-center justify-between ${
+                  phase === selectedPhase ? (theme === 'dark' ? 'bg-gray-700/40' : 'bg-gray-100') : ''
                 }`}
                 onClick={() => handlePhaseChange(phase)}
               >
