@@ -111,7 +111,7 @@ export const JobInformation = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 h-[400px]">
+    <div className="flex flex-col md:flex-row gap-4 h-[420px]">
       <div className="w-full md:w-2/3 h-full">
         {jobData.property_address && (
           <div className="h-full">
