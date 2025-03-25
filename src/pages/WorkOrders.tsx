@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 import { JobPhase } from '../types/workOrder';
 import { formatScheduledDate } from '../utils/formatters';
+import { SortHeader } from '../components/SortHeader';
+import { sortJobs, SortDirection, SortField } from '../utils/sortJobs';
 
 interface WorkOrdersProps {
   theme: 'dark' | 'light';
@@ -39,6 +41,8 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<SortField>('scheduled_date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   useEffect(() => {
     fetchWorkOrders();
@@ -86,15 +90,28 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
     }
   };
 
-  const filteredJobs = jobs.filter(job => {
-    const searchTermLower = searchTerm.toLowerCase();
-    return (
-      job.job_number.toLowerCase().includes(searchTermLower) ||
-      job.property_name.toLowerCase().includes(searchTermLower) ||
-      (job.unit_number && job.unit_number.toLowerCase().includes(searchTermLower)) ||
-      (job.job_type && job.job_type.toLowerCase().includes(searchTermLower))
-    );
-  });
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredAndSortedJobs = sortJobs(
+    jobs.filter(job => {
+      const searchTermLower = searchTerm.toLowerCase();
+      return (
+        job.job_number.toLowerCase().includes(searchTermLower) ||
+        job.property_name.toLowerCase().includes(searchTermLower) ||
+        (job.unit_number && job.unit_number.toLowerCase().includes(searchTermLower)) ||
+        (job.job_type && job.job_type.toLowerCase().includes(searchTermLower))
+      );
+    }),
+    sortField,
+    sortDirection
+  );
 
   const formatJobType = (type: string): string => {
     return type
@@ -141,12 +158,54 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
           <table className="min-w-full divide-y divide-gray-700">
             <thead className={`${sectionBg}`}>
               <tr>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Job #</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Property</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Unit</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Type</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Phase</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Scheduled</th>
+                <SortHeader 
+                  label="Job #" 
+                  field="job_number" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Property" 
+                  field="property_name" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Unit" 
+                  field="unit_number" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Type" 
+                  field="job_type" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Phase" 
+                  field="phase" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Scheduled" 
+                  field="scheduled_date" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
@@ -156,14 +215,14 @@ export function WorkOrders({ theme }: WorkOrdersProps) {
                     Loading work orders...
                   </td>
                 </tr>
-              ) : filteredJobs.length === 0 ? (
+              ) : filteredAndSortedJobs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
                     No work orders found.
                   </td>
                 </tr>
               ) : (
-                filteredJobs.map((job) => (
+                filteredAndSortedJobs.map((job) => (
                   <tr 
                     key={job.id} 
                     onClick={() => handleRowClick(job.id)}

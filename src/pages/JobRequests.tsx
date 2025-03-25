@@ -5,6 +5,9 @@ import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
 import { JobPhaseIndicator } from '../components/JobPhaseIndicator';
 import { JobPhase } from '../types/workOrder';
+import { formatScheduledDate } from '../utils/formatters';
+import { SortHeader } from '../components/SortHeader';
+import { sortJobs, SortDirection, SortField } from '../utils/sortJobs';
 
 interface JobRequestsProps {
   theme: 'dark' | 'light';
@@ -38,6 +41,8 @@ export function JobRequests({ theme }: JobRequestsProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<SortField>('scheduled_date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   useEffect(() => {
     fetchJobRequests();
@@ -85,29 +90,27 @@ export function JobRequests({ theme }: JobRequestsProps) {
     }
   };
 
-  const filteredJobs = jobs.filter(job => {
-    const searchTermLower = searchTerm.toLowerCase();
-    return (
-      job.property_name.toLowerCase().includes(searchTermLower) ||
-      (job.unit_number && job.unit_number.toLowerCase().includes(searchTermLower)) ||
-      (job.job_type && job.job_type.toLowerCase().includes(searchTermLower))
-    );
-  });
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'N/A';
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
     }
   };
+
+  const filteredAndSortedJobs = sortJobs(
+    jobs.filter(job => {
+      const searchTermLower = searchTerm.toLowerCase();
+      return (
+        job.property_name.toLowerCase().includes(searchTermLower) ||
+        (job.unit_number && job.unit_number.toLowerCase().includes(searchTermLower)) ||
+        (job.job_type && job.job_type.toLowerCase().includes(searchTermLower))
+      );
+    }),
+    sortField,
+    sortDirection
+  );
 
   const formatJobType = (type: string): string => {
     return type
@@ -163,11 +166,46 @@ export function JobRequests({ theme }: JobRequestsProps) {
           <table className="min-w-full divide-y divide-gray-700">
             <thead className={`${sectionBg}`}>
               <tr>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Property</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Unit</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Type</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Phase</th>
-                <th className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider ${headerTextColor}`}>Scheduled</th>
+                <SortHeader 
+                  label="Property" 
+                  field="property_name" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Unit" 
+                  field="unit_number" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Type" 
+                  field="job_type" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Phase" 
+                  field="phase" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
+                <SortHeader 
+                  label="Scheduled" 
+                  field="scheduled_date" 
+                  currentSortField={sortField} 
+                  sortDirection={sortDirection} 
+                  onSort={handleSort} 
+                  textColorClass={headerTextColor} 
+                />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
@@ -177,14 +215,14 @@ export function JobRequests({ theme }: JobRequestsProps) {
                     Loading job requests...
                   </td>
                 </tr>
-              ) : filteredJobs.length === 0 ? (
+              ) : filteredAndSortedJobs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className={`px-6 py-4 whitespace-nowrap text-center ${textColor}`}>
                     No job requests found.
                   </td>
                 </tr>
               ) : (
-                filteredJobs.map((job) => (
+                filteredAndSortedJobs.map((job) => (
                   <tr 
                     key={job.id} 
                     onClick={() => handleRowClick(job.id)}
@@ -204,7 +242,7 @@ export function JobRequests({ theme }: JobRequestsProps) {
                       <JobPhaseIndicator phase={job.phase as JobPhase} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`font-medium ${textColor}`}>{formatDate(job.scheduled_date)}</div>
+                      <div className={`font-medium ${textColor}`}>{formatScheduledDate(job.scheduled_date)}</div>
                     </td>
                   </tr>
                 ))
