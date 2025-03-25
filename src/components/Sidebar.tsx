@@ -8,10 +8,8 @@ import {
   ShoppingBag,
   Users,
   Building,
-  BuildingIcon,
-  Wrench,
   FileIcon,
-  Folder as FolderIcon
+  Wrench
 } from "lucide-react";
 import React, { ReactNode, useState } from "react";
 import { useLocation, Link, useNavigate } from 'react-router-dom';
@@ -100,15 +98,15 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
     { 
       title: "JG Management", 
       href: "/jg-management", 
-      icon: <BuildingIcon className="h-5 w-5" /> 
+      icon: <Building className="h-5 w-5" /> 
     },
     { 
       title: "File Management", 
       href: "/files", 
       icon: <FileIcon className="h-5 w-5" />,
       submenu: [
-        { title: "File Manager", href: "/files" },
-        { title: "Add File", href: "/files/add" }
+        { title: "File Manager", href: "/file-manager" },
+        { title: "Add File", href: "/add-file" }
       ]
     },
     { title: "Subcontractors", href: "/subcontractors", icon: <Users className="h-5 w-5" /> },
@@ -170,35 +168,37 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
               >
                 <div className="flex items-center gap-3">
                   {item.icon}
-                  <span className="text-sm font-medium">{item.title}</span>
+                  {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
                 </div>
-                <div className="flex items-center">
-                  {item.badge && (
-                    <span className={`flex items-center justify-center rounded-full ${item.badgeColor} w-5 h-5 text-xs font-semibold text-white mr-2`}>
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.submenu && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  )}
-                </div>
+                {!isCollapsed && (
+                  <div className="flex items-center">
+                    {item.badge && (
+                      <span className={`flex items-center justify-center rounded-full ${item.badgeColor} w-5 h-5 text-xs font-semibold text-white mr-2`}>
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.submenu && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`h-4 w-4 transition-transform ${activeSubmenu === item.title ? 'rotate-90' : ''}`}
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Submenu items */}
-              {item.submenu && activeSubmenu === item.title && (
+              {/* Submenu items - only show if not collapsed */}
+              {!isCollapsed && item.submenu && activeSubmenu === item.title && (
                 <div className="ml-4 space-y-1 pt-1">
                   {item.submenu.map((subItem, subIndex) => (
                     <Link
