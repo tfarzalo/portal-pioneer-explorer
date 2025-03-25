@@ -44,11 +44,13 @@ export const JobInformation = ({
   };
   
   const updateJobType = (type: JobType) => {
+    console.log('Updating job type to:', type);
     setSelectedType(type);
     setHasChanges(true);
   };
   
   const handleDateChange = (newDate: string | null) => {
+    console.log('Updating scheduled date to:', newDate);
     setSelectedDate(newDate);
     setHasChanges(true);
   };
@@ -77,22 +79,24 @@ export const JobInformation = ({
           setIsLoading(false);
           return;
         }
-      }
-      
-      // Then update the job_type and scheduled_date fields
-      const { error } = await supabase
-        .from('jobs')
-        .update({ 
-          job_type: selectedType,
-          scheduled_date: selectedDate
-        })
-        .eq('id', jobData.id);
-        
-      if (error) {
-        console.error('Error updating job details:', error);
-        toast.error('Failed to update job details');
-        setIsLoading(false);
-        return;
+      } else {
+        // If phase didn't change, we still need to update the other fields directly
+        // This is the critical fix - ensuring we update job_type and scheduled_date 
+        // even when the phase doesn't change
+        const { error } = await supabase
+          .from('jobs')
+          .update({ 
+            job_type: selectedType,
+            scheduled_date: selectedDate
+          })
+          .eq('id', jobData.id);
+          
+        if (error) {
+          console.error('Error updating job details:', error);
+          toast.error('Failed to update job details');
+          setIsLoading(false);
+          return;
+        }
       }
       
       setHasChanges(false);

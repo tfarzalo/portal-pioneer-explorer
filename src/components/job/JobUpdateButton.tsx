@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 interface JobUpdateButtonProps {
   onClick: () => void;
   isLoading: boolean;
