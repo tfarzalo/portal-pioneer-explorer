@@ -20,7 +20,7 @@ const JobDetails = ({ theme }: JobDetailsProps) => {
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-200';
   const cardBg = theme === 'dark' ? 'bg-[#1F2230]' : 'bg-white';
 
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const { jobData, loading, fetchJobDetails } = useJobData(id);
   const [showExtraCharges, setShowExtraCharges] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);

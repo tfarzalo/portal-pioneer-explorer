@@ -25,23 +25,17 @@ export const useJobData = (jobId: string | undefined) => {
   const [jobData, setJobData] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (jobId) {
-      fetchJobDetails(jobId);
-    }
-  }, [jobId]);
-
-  const fetchJobDetails = async (jobId: string) => {
+  const fetchJobDetails = async (id: string) => {
     setLoading(true);
     try {
-      console.log('Fetching job details for ID:', jobId);
+      console.log('Fetching job details for ID:', id);
       const { data, error } = await supabase
         .from('jobs')
         .select(`
           *,
           properties (property_name, property_address)
         `)
-        .eq('id', jobId)
+        .eq('id', id)
         .single();
 
       if (error) {
@@ -83,6 +77,12 @@ export const useJobData = (jobId: string | undefined) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (jobId) {
+      fetchJobDetails(jobId);
+    }
+  }, [jobId]);
 
   return { jobData, loading, fetchJobDetails };
 };
